@@ -1,0 +1,294 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Meal } from '../types';
+import { t } from '../i18n';
+
+// --- Asset Imports ---
+const chevronLeftIcon = '/assets/icons/chevron-left.svg';
+const uploadIcon = '/assets/icons/upload-line.svg';
+const minusIcon = '/assets/icons/minus.svg';
+const plusIcon = '/assets/icons/plus.svg';
+const caloriesIconUrl = '/assets/img/calories.png';
+const healthIconUrl = '/assets/img/health-score.png';
+const proteinIconUrl = '/assets/img/protein.png';
+const carbsIconUrl = '/assets/img/carbs.png';
+const fatIconUrl = '/assets/img/fat.png';
+const fiberIconUrl = '/assets/img/fiber.png';
+
+// --- Mock Data for the new design ---
+const MOCK_RESULT_DATA = {
+    name: "Salmon with lemon and greens",
+    description: "A healthy and delicious meal featuring baked salmon, fresh lemon slices, and a side of nutrient-rich greens. Perfect for a light yet satisfying dinner.",
+    timestamp: "Today, 13:41",
+    calories: 741,
+    healthScore: "5/10",
+    macros: {
+        protein: 49,
+        carbs: 45,
+        fat: 44,
+        fiber: 41,
+    },
+};
+
+// --- Helper Components ---
+
+const TopStat: React.FC<{ value: string; label: string; icon: string }> = ({ value, label, icon }) => (
+    <div className="flex flex-col items-start gap-y-4">
+        <span className="text-title-h1 text-label-primary">{value}</span>
+        <div className="flex items-center gap-x-1">
+            <img src={icon} alt="" className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
+            <span className="text-label-md text-label-primary">{label}</span>
+        </div>
+    </div>
+);
+
+const NutrientStat: React.FC<{ value: string; label: string; icon: string }> = ({ value, label, icon }) => (
+    <div className="flex flex-col items-start gap-y-4">
+        <span className="text-title-h3 text-label-primary">{value}</span>
+        <div className="flex items-center gap-x-1">
+            <img src={icon} alt={`${label} icon`} className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
+            <span className="text-label-md text-label-primary">{label}</span>
+        </div>
+    </div>
+);
+
+const SparklesIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.5001 14.2002C17.6818 14.2001 17.8585 14.26 18.0027 14.3705C18.1469 14.4811 18.2506 14.6362 18.2976 14.8118C18.4126 15.2687 18.6492 15.6859 18.9824 16.019C19.3155 16.3522 19.7327 16.5888 20.1896 16.7038C20.3651 16.7508 20.5201 16.8543 20.6308 16.9984C20.7414 17.1425 20.8013 17.3191 20.8013 17.5007C20.8013 17.6824 20.7414 17.859 20.6308 18.0031C20.5201 18.1472 20.3651 18.2507 20.1896 18.2977C19.7327 18.4127 19.3155 18.6493 18.9824 18.9825C18.6492 19.3156 18.4126 19.7328 18.2976 20.1897C18.251 20.3656 18.1475 20.5212 18.0033 20.6323C17.859 20.7433 17.6821 20.8035 17.5001 20.8035C17.3181 20.8035 17.1412 20.7433 16.9969 20.6323C16.8527 20.5212 16.7492 20.3656 16.7026 20.1897C16.5876 19.7328 16.351 19.3156 16.0178 18.9825C15.6847 18.6493 15.2675 18.4127 14.8106 18.2977C14.6347 18.2511 14.4791 18.1476 14.368 18.0034C14.257 17.8591 14.1968 17.6822 14.1968 17.5002C14.1968 17.3182 14.257 17.1413 14.368 16.997C14.4791 16.8528 14.6347 16.7493 14.8106 16.7027C15.2675 16.5877 15.6847 16.3511 16.0178 16.0179C16.351 15.6848 16.5876 15.2676 16.7026 14.8107L16.7499 14.682C16.8157 14.5383 16.9213 14.4164 17.0543 14.331C17.1873 14.2456 17.342 14.2002 17.5001 14.2002ZM9.90011 2.2002C10.1605 2.20032 10.4124 2.29279 10.611 2.46118C10.8096 2.62957 10.942 2.86294 10.9847 3.1198C11.2916 4.9568 11.8812 6.1998 12.7403 7.06C13.5994 7.9191 14.8435 8.5087 16.6805 8.8156C16.9368 8.85894 17.1695 8.99165 17.3373 9.19018C17.505 9.38872 17.5971 9.64026 17.5971 9.9002C17.5971 10.1601 17.505 10.4117 17.3373 10.6102C17.1695 10.8087 16.9368 10.9415 16.6805 10.9848C14.8435 11.2917 13.6005 11.8813 12.7403 12.7404C11.8812 13.5995 11.2916 14.8436 10.9847 16.6806C10.9414 16.9369 10.8087 17.1696 10.6101 17.3373C10.4116 17.5051 10.16 17.5972 9.90011 17.5972C9.64017 17.5972 9.38863 17.5051 9.19009 17.3373C8.99156 17.1696 8.85885 16.9369 8.81551 16.6806C8.50861 14.8436 7.91901 13.6006 7.05991 12.7404C6.20081 11.8813 4.95671 11.2917 3.11971 10.9848C2.86341 10.9415 2.63074 10.8087 2.46296 10.6102C2.29518 10.4117 2.20312 10.1601 2.20312 9.9002C2.20312 9.64026 2.29518 9.38872 2.46296 9.19018C2.63074 8.99165 2.86341 8.85894 3.11971 8.8156C4.95671 8.5087 6.19971 7.9191 7.05991 7.06C7.91901 6.2009 8.50861 4.9568 8.81551 3.1198L8.83531 3.0219C8.89688 2.78643 9.03481 2.57804 9.22749 2.42935C9.42017 2.28066 9.65672 2.20007 9.90011 2.2002Z" />
+    </svg>
+);
+
+
+// --- Main Component ---
+
+interface ResultScreenProps {
+  imageDataUrl: string;
+  onConfirm: (meal: Meal) => void;
+  onRetake: () => void;
+}
+
+export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConfirm, onRetake }) => {
+    const [servingAmount, setServingAmount] = useState(1.0);
+    
+    const handleServingChange = (delta: number) => {
+        setServingAmount(prev => Math.max(1, prev + delta));
+    };
+
+    const displayValues = useMemo(() => {
+        return {
+            calories: Math.round(MOCK_RESULT_DATA.calories * servingAmount),
+            protein: Math.round(MOCK_RESULT_DATA.macros.protein * servingAmount),
+            carbs: Math.round(MOCK_RESULT_DATA.macros.carbs * servingAmount),
+            fat: Math.round(MOCK_RESULT_DATA.macros.fat * servingAmount),
+            fiber: Math.round(MOCK_RESULT_DATA.macros.fiber * servingAmount),
+        };
+    }, [servingAmount]);
+    
+    const handleConfirm = () => {
+        const newMeal: Meal = {
+            id: new Date().toISOString(),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+            imageUrl: imageDataUrl,
+            name: MOCK_RESULT_DATA.name,
+            calories: displayValues.calories,
+            macros: {
+                protein: displayValues.protein,
+                carbs: displayValues.carbs,
+                fat: displayValues.fat,
+            }
+        };
+        onConfirm(newMeal);
+    };
+
+    useEffect(() => {
+        // --- Non-Nutrient Card Logs ---
+        const img = document.getElementById('food-image');
+        if(img) { console.log(`Acceptance: Image size reports ~130x130 -> ${img.clientWidth}x${img.clientHeight}`); }
+        const desc = document.querySelector('.description-text');
+        if (desc) { console.log(`Acceptance: Description block truncates at 3 lines with ellipsis ->`, window.getComputedStyle(desc).webkitLineClamp === '3'); }
+        const picker = document.querySelector('.serving-picker');
+        if (picker) { console.log(`Acceptance: Picker container 40px height -> ${picker.clientHeight}px`); }
+        const pickerButtons = document.querySelectorAll('.serving-picker button');
+        if(pickerButtons.length) { const btn = pickerButtons[0] as HTMLElement; console.log(`Acceptance: Picker buttons are 32x32 -> ${btn.clientWidth}x${btn.clientHeight}`); }
+        const pickerValue = document.querySelector('.serving-picker-value');
+        if (pickerValue) { console.log(`Acceptance: Picker value text uses label/lg ->`, window.getComputedStyle(pickerValue).fontSize === '17px'); }
+
+        // --- Nutrients Card Acceptance Logs ---
+        const nutrientCard = document.querySelector('.nutrients-card');
+        if (nutrientCard) {
+            const topValues = nutrientCard.querySelectorAll('.grid > div > .text-title-h1');
+            if (topValues.length) { console.log(`Acceptance: Top values use title/h1 -> font-size: ${window.getComputedStyle(topValues[0]).fontSize}`); }
+
+            const divider = nutrientCard.querySelector('.my-\\[1\\.25rem\\]');
+            if (divider) { const style = window.getComputedStyle(divider); console.log(`Acceptance: Divider exists between top and bottom areas with 20px padding above and below -> margin-top: ${style.marginTop}, margin-bottom: ${style.marginBottom}`); }
+
+            const bottomGrid = nutrientCard.querySelector('.nutrient-grid');
+            if(bottomGrid) {
+                const style = window.getComputedStyle(bottomGrid);
+                console.log(`Acceptance: Console shows grid with 2 columns and row-gap 16px -> columns: ${style.gridTemplateColumns}, row-gap: ${style.rowGap}`);
+                
+                const bottomValues = bottomGrid.querySelectorAll('.text-title-h4');
+                if (bottomValues.length) { console.log(`Acceptance: Bottom values use title/h4 -> font-size: ${window.getComputedStyle(bottomValues[0]).fontSize}`); }
+                
+                const iconContainers = bottomGrid.querySelectorAll('.flex.items-center.gap-x-1');
+                iconContainers.forEach((container, index) => {
+                    const icon = container.querySelector('img');
+                    if (icon) { 
+                        const imgElement = icon as HTMLImageElement;
+                        console.log(`Acceptance: Nutrient icon ${index + 1} -> src: ${imgElement.src}, width: ${icon.clientWidth}px, height: ${icon.clientHeight}px`);
+                        if (!imgElement.complete || imgElement.naturalWidth === 0) {
+                            console.log(`Warning: Icon ${index + 1} failed to load or is not visible`);
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Check if all icons are loading correctly
+        const allIcons = document.querySelectorAll('img.w-5.h-5');
+        allIcons.forEach((icon, index) => {
+            const imgElement = icon as HTMLImageElement;
+            console.log(`Icon ${index + 1}: src=${imgElement.src}, complete=${imgElement.complete}, naturalWidth=${imgElement.naturalWidth}`);
+        });
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
+            <header className="h-[3rem] px-4 flex items-center justify-between flex-shrink-0">
+                <button onClick={onRetake} className="p-2 -ml-2">
+                    <img src={chevronLeftIcon} alt="Back" className="w-6 h-6" />
+                </button>
+                <h1 className="text-title-h3 text-label-primary">{t('app_name')}</h1>
+                <button className="p-2 -mr-2">
+                    <img src={uploadIcon} alt="Share" className="w-6 h-6" />
+                </button>
+            </header>
+
+            <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
+                <section className="flex items-center gap-x-4 mb-5">
+                    <img id="food-image" src={imageDataUrl} alt={MOCK_RESULT_DATA.name} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
+                    <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
+                        <p className="description-text text-label-sm text-label-primary line-clamp-3">
+                            {MOCK_RESULT_DATA.description}
+                        </p>
+                    </div>
+                </section>
+
+                <section className="mb-5">
+                    <h2 className="text-title-h3 text-label-primary">{MOCK_RESULT_DATA.name}</h2>
+                    <p className="text-body-md text-label-secondary mt-1">{MOCK_RESULT_DATA.timestamp}</p>
+                </section>
+                
+                <section className="flex justify-between items-center mb-5">
+                    <span className="text-label-lg text-label-primary">Serving amount</span>
+                    <div 
+                        className="serving-picker"
+                        style={{
+                            width: '7rem',
+                            height: '2.5rem',
+                            background: 'var(--bg-fill)',
+                            borderRadius: '0.875rem',
+                            display: 'grid',
+                            alignItems: 'center',
+                            gridTemplateColumns: '0.25rem 2rem 0.125rem 2.375rem 0.125rem 2rem 0.25rem',
+                            gap: '0',
+                            padding: '0',
+                            boxSizing: 'content-box'
+                        }}
+                    >
+                        <div></div>
+                        <button 
+                            onClick={() => handleServingChange(-1)}
+                            className="pickerBtn"
+                            style={{
+                                width: '2rem',
+                                height: '2rem',
+                                borderRadius: '0.625rem',
+                                background: 'var(--bg-elevation)',
+                                display: 'grid',
+                                placeItems: 'center',
+                                flex: 'none',
+                                margin: '0',
+                                padding: '0',
+                                boxSizing: 'content-box'
+                            }}
+                            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <img src={minusIcon} alt="Decrease serving" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--label-primary)' }} />
+                        </button>
+                        <div></div>
+                        <div 
+                            className="pickerValue"
+                            style={{
+                                width: '2.375rem',
+                                textAlign: 'center',
+                                lineHeight: '2.5rem',
+                                typography: 'label/lg',
+                                color: 'var(--label-primary)',
+                                padding: '0',
+                                margin: '0',
+                                flex: 'none',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {Math.round(servingAmount)}
+                        </div>
+                        <div></div>
+                        <button 
+                            onClick={() => handleServingChange(1)}
+                            className="pickerBtn"
+                            style={{
+                                width: '2rem',
+                                height: '2rem',
+                                borderRadius: '0.625rem',
+                                background: 'var(--bg-elevation)',
+                                display: 'grid',
+                                placeItems: 'center',
+                                flex: 'none',
+                                margin: '0',
+                                padding: '0',
+                                boxSizing: 'content-box'
+                            }}
+                            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            <img src={plusIcon} alt="Increase serving" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--label-primary)' }} />
+                        </button>
+                        <div></div>
+                    </div>
+                </section>
+                
+                <section className="nutrients-card bg-bg-elevation border border-stroke-non-opaque rounded-[1.5rem] p-[1.25rem]">
+                    {/* Top Area */}
+                    <div className="grid grid-cols-2 gap-x-[1.25rem]">
+                         <TopStat value={String(displayValues.calories)} label="Calories" icon={caloriesIconUrl} />
+                         <TopStat value={MOCK_RESULT_DATA.healthScore} label="Health score" icon={healthIconUrl} />
+                    </div>
+                    
+                    {/* Divider */}
+                    <div className="my-[1.25rem] h-[0.125rem]" style={{ display: 'block', width: '100%', backgroundColor: '#B4B8CC', opacity: 0.28 }}></div>
+
+                    {/* Bottom Area */}
+                    <div className="nutrient-grid grid grid-cols-2 gap-x-[1.25rem] gap-y-[1rem]">
+                        <NutrientStat value={`${displayValues.protein}g`} label="Protein" icon={proteinIconUrl} />
+                        <NutrientStat value={`${displayValues.carbs}g`} label="Carbs" icon={carbsIconUrl} />
+                        <NutrientStat value={`${displayValues.fat}g`} label="Fat" icon={fatIconUrl} />
+                        <NutrientStat value={`${displayValues.fiber}g`} label="Fiber" icon={fiberIconUrl} />
+                    </div>
+                </section>
+                
+                <div className="mt-auto pt-5 flex justify-center">
+                    <button
+                        onClick={handleConfirm}
+                        className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
+                    >
+                        <SparklesIcon className="w-6 h-6 text-label-opposite" />
+                        <span className="text-label-lg text-label-opposite">Done</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+    );
+};

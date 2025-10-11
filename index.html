@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ovqat AI</title>
+  <link rel="stylesheet" href="/styles/globals.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-base': 'var(--bg-base)',
+            'bg-surface': 'var(--bg-elevation)',
+            'label-primary': 'var(--label-primary)',
+            'label-secondary': 'var(--label-secondary)',
+            'label-tertiary': 'var(--label-secondary)',
+            'label-on-accent': 'var(--static-white)',
+            'accent-green': 'var(--colors-green)',
+            'accent-protein': 'var(--colors-violet)',
+            'accent-carbs': 'var(--colors-orange)',
+            'accent-fat': 'var(--colors-blue)',
+            'accent-error': 'var(--colors-red)',
+            'overlay-dark': 'rgba(0,0,0,0.4)',
+          },
+          boxShadow: {
+            '1': '0 4px 12px rgba(0,0,0,0.08)',
+            'focus-ring': '0 0 0 4px var(--colors-green-50)',
+          },
+          borderRadius: {
+            'lg': '12px',
+            'xl': '16px',
+            '2xl': '20px',
+            'full': '9999px',
+          }
+        },
+      },
+    }
+  </script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-bg-base text-label-primary">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

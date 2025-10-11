@@ -1,0 +1,7 @@
+{
+  "name": "Ovqat AI",
+  "description": "An AI-powered nutrition web app that lets you track your meals by taking a photo of your food. It helps you monitor your daily calorie and macronutrient intake with a simple, mobile-first interface.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

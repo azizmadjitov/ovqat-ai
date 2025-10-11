@@ -1,0 +1,135 @@
+{
+    "collections": [
+        {
+            "name": "Theme",
+            "modes": [
+                "Light",
+                "Dark"
+            ],
+            "variables": {
+                "label": {
+                    "primary": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(38, 38, 51, 1.00)",
+                            "Dark": "rgba(255, 255, 255, 1.00)"
+                        }
+                    },
+                    "secondary": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(51, 62, 77, 0.64)",
+                            "Dark": "rgba(255, 255, 255, 0.56)"
+                        }
+                    },
+                    "opposite": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(255, 255, 255, 1.00)",
+                            "Dark": "rgba(38, 38, 51, 1.00)"
+                        }
+                    }
+                },
+                "bg": {
+                    "base": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(255, 255, 255, 1.00)",
+                            "Dark": "rgba(14, 14, 16, 1.00)"
+                        }
+                    },
+                    "underlayer": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(239, 241, 245, 1.00)",
+                            "Dark": "rgba(0, 0, 0, 1.00)"
+                        }
+                    },
+                    "fill": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(180, 184, 204, 0.14)",
+                            "Dark": "rgba(39, 39, 43, 1.00)"
+                        }
+                    },
+                    "elevation": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(255, 255, 255, 1.00)",
+                            "Dark": "rgba(24, 24, 26, 1.00)"
+                        }
+                    }
+                },
+                "stroke": {
+                    "non-opaque": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(180, 184, 204, 0.28)",
+                            "Dark": "rgba(250, 250, 255, 0.08)"
+                        }
+                    }
+                },
+                "static": {
+                    "white": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(255, 255, 255, 1.00)",
+                            "Dark": "rgba(255, 255, 255, 1.00)"
+                        }
+                    },
+                    "black": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(38, 38, 51, 1.00)",
+                            "Dark": "rgba(38, 38, 51, 1.00)"
+                        }
+                    }
+                },
+                "colors": {
+                    "red": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(239, 68, 68, 1.00)",
+                            "Dark": "rgba(239, 68, 68, 1.00)"
+                        }
+                    },
+                    "green": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(62, 211, 79, 1.00)",
+                            "Dark": "rgba(62, 211, 79, 1.00)"
+                        }
+                    },
+                    "orange": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(255, 167, 1, 1.00)",
+                            "Dark": "rgba(255, 167, 1, 1.00)"
+                        }
+                    },
+                    "violet": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(144, 100, 245, 1.00)",
+                            "Dark": "rgba(144, 100, 245, 1.00)"
+                        }
+                    },
+                    "ocean": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(68, 193, 162, 1.00)",
+                            "Dark": "rgba(68, 193, 162, 1.00)"
+                        }
+                    },
+                    "blue": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(64, 174, 253, 1.00)",
+                            "Dark": "rgba(64, 174, 253, 1.00)"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

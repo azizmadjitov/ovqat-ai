@@ -1,0 +1,17 @@
+import React from 'react';
+import { CameraSparklesIcon } from '../Icons';
+
+interface FabCameraProps {
+    onClick: () => void;
+}
+
+export const FabCamera: React.FC<FabCameraProps> = ({ onClick }) => (
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
+        <button 
+            onClick={onClick}
+            className="bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] rounded-full p-5 shadow-1 transform active:scale-95 transition-transform focus:outline-none focus:ring-4 focus:ring-[#FFC3EB]/50"
+            aria-label="Add new meal">
+          <CameraSparklesIcon className="w-8 h-8 text-label-primary" />
+        </button>
+    </div>
+);
