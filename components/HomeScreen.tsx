@@ -11,9 +11,10 @@ interface HomeScreenProps {
   meals: Meal[];
   dailyGoal: DailyGoal;
   onOpenCamera: () => void;
+  onMealClick: (meal: Meal) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpenCamera }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpenCamera, onMealClick }) => {
     // Get today's date in YYYY-MM-DD format
     const getTodayDate = () => new Date().toISOString().split('T')[0];
     
@@ -55,7 +56,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
           goalMacros={dailyGoal.macros} 
         />
 
-        <RecentlyLoggedList meals={mealsForSelectedDate} />
+        <RecentlyLoggedList meals={mealsForSelectedDate} onMealClick={onMealClick} />
       </main>
       
       {isSelectedDateTodayOrFuture && <FabCamera onClick={onOpenCamera} />}

@@ -42,6 +42,7 @@ const App: React.FC = () => {
     }, [meals]);
     
     const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
+    const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
 
     const handleOpenCamera = () => {
         console.log('Navigating to Camera screen');
@@ -71,6 +72,20 @@ const App: React.FC = () => {
         console.log('Meal confirmed, navigating to Home screen');
         setMeals(prevMeals => [...prevMeals, newMeal]);
         setCapturedImage(null);
+        setViewingMeal(null);
+        setCurrentScreen(Screen.Home);
+    };
+    
+    const handleMealClick = (meal: Meal) => {
+        console.log('Meal clicked, opening Result screen for viewing:', meal);
+        setViewingMeal(meal);
+        setCurrentScreen(Screen.Result);
+    };
+    
+    const handleBackFromResult = () => {
+        console.log('Back from Result screen, navigating to Home screen');
+        setCapturedImage(null);
+        setViewingMeal(null);
         setCurrentScreen(Screen.Home);
     };
 
@@ -78,21 +93,26 @@ const App: React.FC = () => {
         console.log('Rendering screen:', currentScreen);
         switch (currentScreen) {
             case Screen.Home:
-                return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} />;
+                return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
             case Screen.Camera:
                 return <CameraScreen onPhotoTaken={handlePhotoTaken} onCancel={handleCancelCamera} />;
             case Screen.Result:
-                console.log('Rendering Result screen with image:', !!capturedImage);
+                // If viewing an existing meal, show it in view-only mode
+                if (viewingMeal) {
+                    console.log('Rendering Result screen for viewing meal:', viewingMeal);
+                    return <ResultScreen existingMeal={viewingMeal} onBack={handleBackFromResult} />;
+                }
+                // If adding a new meal, show the normal flow
                 if (capturedImage) {
-                    console.log('Captured image URL length:', capturedImage.dataUrl.length);
+                    console.log('Rendering Result screen with new image:', capturedImage.dataUrl.length);
                     return <ResultScreen imageDataUrl={capturedImage.dataUrl} imageFile={capturedImage.file} onConfirm={handleConfirmMeal} onRetake={handleRetake} />;
                 }
-                // Fallback to home if no image
-                console.log('No captured image, falling back to Home screen');
+                // Fallback to home if no image or meal
+                console.log('No captured image or meal, falling back to Home screen');
                 setCurrentScreen(Screen.Home);
                 return null;
             default:
-                return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} />;
+                return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
         }
     };
     

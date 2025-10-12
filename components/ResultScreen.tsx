@@ -48,26 +48,71 @@ import { analyzeMeal, NutritionResult } from '../src/services/nutrition';
 // --- Main Component ---
 
 interface ResultScreenProps {
-  imageDataUrl: string;
+  // For viewing existing meal
+  existingMeal?: Meal;
+  onBack?: () => void;
+  // For adding new meal
+  imageDataUrl?: string;
   imageFile?: File;
-  onConfirm: (meal: Meal) => void;
-  onRetake: () => void;
+  onConfirm?: (meal: Meal) => void;
+  onRetake?: () => void;
 }
 
-export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageFile, onConfirm, onRetake }) => {
+export const ResultScreen: React.FC<ResultScreenProps> = ({ 
+    existingMeal,
+    onBack,
+    imageDataUrl, 
+    imageFile, 
+    onConfirm, 
+    onRetake 
+}) => {
+    const isViewMode = !!existingMeal;
+    
     const [servingAmount, setServingAmount] = useState(1.0);
     const [nutritionData, setNutritionData] = useState<NutritionResult | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!isViewMode); // Don't load if viewing existing meal
     const [error, setError] = useState<string | null>(null);
-    const [timestamp] = useState(new Date().toLocaleString('en-US', { 
-        weekday: 'long', 
-        hour: '2-digit', 
-        minute: '2-digit',
-        hour12: false 
-    }));
+    const [timestamp] = useState(
+        existingMeal 
+            ? new Date(existingMeal.id).toLocaleString('en-US', { 
+                weekday: 'long', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+              })
+            : new Date().toLocaleString('en-US', { 
+                weekday: 'long', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+              })
+    );
     
-    // Load nutrition data when component mounts
+    // Initialize nutrition data from existing meal if in view mode
     useEffect(() => {
+        if (isViewMode && existingMeal) {
+            setNutritionData({
+                title: existingMeal.name,
+                description: '', // We don't have description in stored meals
+                takenAtISO: existingMeal.id,
+                calories: existingMeal.calories,
+                protein_g: existingMeal.macros.protein,
+                carbs_g: existingMeal.macros.carbs,
+                fat_g: existingMeal.macros.fat,
+                fiber_g: existingMeal.macros.fiber || 0,
+                healthScore_10: 7, // Default score since we don't store it
+            });
+            setLoading(false);
+        }
+    }, [isViewMode, existingMeal]);
+    
+    // Load nutrition data when component mounts (only for new meals)
+    useEffect(() => {
+        // Skip loading if in view mode
+        if (isViewMode) {
+            return;
+        }
+        
         const loadNutritionData = async () => {
             try {
                 setLoading(true);
@@ -200,6 +245,15 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageF
     const handleConfirm = () => {
         if (!nutritionData) return;
         
+        // In view mode, just go back
+        if (isViewMode && onBack) {
+            onBack();
+            return;
+        }
+        
+        // In add mode, create new meal
+        if (!onConfirm || !imageDataUrl) return;
+        
         const now = new Date();
         const newMeal: Meal = {
             id: now.toISOString(),
@@ -220,7 +274,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageF
     return (
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
             <header className="h-[3rem] px-4 flex items-center justify-between flex-shrink-0">
-                <button onClick={onRetake} className="p-2 -ml-2">
+                <button onClick={isViewMode ? onBack : onRetake} className="p-2 -ml-2">
                     <img src={chevronLeftIcon} alt="Back" className="w-6 h-6" />
                 </button>
                 <h1 className="text-title-h3 text-label-primary">{t('app_name')}</h1>
@@ -231,12 +285,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageF
 
             <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
-                    <img id="food-image" src={imageDataUrl} alt={nutritionData.title} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
-                    <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
-                        <p className="description-text text-label-sm text-label-primary line-clamp-3">
-                            {nutritionData.description}
-                        </p>
-                    </div>
+                    <img id="food-image" src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} alt={nutritionData.title} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
+                    {nutritionData.description && (
+                        <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
+                            <p className="description-text text-label-sm text-label-primary line-clamp-3">
+                                {nutritionData.description}
+                            </p>
+                        </div>
+                    )}
                 </section>
 
                 <section className="mb-5">
@@ -344,15 +400,17 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageF
                     </div>
                 </section>
                 
-                <div className="mt-auto pt-5 flex justify-center">
-                    <button
-                        onClick={handleConfirm}
-                        className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
-                    >
-                        <SparklesIcon className="w-6 h-6 text-label-opposite" />
-                        <span className="text-label-lg text-label-opposite">Done</span>
-                    </button>
-                </div>
+                {!isViewMode && (
+                    <div className="mt-auto pt-5 flex justify-center">
+                        <button
+                            onClick={handleConfirm}
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
+                        >
+                            <SparklesIcon className="w-6 h-6 text-label-opposite" />
+                            <span className="text-label-lg text-label-opposite">Done</span>
+                        </button>
+                    </div>
+                )}
             </main>
         </div>
     );
