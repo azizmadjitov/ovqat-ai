@@ -20,7 +20,27 @@ const App: React.FC = () => {
     }, []);
 
     const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
-    const [meals, setMeals] = useState<Meal[]>([]);
+    
+    // Load meals from localStorage on mount
+    const [meals, setMeals] = useState<Meal[]>(() => {
+        try {
+            const savedMeals = localStorage.getItem('ovqat-meals');
+            return savedMeals ? JSON.parse(savedMeals) : [];
+        } catch (error) {
+            console.error('Failed to load meals from localStorage:', error);
+            return [];
+        }
+    });
+    
+    // Save meals to localStorage whenever they change
+    useEffect(() => {
+        try {
+            localStorage.setItem('ovqat-meals', JSON.stringify(meals));
+        } catch (error) {
+            console.error('Failed to save meals to localStorage:', error);
+        }
+    }, [meals]);
+    
     const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
 
     const handleOpenCamera = () => {

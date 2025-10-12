@@ -200,9 +200,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageF
     const handleConfirm = () => {
         if (!nutritionData) return;
         
+        const now = new Date();
         const newMeal: Meal = {
-            id: new Date().toISOString(),
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+            id: now.toISOString(),
+            time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+            date: now.toISOString().split('T')[0], // YYYY-MM-DD format
             imageUrl: imageDataUrl,
             name: nutritionData.title,
             calories: displayValues.calories,

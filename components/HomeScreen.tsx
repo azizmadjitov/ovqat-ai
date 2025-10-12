@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Meal, DailyGoal } from '../types';
 import { Header } from './home/Header';
 import { MacroCard } from './home/MacroCard';
@@ -14,8 +14,16 @@ interface HomeScreenProps {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpenCamera }) => {
-    const consumedCalories = meals.reduce((sum, meal) => sum + meal.calories, 0);
-    const consumedMacros = meals.reduce((sum, meal) => ({
+    // Get today's date in YYYY-MM-DD format
+    const getTodayDate = () => new Date().toISOString().split('T')[0];
+    
+    const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
+    
+    // Filter meals for the selected date
+    const mealsForSelectedDate = meals.filter(meal => meal.date === selectedDate);
+    
+    const consumedCalories = mealsForSelectedDate.reduce((sum, meal) => sum + meal.calories, 0);
+    const consumedMacros = mealsForSelectedDate.reduce((sum, meal) => ({
         protein: sum.protein + meal.macros.protein,
         fat: sum.fat + meal.macros.fat,
         carbs: sum.carbs + meal.macros.carbs,
@@ -27,7 +35,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
     <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
       <Header />
       <div className="calendar px-4">
-          <CalendarStrip />
+          <CalendarStrip 
+            meals={meals} 
+            dailyGoalCalories={dailyGoal.calories}
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+          />
       </div>
       
       <main className="flex-1 flex flex-col items-center px-6 pt-4">
@@ -38,7 +51,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
           goalMacros={dailyGoal.macros} 
         />
 
-        <RecentlyLoggedList meals={meals} />
+        <RecentlyLoggedList meals={mealsForSelectedDate} />
       </main>
       
       <FabCamera onClick={onOpenCamera} />
