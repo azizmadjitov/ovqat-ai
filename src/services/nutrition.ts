@@ -475,8 +475,11 @@ Calculate nutrition dynamically from visual evidence.
 Never use pre-programmed templates or hardcoded values.  
 Be accurate, globally aware, honest about confidence, and provide realistic estimations.`;
     
-    console.log('Calling OpenAI API with labels:', labels);
-    console.log('Calling OpenAI API with OCR text:', ocrText);
+    console.log('🔍 === FOOD IDENTIFICATION DEBUG ===');
+    console.log('📋 Google Vision Labels:', labels);
+    console.log('📝 OCR Text:', ocrText);
+    console.log('🌍 Regional Hints:', input.hints);
+    console.log('📊 Input Object:', JSON.stringify(input, null, 2));
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -506,14 +509,21 @@ Be accurate, globally aware, honest about confidence, and provide realistic esti
     }
     
     const data = await response.json();
-    console.log('OpenAI API response data:', data);
+    console.log('🤖 OpenAI Raw Response:', data);
     const content = data?.choices?.[0]?.message?.content || '{}';
-    console.log('OpenAI API response content:', content);
+    console.log('📄 OpenAI JSON Content:', content);
     
     // Try to parse JSON directly
     try {
       const parsed = JSON.parse(content);
-      console.log('Parsed JSON from OpenAI:', parsed);
+      console.log('✅ Parsed AI Result:', {
+        title: parsed.title,
+        confidence: parsed.confidence,
+        description: parsed.description?.substring(0, 100) + '...',
+        calories: parsed.nutrition?.calories,
+        healthScore: parsed.healthScore
+      });
+      console.log('🎯 Full Parsed JSON:', parsed);
       
       // Convert the new response format to our NutritionResult format
       const nutritionResult: NutritionResult = {
