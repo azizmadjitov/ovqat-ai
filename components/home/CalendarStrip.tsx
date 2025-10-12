@@ -65,8 +65,11 @@ const DayItem: React.FC<DayItemProps> = ({ dayData, isSelected, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-1 h-full p-1 rounded-lg focus:outline-none focus:ring-2 ring-accent-green ring-offset-1 ring-offset-bg-base"
-      aria-label={`Day ${day}, ${weekday}${isToday ? ' (today)' : ''}`}
+      disabled={isFuture}
+      className={`flex flex-col items-center justify-center gap-1 h-full p-1 rounded-lg focus:outline-none focus:ring-2 ring-accent-green ring-offset-1 ring-offset-bg-base ${
+        isFuture ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+      }`}
+      aria-label={`Day ${day}, ${weekday}${isToday ? ' (today)' : ''}${isFuture ? ' (future)' : ''}`}
     >
       <div
         className={`w-[1.75rem] h-[1.75rem] flex items-center justify-center rounded-full transition-colors ${

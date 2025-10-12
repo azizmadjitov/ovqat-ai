@@ -19,6 +19,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
     
     const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
     
+    // Check if selected date is today or in the future
+    const todayDate = getTodayDate();
+    const isSelectedDateTodayOrFuture = selectedDate >= todayDate;
+    
     // Filter meals for the selected date
     const mealsForSelectedDate = meals.filter(meal => meal.date === selectedDate);
     
@@ -54,7 +58,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
         <RecentlyLoggedList meals={mealsForSelectedDate} />
       </main>
       
-      <FabCamera onClick={onOpenCamera} />
+      {isSelectedDateTodayOrFuture && <FabCamera onClick={onOpenCamera} />}
     </div>
   );
 };
