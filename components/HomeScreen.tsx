@@ -18,7 +18,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
         protein: sum.protein + meal.macros.protein,
         fat: sum.fat + meal.macros.fat,
         carbs: sum.carbs + meal.macros.carbs,
-    }), { protein: 0, fat: 0, carbs: 0 });
+        // Fiber is not displayed in the main UI, but we'll calculate it for completeness
+        fiber: (sum.fiber || 0) + (meal.macros.fiber || 0),
+    }), { protein: 0, fat: 0, carbs: 0, fiber: 0 });
 
   return (
     <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">

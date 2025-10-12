@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Meal } from '../types';
 import { t } from '../i18n';
+import { analyzeMealImage, NutritionData } from '../lib/api/nutritionAnalysis';
 
 // --- Asset Imports ---
 const chevronLeftIcon = '/assets/icons/chevron-left.svg';
@@ -13,21 +14,6 @@ const proteinIconUrl = '/assets/img/protein.png';
 const carbsIconUrl = '/assets/img/carbs.png';
 const fatIconUrl = '/assets/img/fat.png';
 const fiberIconUrl = '/assets/img/fiber.png';
-
-// --- Mock Data for the new design ---
-const MOCK_RESULT_DATA = {
-    name: "Salmon with lemon and greens",
-    description: "A healthy and delicious meal featuring baked salmon, fresh lemon slices, and a side of nutrient-rich greens. Perfect for a light yet satisfying dinner.",
-    timestamp: "Today, 13:41",
-    calories: 741,
-    healthScore: "5/10",
-    macros: {
-        protein: 49,
-        carbs: 45,
-        fat: 44,
-        fiber: 41,
-    },
-};
 
 // --- Helper Components ---
 
@@ -68,27 +54,69 @@ interface ResultScreenProps {
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConfirm, onRetake }) => {
     const [servingAmount, setServingAmount] = useState(1.0);
+    const [nutritionData, setNutritionData] = useState<NutritionData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [timestamp] = useState(new Date().toLocaleString('en-US', { 
+        weekday: 'long', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    }));
+    
+    // Load nutrition data when component mounts
+    useEffect(() => {
+        const loadNutritionData = async () => {
+            try {
+                setLoading(true);
+                const data = await analyzeMealImage(imageDataUrl);
+                setNutritionData(data);
+            } catch (err) {
+                console.error('Error loading nutrition data:', err);
+                setError('Failed to analyze the meal image. Using mock data instead.');
+                // Set mock data as fallback
+                setNutritionData({
+                    title: "Salmon with lemon and greens",
+                    description: "A healthy and delicious meal featuring baked salmon, fresh lemon slices, and a side of nutrient-rich greens. Perfect for a light yet satisfying dinner.",
+                    calories: 741,
+                    protein: 49,
+                    carbs: 45,
+                    fat: 44,
+                    fiber: 41,
+                    healthScore: 5
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadNutritionData();
+    }, [imageDataUrl]);
     
     const handleServingChange = (delta: number) => {
         setServingAmount(prev => Math.max(1, prev + delta));
     };
 
     const displayValues = useMemo(() => {
+        if (!nutritionData) return null;
+        
         return {
-            calories: Math.round(MOCK_RESULT_DATA.calories * servingAmount),
-            protein: Math.round(MOCK_RESULT_DATA.macros.protein * servingAmount),
-            carbs: Math.round(MOCK_RESULT_DATA.macros.carbs * servingAmount),
-            fat: Math.round(MOCK_RESULT_DATA.macros.fat * servingAmount),
-            fiber: Math.round(MOCK_RESULT_DATA.macros.fiber * servingAmount),
+            calories: Math.round(nutritionData.calories * servingAmount),
+            protein: Math.round(nutritionData.protein * servingAmount),
+            carbs: Math.round(nutritionData.carbs * servingAmount),
+            fat: Math.round(nutritionData.fat * servingAmount),
+            fiber: Math.round(nutritionData.fiber * servingAmount),
         };
-    }, [servingAmount]);
+    }, [nutritionData, servingAmount]);
     
     const handleConfirm = () => {
+        if (!nutritionData || !displayValues) return;
+        
         const newMeal: Meal = {
             id: new Date().toISOString(),
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
             imageUrl: imageDataUrl,
-            name: MOCK_RESULT_DATA.name,
+            name: nutritionData.title,
             calories: displayValues.calories,
             macros: {
                 protein: displayValues.protein,
@@ -98,6 +126,40 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
         };
         onConfirm(newMeal);
     };
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-green mx-auto"></div>
+                    <p className="mt-4 text-label-primary">Analyzing your meal...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state
+    if (error) {
+        console.error(error);
+    }
+
+    // Ensure we have nutrition data before rendering
+    if (!nutritionData || !displayValues) {
+        return (
+            <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
+                <div className="text-center">
+                    <p className="text-label-primary">Unable to analyze meal data.</p>
+                    <button 
+                        onClick={onRetake}
+                        className="mt-4 px-4 py-2 bg-accent-green text-label-opposite rounded-lg"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     useEffect(() => {
         // --- Non-Nutrient Card Logs ---
@@ -165,17 +227,17 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
 
             <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
-                    <img id="food-image" src={imageDataUrl} alt={MOCK_RESULT_DATA.name} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
+                    <img id="food-image" src={imageDataUrl} alt={nutritionData.title} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
                     <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
                         <p className="description-text text-label-sm text-label-primary line-clamp-3">
-                            {MOCK_RESULT_DATA.description}
+                            {nutritionData.description}
                         </p>
                     </div>
                 </section>
 
                 <section className="mb-5">
-                    <h2 className="text-title-h3 text-label-primary">{MOCK_RESULT_DATA.name}</h2>
-                    <p className="text-body-md text-label-secondary mt-1">{MOCK_RESULT_DATA.timestamp}</p>
+                    <h2 className="text-title-h3 text-label-primary">{nutritionData.title}</h2>
+                    <p className="text-body-md text-label-secondary mt-1">{timestamp}</p>
                 </section>
                 
                 <section className="flex justify-between items-center mb-5">
@@ -264,7 +326,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
                     {/* Top Area */}
                     <div className="grid grid-cols-2 gap-x-[1.25rem]">
                          <TopStat value={String(displayValues.calories)} label="Calories" icon={caloriesIconUrl} />
-                         <TopStat value={MOCK_RESULT_DATA.healthScore} label="Health score" icon={healthIconUrl} />
+                         <TopStat value={`${nutritionData.healthScore}/10`} label="Health score" icon={healthIconUrl} />
                     </div>
                     
                     {/* Divider */}

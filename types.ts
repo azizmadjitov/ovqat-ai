@@ -1,4 +1,3 @@
-
 export enum Screen {
   Home = 'HOME',
   Camera = 'CAMERA',
@@ -9,6 +8,7 @@ export interface Macros {
   protein: number;
   fat: number;
   carbs: number;
+  fiber?: number; // Optional for backward compatibility
 }
 
 export interface Meal {
