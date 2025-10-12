@@ -18,7 +18,7 @@ const fiberIconUrl = '/assets/img/fiber.png';
 // --- Helper Components ---
 
 const TopStat: React.FC<{ value: string; label: string; icon: string }> = ({ value, label, icon }) => (
-    <div className="flex flex-col items-start gap-y-4">
+    <div className="flex flex-col items-start gap-y-2">
         <span className="text-title-h1 text-label-primary">{value}</span>
         <div className="flex items-center gap-x-1">
             <img src={icon} alt="" className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
@@ -28,7 +28,7 @@ const TopStat: React.FC<{ value: string; label: string; icon: string }> = ({ val
 );
 
 const NutrientStat: React.FC<{ value: string; label: string; icon: string }> = ({ value, label, icon }) => (
-    <div className="flex flex-col items-start gap-y-4">
+    <div className="flex flex-col items-start gap-y-2">
         <span className="text-title-h3 text-label-primary">{value}</span>
         <div className="flex items-center gap-x-1">
             <img src={icon} alt={`${label} icon`} className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
@@ -93,7 +93,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         if (isViewMode && existingMeal) {
             setNutritionData({
                 title: existingMeal.name,
-                description: '', // We don't have description in stored meals
+                description: existingMeal.description || '', // Load description from stored meal
                 takenAtISO: existingMeal.id,
                 calories: existingMeal.calories,
                 protein_g: existingMeal.macros.protein,
@@ -261,6 +261,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             date: now.toISOString().split('T')[0], // YYYY-MM-DD format
             imageUrl: imageDataUrl,
             name: nutritionData.title,
+            description: nutritionData.description, // Save description
             calories: displayValues.calories,
             macros: {
                 protein: displayValues.protein,
@@ -389,7 +390,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
                     
                     {/* Divider */}
-                    <div className="my-[1.25rem] h-[0.125rem]" style={{ display: 'block', width: '100%', backgroundColor: '#B4B8CC', opacity: 0.28 }}></div>
+                    <div className="my-[1.25rem] h-px" style={{ display: 'block', width: '100%', backgroundColor: '#B4B8CC', opacity: 0.28 }}></div>
 
                     {/* Bottom Area */}
                     <div className="nutrient-grid grid grid-cols-2 gap-x-[1.25rem] gap-y-[1rem]">

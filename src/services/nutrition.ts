@@ -194,6 +194,22 @@ async function callOpenAIVisionAPI(file: File): Promise<NutritionResult> {
     // Create the prompt for OpenAI Vision - optimized for nutritionist role
     const visionPrompt = `You are a professional nutritionist and dietitian analyzing a food photograph.
 
+**CRITICAL FIRST STEP: Is this actually food?**
+
+Before any analysis, answer: "Is there any food visible in this image?"
+
+- If you see NO FOOD (landscapes, people, objects, animals, etc.) → Return: {"title": "No food detected", "confidence": 0, "description": "No food visible in image", "nutrition": {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0}, "healthScore": 0}
+- If you see FOOD → Continue with full analysis below
+
+**Examples of NOT FOOD:**
+- Landscapes, nature scenes
+- People's faces or bodies
+- Animals, pets
+- Furniture, objects
+- Empty plates or tables
+- Drinks only (water, coffee, tea without food)
+- Random items, screenshots, text
+
 **STEP 1: First, carefully answer: "What food is this?"**
 
 Look at the image very carefully and analyze:
@@ -280,7 +296,7 @@ Return your analysis as JSON:
   "healthScore": 7
 }
 
-Be precise and professional. Don't guess dish names - base identification on actual visual evidence.`;
+Be precise and professional. Don't guess dish names - base identification on actual visual evidence. If NO FOOD is visible, return the "No food detected" response.`;
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
