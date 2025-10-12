@@ -20,16 +20,23 @@ View your app in AI Studio: https://ai.studio/apps/drive/117ORxNHIybMBWxguGL5xr-
 
 ## AI-Powered Nutrition Analysis
 
-This app now includes AI-powered nutrition analysis using Google Cloud Vision API and OpenAI API:
+This app uses **OpenAI Vision API (GPT-4o)** for advanced food recognition and nutrition analysis:
 
-- When you take a photo of your meal, the app analyzes the image to identify the dish and ingredients
-- It then uses AI to estimate the nutritional content including calories, protein, carbs, fat, and fiber
-- A health score is calculated based on the nutritional balance of the meal
-- All analysis happens in real-time while maintaining the same user interface
+- When you take a photo of your meal, the app uses GPT-4o Vision to analyze the image directly
+- The AI identifies the dish, ingredients, and preparation method from the photo
+- It calculates nutritional content including calories, protein, carbs, fat, and fiber
+- A health score (0-10) is assigned based on nutritional balance
+- **Global cuisine recognition** - identifies dishes from all world cuisines (Asian, European, American, African, Middle Eastern, etc.)
+- **Visual-first analysis** - bases identification on what it sees in the image
+- All analysis happens in real-time with a single API call
 
-To enable the full AI features, you'll need to:
-1. Set up Google Cloud Vision API credentials
-2. Set up OpenAI API credentials
-3. Update the API configuration in [lib/api/nutritionAnalysis.ts](lib/api/nutritionAnalysis.ts)
+To enable the AI features:
+1. Set `VITE_OPENAI_API_KEY` in your environment variables with your OpenAI API key
+2. The app uses GPT-4o model which has built-in vision capabilities
+3. Set `VITE_USE_MOCK="0"` to use real API (set to "1" for mock data)
 
-The current implementation includes simulated API responses for demonstration purposes.
+**Benefits of OpenAI Vision over Google Vision:**
+- Direct image analysis without intermediate label extraction
+- Better understanding of food context and cultural dishes
+- More accurate identification of complex meals
+- Single API call for both recognition and nutrition calculation

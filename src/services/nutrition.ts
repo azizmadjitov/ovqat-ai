@@ -40,39 +40,15 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
   }
 
   try {
-    console.log('Using real APIs for analysis');
+    console.log('Using OpenAI Vision API for analysis');
     
     // Compress the image to ≤1024 px
     const compressedFile = await compressImage(file);
     console.log('Image compressed successfully');
     
-    // Call Google Cloud Vision API to analyze the image
-    const visionResponse = await callVisionAPI(compressedFile);
-    console.log('Vision API response received:', JSON.stringify(visionResponse, null, 2));
-    
-    // Extract relevant information from Vision API response
-    const { labels, ocrText } = extractFoodInfo(visionResponse);
-    console.log('Extracted food info:', { labels, ocrText });
-    
-    // Check if we have any labels, if not, return a minimal result
-    if (labels.length === 0) {
-      console.warn('No labels detected in image, returning minimal result');
-      return {
-        title: "Unidentified Meal",
-        description: "Could not identify the food items in the image. Please try another photo.",
-        takenAtISO: new Date().toISOString(),
-        calories: 0,
-        protein_g: 0,
-        carbs_g: 0,
-        fat_g: 0,
-        fiber_g: 0,
-        healthScore_10: 0
-      };
-    }
-    
-    // Call OpenAI API to get nutritional information
-    const nutritionData = await callOpenAIAPI(labels, ocrText);
-    console.log('OpenAI API response received:', nutritionData);
+    // Call OpenAI Vision API to analyze the image and get nutritional information
+    const nutritionData = await callOpenAIVisionAPI(compressedFile);
+    console.log('OpenAI Vision API response received:', nutritionData);
     
     // Return the raw nutrition data (serving amount multiplication handled at display level)
     console.log('Final result:', nutritionData);
@@ -80,12 +56,12 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
   } catch (error) {
     console.error('Error analyzing meal image:', error);
     
-    // Handle specific billing error
-    if (error instanceof Error && error.message.includes('billing')) {
-      // Return a result that indicates the billing issue
+    // Handle specific API errors
+    if (error instanceof Error && (error.message.includes('billing') || error.message.includes('quota'))) {
+      // Return a result that indicates the API issue
       return {
         title: "Service Unavailable",
-        description: "Google Vision API billing is not enabled. Please contact the administrator to enable billing.",
+        description: "OpenAI Vision API is not available. Please check your API configuration.",
         takenAtISO: new Date().toISOString(),
         calories: 0,
         protein_g: 0,
@@ -190,17 +166,16 @@ async function compressImage(file: File): Promise<File> {
 }
 
 /**
- * Call Google Cloud Vision API to analyze the image
+ * Call OpenAI Vision API to analyze food image and get nutritional information
  * @param file Image file to analyze
- * @returns Promise<any> Vision API response
+ * @returns Promise<NutritionResult> Nutritional information
  */
-async function callVisionAPI(file: File): Promise<any> {
+async function callOpenAIVisionAPI(file: File): Promise<NutritionResult> {
   try {
-    // Use the correct environment variable name as per instructions
-    const apiKey = import.meta.env?.VITE_GOOGLE_VISION_API_KEY || import.meta.env?.VITE_GOOGLE_CLOUD_API_KEY;
+    const apiKey = import.meta.env?.VITE_OPENAI_API_KEY;
     
     if (!apiKey) {
-      throw new Error('Google Vision API key not found in environment variables');
+      throw new Error('OpenAI API key not found in environment variables');
     }
     
     // Convert file to base64
@@ -208,102 +183,152 @@ async function callVisionAPI(file: File): Promise<any> {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        resolve(result.split(',')[1]); // Remove data URL prefix
+        resolve(result); // Keep data URL format for OpenAI Vision
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
     
-    console.log('Calling Google Vision API with API key:', apiKey.substring(0, 10) + '...');
+    console.log('🖼️ Calling OpenAI Vision API for food analysis...');
     
-    const response = await fetch(
-      `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requests: [
-            {
-              image: {
-                content: base64Data,
+    // Create the prompt for OpenAI Vision
+    const visionPrompt = `You are an expert nutritionist and global culinary specialist analyzing a food photograph.
+
+**Your task:**
+1. Identify the specific dish(es) in the image
+2. Describe all visible ingredients and preparation methods
+3. Estimate the portion size
+4. Calculate nutritional values based on visible ingredients
+5. Assign a health score (0-10)
+
+**Analysis Guidelines:**
+- Examine ALL visual elements: ingredients, colors, textures, arrangement, cooking method
+- Read any visible text (menu items, labels, packaging)
+- Recognize dishes from ALL cuisines worldwide (Asian, European, American, African, Middle Eastern, Oceanian)
+- Base identification on visual evidence ONLY
+- If confident (≥0.7), provide specific dish name; otherwise, use descriptive generic name
+- Calculate nutrition dynamically using your professional knowledge
+- Consider portion size, cooking oils, sauces, and hidden ingredients
+
+**Return ONLY valid JSON in this exact format:**
+{
+  "title": "Specific Dish Name or Generic Description",
+  "confidence": 0.85,
+  "description": "Detailed description of the dish, ingredients, and preparation",
+  "nutrition": {
+    "calories": 580,
+    "protein_g": 28,
+    "carbs_g": 72,
+    "fat_g": 18,
+    "fiber_g": 4
+  },
+  "healthScore": 7
+}
+
+**Critical Rules:**
+- NO regional bias - analyze based on what you SEE
+- Visual evidence takes priority over assumptions
+- Be globally aware of all world cuisines
+- Calculate nutrition using food science: calories ≈ (4×protein + 4×carbs + 9×fat)
+- Be honest about confidence - use generic names when uncertain`;
+    
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o', // Using GPT-4o which has vision capabilities
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: visionPrompt
               },
-              features: [
-                {
-                  type: 'LABEL_DETECTION',
-                  maxResults: 10,
-                },
-                {
-                  type: 'TEXT_DETECTION',
-                  maxResults: 5,
-                },
-              ],
-            },
-          ],
-        }),
-      }
-    );
+              {
+                type: 'image_url',
+                image_url: {
+                  url: base64Data,
+                  detail: 'high' // High detail for better food recognition
+                }
+              }
+            ]
+          }
+        ],
+        temperature: 0.0, // Deterministic behavior
+        max_tokens: 800,
+      }),
+    });
     
-    console.log('Google Vision API response status:', response.status);
+    console.log('✅ OpenAI Vision API response status:', response.status);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Google Vision API error response:', errorText);
+      console.error('❌ OpenAI Vision API error response:', errorText);
+      throw new Error(`OpenAI Vision API error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('🤖 OpenAI Vision Raw Response:', data);
+    const content = data?.choices?.[0]?.message?.content || '{}';
+    console.log('📄 OpenAI Vision JSON Content:', content);
+    
+    // Try to parse JSON directly
+    try {
+      const parsed = JSON.parse(content);
+      console.log('✅ Parsed AI Result:', {
+        title: parsed.title,
+        confidence: parsed.confidence,
+        description: parsed.description?.substring(0, 100) + '...',
+        calories: parsed.nutrition?.calories,
+        healthScore: parsed.healthScore
+      });
+      console.log('🎯 Full Parsed JSON:', parsed);
       
-      // Handle specific billing error
-      if (response.status === 403 && errorText.includes('billing')) {
-        throw new Error('Google Vision API billing is not enabled. Please enable billing on your Google Cloud project.');
+      // Convert the response format to our NutritionResult format
+      const nutritionResult: NutritionResult = {
+        title: parsed.title || "Unknown Meal",
+        description: parsed.description || "",
+        takenAtISO: new Date().toISOString(),
+        calories: parsed.nutrition?.calories || 0,
+        protein_g: parsed.nutrition?.protein_g || 0,
+        carbs_g: parsed.nutrition?.carbs_g || 0,
+        fat_g: parsed.nutrition?.fat_g || 0,
+        fiber_g: parsed.nutrition?.fiber_g || 0,
+        healthScore_10: parsed.healthScore || 0
+      };
+      
+      return nutritionResult;
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI Vision response as JSON:', parseError);
+      console.log('Raw content:', content);
+      
+      // Try to extract JSON from markdown code blocks
+      const jsonMatch = content.match(/```(?:json)?\s*({[\s\S]*?})\s*```/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[1]);
+        const nutritionResult: NutritionResult = {
+          title: parsed.title || "Unknown Meal",
+          description: parsed.description || "",
+          takenAtISO: new Date().toISOString(),
+          calories: parsed.nutrition?.calories || 0,
+          protein_g: parsed.nutrition?.protein_g || 0,
+          carbs_g: parsed.nutrition?.carbs_g || 0,
+          fat_g: parsed.nutrition?.fat_g || 0,
+          fiber_g: parsed.nutrition?.fiber_g || 0,
+          healthScore_10: parsed.healthScore || 0
+        };
+        return nutritionResult;
       }
       
-      throw new Error(`Google Vision API error: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error('Could not parse nutrition data from OpenAI Vision response');
     }
-    
-    
-    const responseData = await response.json();
-    console.log('Google Vision API response data:', responseData);
-    return responseData;
   } catch (error) {
-    console.error('Error calling Google Vision API:', error);
+    console.error('Error calling OpenAI Vision API:', error);
     throw error;
-  }
-}
-
-/**
- * Extract food information from Vision API response
- * @param visionResponse Vision API response
- * @returns Object containing labels and OCR text
- */
-function extractFoodInfo(visionResponse: any): { labels: string[]; ocrText: string } {
-  try {
-    console.log('Extracting food info from vision response:', JSON.stringify(visionResponse, null, 2));
-    
-    const labels: string[] = [];
-    const labelAnnotations = visionResponse?.responses?.[0]?.labelAnnotations;
-    
-    if (Array.isArray(labelAnnotations)) {
-      labelAnnotations.slice(0, 10).forEach((label: any) => {
-        if (label?.description) {
-          labels.push(label.description);
-        }
-      });
-    }
-    
-    console.log('Extracted labels:', labels);
-    
-    let ocrText = '';
-    const textAnnotations = visionResponse?.responses?.[0]?.textAnnotations;
-    
-    if (Array.isArray(textAnnotations) && textAnnotations.length > 0) {
-      ocrText = textAnnotations[0]?.description || '';
-    }
-    
-    console.log('Extracted OCR text:', ocrText);
-    
-    return { labels, ocrText };
-  } catch (error) {
-    console.error('Error extracting food info from Vision response:', error);
-    return { labels: [], ocrText: '' };
   }
 }
 
