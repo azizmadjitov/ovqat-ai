@@ -43,18 +43,20 @@ const SparklesIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+import { analyzeMeal, NutritionResult } from '../src/services/nutrition';
 
 // --- Main Component ---
 
 interface ResultScreenProps {
   imageDataUrl: string;
+  imageFile?: File;
   onConfirm: (meal: Meal) => void;
   onRetake: () => void;
 }
 
-export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConfirm, onRetake }) => {
+export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageFile, onConfirm, onRetake }) => {
     const [servingAmount, setServingAmount] = useState(1.0);
-    const [nutritionData, setNutritionData] = useState<NutritionData | null>(null);
+    const [nutritionData, setNutritionData] = useState<NutritionResult | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [timestamp] = useState(new Date().toLocaleString('en-US', { 
@@ -70,8 +72,38 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
             try {
                 setLoading(true);
                 setError(null); // Clear any previous errors
-                const data = await analyzeMealImage(imageDataUrl);
-                setNutritionData(data);
+                
+                console.log('Loading nutrition data with:', { imageDataUrl, imageFile });
+                
+                // Use the new nutrition service if we have a file
+                if (imageFile) {
+                    console.log('Using new nutrition service with file');
+                    const data = await analyzeMeal(imageFile, 1); // Always use 1 for initial analysis
+                    console.log('Received data from analyzeMeal:', data);
+                    
+                    // Check if this is a billing error
+                    if (data.title === "Service Unavailable" && data.description.includes('billing')) {
+                        setError('Google Vision API billing is not enabled. Please contact the administrator to enable billing.');
+                    }
+                    
+                    setNutritionData(data);
+                } else {
+                    console.log('Using fallback method with image data URL');
+                    // Fallback to the old method if no file is available
+                    const data = await analyzeMealImage(imageDataUrl);
+                    console.log('Received data from analyzeMealImage:', data);
+                    setNutritionData({
+                        title: data.title,
+                        description: data.description,
+                        takenAtISO: new Date().toISOString(),
+                        calories: data.calories,
+                        protein_g: data.protein,
+                        carbs_g: data.carbs,
+                        fat_g: data.fat,
+                        fiber_g: data.fiber,
+                        healthScore_10: data.healthScore
+                    });
+                }
             } catch (err) {
                 console.error('Error loading nutrition data:', err);
                 setError('Failed to analyze the meal image. Using mock data instead.');
@@ -79,12 +111,13 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
                 setNutritionData({
                     title: "Grilled Chicken Salad",
                     description: "A healthy and delicious salad featuring grilled chicken, fresh greens, cherry tomatoes, and a light vinaigrette dressing. Perfect for a light yet satisfying meal.",
+                    takenAtISO: new Date().toISOString(),
                     calories: 380,
-                    protein: 35,
-                    carbs: 22,
-                    fat: 18,
-                    fiber: 8,
-                    healthScore: 8
+                    protein_g: 35,
+                    carbs_g: 22,
+                    fat_g: 18,
+                    fiber_g: 8,
+                    healthScore_10: 8
                 });
             } finally {
                 setLoading(false);
@@ -97,7 +130,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
             setError('No image data provided');
             setLoading(false);
         }
-    }, [imageDataUrl]);
+    }, [imageDataUrl, imageFile]); // Remove servingAmount from dependencies
     
     const handleServingChange = (delta: number) => {
         setServingAmount(prev => Math.max(1, prev + delta));
@@ -149,16 +182,24 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
         );
     }
 
-    // Calculate display values
-    const displayValues = {
+    // Calculate display values (multiply by servingAmount for display)
+    const displayValues = nutritionData ? {
         calories: Math.round(nutritionData.calories * servingAmount),
-        protein: Math.round(nutritionData.protein * servingAmount),
-        carbs: Math.round(nutritionData.carbs * servingAmount),
-        fat: Math.round(nutritionData.fat * servingAmount),
-        fiber: Math.round(nutritionData.fiber * servingAmount),
+        protein: Math.round(nutritionData.protein_g * servingAmount),
+        carbs: Math.round(nutritionData.carbs_g * servingAmount),
+        fat: Math.round(nutritionData.fat_g * servingAmount),
+        fiber: Math.round(nutritionData.fiber_g * servingAmount),
+    } : {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        fiber: 0,
     };
 
     const handleConfirm = () => {
+        if (!nutritionData) return;
+        
         const newMeal: Meal = {
             id: new Date().toISOString(),
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
@@ -287,7 +328,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
                     {/* Top Area */}
                     <div className="grid grid-cols-2 gap-x-[1.25rem]">
                          <TopStat value={String(displayValues.calories)} label="Calories" icon={caloriesIconUrl} />
-                         <TopStat value={`${nutritionData.healthScore}/10`} label="Health score" icon={healthIconUrl} />
+                         <TopStat value={`${nutritionData.healthScore_10}/10`} label="Health score" icon={healthIconUrl} />
                     </div>
                     
                     {/* Divider */}

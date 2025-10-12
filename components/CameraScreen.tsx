@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { CameraIcon, CloseIcon } from './Icons';
 
 interface CameraScreenProps {
-  onPhotoTaken: (imageDataUrl: string) => void;
+  onPhotoTaken: (imageDataUrl: string, imageFile?: File) => void;
   onCancel: () => void;
 }
 
@@ -38,22 +38,6 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onPhotoTaken, onCanc
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCapture = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const dataUrl = canvas.toDataURL('image/jpeg');
-        onPhotoTaken(dataUrl);
-        stream?.getTracks().forEach(track => track.stop());
-      }
-    }
-  };
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log("File input changed, files:", event.target.files);
     const file = event.target.files?.[0];
@@ -64,10 +48,32 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onPhotoTaken, onCanc
         const dataUrl = e.target?.result as string;
         if (dataUrl) {
           console.log("File read successfully, data URL length:", dataUrl.length);
-          onPhotoTaken(dataUrl);
+          // Pass both data URL and File object
+          onPhotoTaken(dataUrl, file);
         }
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const file = new File([blob], `camera-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            onPhotoTaken(dataUrl, file);
+            stream?.getTracks().forEach(track => track.stop());
+          }
+        }, 'image/jpeg', 0.85);
+      }
     }
   };
 
@@ -96,12 +102,14 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onPhotoTaken, onCanc
             const dataUrl = e.target?.result as string;
             if (dataUrl) {
               console.log("File read successfully with fallback, data URL length:", dataUrl.length);
-              onPhotoTaken(dataUrl);
+              // Pass both data URL and File object
+              onPhotoTaken(dataUrl, file);
             }
           };
           reader.readAsDataURL(file);
         }
       };
+
       input.click();
     }
   };

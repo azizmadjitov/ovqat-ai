@@ -21,18 +21,18 @@ const App: React.FC = () => {
 
     const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
     const [meals, setMeals] = useState<Meal[]>([]);
-    const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
 
     const handleOpenCamera = () => {
         console.log('Navigating to Camera screen');
         setCurrentScreen(Screen.Camera);
     };
 
-    const handlePhotoTaken = (imageDataUrl: string) => {
+    const handlePhotoTaken = (imageDataUrl: string, imageFile?: File) => {
         console.log('Photo taken, navigating to Result screen');
         console.log('Image data URL length:', imageDataUrl.length);
         console.log('Image data URL starts with:', imageDataUrl.substring(0, 50));
-        setCapturedImage(imageDataUrl);
+        setCapturedImage({dataUrl: imageDataUrl, file: imageFile});
         setCurrentScreen(Screen.Result);
     };
 
@@ -64,8 +64,8 @@ const App: React.FC = () => {
             case Screen.Result:
                 console.log('Rendering Result screen with image:', !!capturedImage);
                 if (capturedImage) {
-                    console.log('Captured image URL length:', capturedImage.length);
-                    return <ResultScreen imageDataUrl={capturedImage} onConfirm={handleConfirmMeal} onRetake={handleRetake} />;
+                    console.log('Captured image URL length:', capturedImage.dataUrl.length);
+                    return <ResultScreen imageDataUrl={capturedImage.dataUrl} imageFile={capturedImage.file} onConfirm={handleConfirmMeal} onRetake={handleRetake} />;
                 }
                 // Fallback to home if no image
                 console.log('No captured image, falling back to Home screen');

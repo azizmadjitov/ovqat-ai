@@ -5,6 +5,7 @@ import { MacroCard } from './home/MacroCard';
 import { RecentlyLoggedList } from './home/RecentlyLoggedList';
 import { FabCamera } from './home/FabCamera';
 import { CalendarStrip } from './home/CalendarStrip';
+import { t } from '../i18n';
 
 interface HomeScreenProps {
   meals: Meal[];
