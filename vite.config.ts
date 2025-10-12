@@ -3,14 +3,11 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { copyFileSync, mkdirSync, readdirSync, statSync } from 'fs';
 
-// Custom plugin to copy assets folder to dist/assets
+// Custom plugin to copy assets and design folders to dist
 function copyAssetsPlugin() {
   return {
     name: 'copy-assets',
     closeBundle() {
-      const srcDir = 'assets';
-      const destDir = 'dist/assets';
-      
       function copyRecursive(src: string, dest: string) {
         mkdirSync(dest, { recursive: true });
         const entries = readdirSync(src, { withFileTypes: true });
@@ -27,7 +24,11 @@ function copyAssetsPlugin() {
         }
       }
       
-      copyRecursive(srcDir, destDir);
+      // Copy assets folder
+      copyRecursive('assets', 'dist/assets');
+      
+      // Copy design folder (for design tokens)
+      copyRecursive('design', 'dist/design');
     }
   };
 }

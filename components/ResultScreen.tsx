@@ -283,12 +283,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, imageF
                         </button>
                         <div></div>
                         <div 
-                            className="pickerValue"
+                            className="pickerValue text-label-lg"
                             style={{
                                 width: '2.375rem',
                                 textAlign: 'center',
                                 lineHeight: '2.5rem',
-                                typography: 'label/lg',
                                 color: 'var(--label-primary)',
                                 padding: '0',
                                 margin: '0',
