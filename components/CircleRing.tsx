@@ -25,7 +25,7 @@ export const CircleRing: React.FC<CircleRingProps> = ({
 
   return (
     <div className="relative" style={{ width: `${size}px`, height: `${size}px` }}>
-      <svg width={size} height={size} viewBox={viewBox} className="-rotate-90">
+      <svg width={size} height={size} viewBox={viewBox} style={{ transform: 'rotate(-90deg)' }}>
         <circle
           className={bgColorClass}
           strokeWidth={strokeWidth}

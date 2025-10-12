@@ -191,46 +191,96 @@ async function callOpenAIVisionAPI(file: File): Promise<NutritionResult> {
     
     console.log('🖼️ Calling OpenAI Vision API for food analysis...');
     
-    // Create the prompt for OpenAI Vision
-    const visionPrompt = `You are an expert nutritionist and global culinary specialist analyzing a food photograph.
+    // Create the prompt for OpenAI Vision - optimized for nutritionist role
+    const visionPrompt = `You are a professional nutritionist and dietitian analyzing a food photograph.
 
-**Your task:**
-1. Identify the specific dish(es) in the image
-2. Describe all visible ingredients and preparation methods
-3. Estimate the portion size
-4. Calculate nutritional values based on visible ingredients
-5. Assign a health score (0-10)
+**STEP 1: First, carefully answer: "What food is this?"**
 
-**Analysis Guidelines:**
-- Examine ALL visual elements: ingredients, colors, textures, arrangement, cooking method
-- Read any visible text (menu items, labels, packaging)
-- Recognize dishes from ALL cuisines worldwide (Asian, European, American, African, Middle Eastern, Oceanian)
-- Base identification on visual evidence ONLY
-- If confident (≥0.7), provide specific dish name; otherwise, use descriptive generic name
-- Calculate nutrition dynamically using your professional knowledge
-- Consider portion size, cooking oils, sauces, and hidden ingredients
+Look at the image very carefully and analyze:
+- What ingredients do you SEE in the photo?
+- What is the texture? (liquid/solid, layered, mixed, etc.)
+- What colors are present?
+- How is it plated/served?
+- Is there bread, sauce, broth, or other visible elements?
+- What cooking method is visible? (fried, grilled, steamed, in broth, etc.)
 
-**Return ONLY valid JSON in this exact format:**
+**STEP 2: Only AFTER visual analysis, identify the dish**
+
+Based on what you actually SEE:
+
+**Important context:**
+- **Primary focus**: You will mostly see dishes from Uzbek, CIS (Commonwealth of Independent States), and Central Asian cuisines
+- Common Uzbek dishes and their key visual markers:
+  - **Plov**: Rice with meat, carrots, visible oil sheen, typically orange/yellow colored rice
+  - **Lagman**: Hand-pulled noodles in broth with vegetables and meat
+  - **Manti**: Large steamed dumplings, usually 4-5 pieces, visible pleated dough
+  - **Shashlik**: Grilled meat skewers, charred exterior
+  - **Samsa**: Baked pastry triangles with meat filling
+  - **Shurpa**: Clear meat broth with large vegetable pieces
+  - **Mastava**: Rice soup with meat and vegetables in broth
+  - **Norin**: Cold noodles with horse meat and onions
+  - **Chuchvara**: Small dumplings in broth (like small pelmeni)
+  - **Dimlama**: Layered stewed vegetables and meat (usually in pot, visible layers)
+  - **Kurutob**: Bread pieces (fatir) soaked in yogurt/qurut sauce with vegetables, layered appearance
+- Also recognize dishes from: Russian, Kazakh, Kyrgyz, Tajik, Turkmen cuisines
+- If the dish doesn't match Central Asian/CIS cuisine, identify from other world cuisines
+
+**Critical rule: Name the dish ONLY if you're confident based on visual evidence**
+- If you see bread soaked in creamy sauce → likely Kurutob
+- If you see rice with meat → only call it Plov if rice is orange/yellow with oil
+- If you see layered vegetables → only call it Dimlama if you see the typical layered stew
+- When unsure → use descriptive name like "Bread in yogurt sauce with vegetables"
+
+**What you need to provide:**
+1. Exact dish name IF confident, or descriptive name based on what you see
+2. All visible ingredients and their quantities
+3. Cooking method (fried, grilled, steamed, baked, raw, in broth, etc.)
+4. Estimated portion size
+
+**Your nutritional analysis:**
+As a professional dietitian, calculate:
+- Total calories
+- Protein (grams)
+- Carbohydrates (grams)
+- Fats (grams)
+- Fiber (grams)
+- Overall health score (0-10 scale)
+
+**Analysis instructions:**
+- Examine every visual detail: colors, textures, cooking style, plating
+- Read any visible text (menus, labels, packaging)
+- Use your professional knowledge to estimate accurate nutritional values
+- Consider hidden ingredients (cooking oil, sauces, dressings)
+- Base portion estimates on standard serving sizes
+- Calculate calories using: calories ≈ (4×protein + 4×carbs + 9×fat)
+
+**Health score criteria:**
+- 8-10: Very healthy (high protein, vegetables, balanced, minimal processing)
+- 5-7: Moderately healthy (balanced but may have some concerns)
+- 0-4: Less healthy (high in calories, fats, or heavily processed)
+
+**Description requirements:**
+- Keep description brief: maximum 90-100 characters
+- Include only key ingredients and cooking method
+- Be concise and informative
+- Base description on what you ACTUALLY SEE in the image
+
+Return your analysis as JSON:
 {
-  "title": "Specific Dish Name or Generic Description",
-  "confidence": 0.85,
-  "description": "Detailed description of the dish, ingredients, and preparation",
+  "title": "Exact dish name OR descriptive name based on visual evidence",
+  "confidence": 0.95,
+  "description": "Brief description of visible ingredients max 100 chars",
   "nutrition": {
-    "calories": 580,
+    "calories": 520,
     "protein_g": 28,
-    "carbs_g": 72,
-    "fat_g": 18,
-    "fiber_g": 4
+    "carbs_g": 45,
+    "fat_g": 22,
+    "fiber_g": 6
   },
   "healthScore": 7
 }
 
-**Critical Rules:**
-- NO regional bias - analyze based on what you SEE
-- Visual evidence takes priority over assumptions
-- Be globally aware of all world cuisines
-- Calculate nutrition using food science: calories ≈ (4×protein + 4×carbs + 9×fat)
-- Be honest about confidence - use generic names when uncertain`;
+Be precise and professional. Don't guess dish names - base identification on actual visual evidence.`;
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -239,8 +289,12 @@ async function callOpenAIVisionAPI(file: File): Promise<NutritionResult> {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o', // Using GPT-4o which has vision capabilities
+        model: 'gpt-4o-mini', // Cost-effective multimodal model with vision capabilities
         messages: [
+          {
+            role: 'system',
+            content: 'You are a certified nutritionist and dietitian with expertise in food identification and nutritional analysis. You have deep knowledge of cuisines from around the world and can accurately estimate nutritional values based on visual assessment of food.'
+          },
           {
             role: 'user',
             content: [
@@ -252,14 +306,14 @@ async function callOpenAIVisionAPI(file: File): Promise<NutritionResult> {
                 type: 'image_url',
                 image_url: {
                   url: base64Data,
-                  detail: 'high' // High detail for better food recognition
+                  detail: 'high' // High detail for maximum accuracy
                 }
               }
             ]
           }
         ],
-        temperature: 0.0, // Deterministic behavior
-        max_tokens: 800,
+        temperature: 0.4, // Optimal for professional nutritional analysis
+        max_tokens: 1500,
       }),
     });
     
