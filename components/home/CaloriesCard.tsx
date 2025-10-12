@@ -2,7 +2,7 @@ import React from 'react';
 import { CircularProgress } from '../CircularProgress';
 import { t } from '../../i18n';
 
-const caloriesIcon = new URL('../../assets/img/calories.png', import.meta.url).href;
+const caloriesIcon = '/assets/img/calories.png';
 
 interface CaloriesCardProps {
   caloriesLeft: number;
