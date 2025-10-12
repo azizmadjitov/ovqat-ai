@@ -24,40 +24,51 @@ const App: React.FC = () => {
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
     const handleOpenCamera = () => {
+        console.log('Navigating to Camera screen');
         setCurrentScreen(Screen.Camera);
     };
 
     const handlePhotoTaken = (imageDataUrl: string) => {
+        console.log('Photo taken, navigating to Result screen');
+        console.log('Image data URL length:', imageDataUrl.length);
+        console.log('Image data URL starts with:', imageDataUrl.substring(0, 50));
         setCapturedImage(imageDataUrl);
         setCurrentScreen(Screen.Result);
     };
 
     const handleCancelCamera = () => {
+        console.log('Camera cancelled, navigating to Home screen');
         setCurrentScreen(Screen.Home);
     };
     
     const handleRetake = () => {
+        console.log('Retaking photo, navigating to Camera screen');
         setCapturedImage(null);
         setCurrentScreen(Screen.Camera);
     };
 
     const handleConfirmMeal = (newMeal: Meal) => {
+        console.log('Meal confirmed, navigating to Home screen');
         setMeals(prevMeals => [...prevMeals, newMeal]);
         setCapturedImage(null);
         setCurrentScreen(Screen.Home);
     };
 
     const renderScreen = () => {
+        console.log('Rendering screen:', currentScreen);
         switch (currentScreen) {
             case Screen.Home:
                 return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} />;
             case Screen.Camera:
                 return <CameraScreen onPhotoTaken={handlePhotoTaken} onCancel={handleCancelCamera} />;
             case Screen.Result:
+                console.log('Rendering Result screen with image:', !!capturedImage);
                 if (capturedImage) {
+                    console.log('Captured image URL length:', capturedImage.length);
                     return <ResultScreen imageDataUrl={capturedImage} onConfirm={handleConfirmMeal} onRetake={handleRetake} />;
                 }
                 // Fallback to home if no image
+                console.log('No captured image, falling back to Home screen');
                 setCurrentScreen(Screen.Home);
                 return null;
             default:

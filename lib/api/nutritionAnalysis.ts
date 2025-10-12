@@ -18,11 +18,11 @@ export interface NutritionData {
  */
 export async function analyzeMealImage(imageDataUrl: string): Promise<NutritionData> {
   try {
-    // Remove the data URL prefix to get just the base64 data
-    const base64Data = imageDataUrl.replace(/^data:image\/\w+;base64,/, '');
+    // Compress the image to ≤1024 px
+    const compressedImageData = await compressImage(imageDataUrl);
     
     // Call Google Cloud Vision API to analyze the image
-    const visionResponse = await callVisionAPI(base64Data);
+    const visionResponse = await callVisionAPI(compressedImageData);
     
     // Extract relevant information from Vision API response
     const { dishName, ingredients } = extractFoodInfo(visionResponse);
@@ -39,21 +39,81 @@ export async function analyzeMealImage(imageDataUrl: string): Promise<NutritionD
 }
 
 /**
+ * Compress image to ≤1024 px
+ * @param imageDataUrl Base64 encoded image data
+ * @returns Promise<string> Compressed base64 image data
+ */
+async function compressImage(imageDataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      // Create canvas for compression
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        // If we can't get context, return original image
+        resolve(imageDataUrl);
+        return;
+      }
+      
+      // Calculate new dimensions (max 1024px)
+      let { width, height } = img;
+      const maxWidth = 1024;
+      const maxHeight = 1024;
+      
+      if (width > height) {
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = (width * maxHeight) / height;
+          height = maxHeight;
+        }
+      }
+      
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw image on canvas
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Convert to base64
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      resolve(compressedDataUrl);
+    };
+    
+    img.onerror = () => {
+      // If there's an error, return original image
+      resolve(imageDataUrl);
+    };
+    
+    img.src = imageDataUrl;
+  });
+}
+
+/**
  * Call Google Cloud Vision API to analyze the image
- * @param base64Data Base64 encoded image data
+ * @param imageDataUrl Base64 encoded image data
  * @returns Promise<any> Vision API response
  */
-async function callVisionAPI(base64Data: string): Promise<any> {
+async function callVisionAPI(imageDataUrl: string): Promise<any> {
+  // Remove the data URL prefix to get just the base64 data
+  const base64Data = imageDataUrl.replace(/^data:image\/\w+;base64,/, '');
+  
   // In a real implementation, you would call the Google Cloud Vision API here
-  // For now, we'll simulate a response
+  // For now, we'll simulate a response with a delay to mimic API call
   
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 1500));
   
-  // Return simulated response
+  // Return simulated response based on a more realistic approach
   return {
-    dishName: "Grilled Salmon with Vegetables",
-    ingredients: ["salmon", "broccoli", "carrots", "lemon", "olive oil"]
+    dishName: "Grilled Chicken Salad",
+    ingredients: ["chicken", "lettuce", "tomato", "cucumber", "olive oil", "lemon"]
   };
 }
 
@@ -78,10 +138,10 @@ function extractFoodInfo(visionResponse: any): { dishName: string; ingredients: 
  */
 async function callOpenAIAPI(dishName: string, ingredients: string[]): Promise<NutritionData> {
   // In a real implementation, you would call the OpenAI API here
-  // For now, we'll simulate a response
+  // For now, we'll simulate a response with a delay to mimic API call
   
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 2000));
   
   // Return simulated response based on dish name and ingredients
   return generateNutritionData(dishName, ingredients);
@@ -95,7 +155,7 @@ async function callOpenAIAPI(dishName: string, ingredients: string[]): Promise<N
  */
 function generateNutritionData(dishName: string, ingredients: string[]): NutritionData {
   // This is a simplified simulation - in a real implementation, this would come from OpenAI
-  const ingredientCount = ingredients.length;
+  // with a strict JSON format {title, description, calories, healthScore, protein_g, carbs_g, fat_g, fiber_g}
   
   // Base values that vary by dish type
   let baseCalories = 400;
@@ -106,26 +166,26 @@ function generateNutritionData(dishName: string, ingredients: string[]): Nutriti
   let healthScore = 7;
   
   // Adjust values based on ingredients
-  if (ingredients.includes('salmon') || ingredients.includes('chicken') || ingredients.includes('fish')) {
-    baseProtein += 15;
+  if (ingredients.includes('chicken') || ingredients.includes('salmon') || ingredients.includes('fish')) {
+    baseProtein += 20;
     healthScore += 1;
   }
   
-  if (ingredients.includes('broccoli') || ingredients.includes('vegetables') || ingredients.includes('salad')) {
-    baseFiber += 8;
-    baseCarbs += 10;
+  if (ingredients.includes('lettuce') || ingredients.includes('vegetables') || ingredients.includes('salad')) {
+    baseFiber += 10;
+    baseCarbs += 15;
     healthScore += 2;
   }
   
   if (ingredients.includes('rice') || ingredients.includes('pasta') || ingredients.includes('bread')) {
-    baseCarbs += 20;
-    baseCalories += 100;
+    baseCarbs += 30;
+    baseCalories += 150;
     healthScore -= 1;
   }
   
   if (ingredients.includes('oil') || ingredients.includes('butter') || ingredients.includes('cream')) {
-    baseFat += 10;
-    baseCalories += 80;
+    baseFat += 15;
+    baseCalories += 100;
     healthScore -= 1;
   }
   
@@ -150,13 +210,13 @@ function generateNutritionData(dishName: string, ingredients: string[]): Nutriti
  */
 function getMockNutritionData(): NutritionData {
   return {
-    title: "Mixed Salad Bowl",
-    description: "A healthy and delicious salad featuring fresh greens, cherry tomatoes, cucumber, and a light vinaigrette dressing. Perfect for a light yet satisfying meal.",
-    calories: 320,
-    protein: 12,
-    carbs: 28,
+    title: "Grilled Chicken Salad",
+    description: "A healthy and delicious salad featuring grilled chicken, fresh greens, cherry tomatoes, and a light vinaigrette dressing. Perfect for a light yet satisfying meal.",
+    calories: 380,
+    protein: 35,
+    carbs: 22,
     fat: 18,
-    fiber: 9,
-    healthScore: 9
+    fiber: 8,
+    healthScore: 8
   };
 }

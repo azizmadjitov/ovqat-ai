@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Meal } from '../types';
 import { t } from '../i18n';
 import { analyzeMealImage, NutritionData } from '../lib/api/nutritionAnalysis';
@@ -69,6 +69,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
         const loadNutritionData = async () => {
             try {
                 setLoading(true);
+                setError(null); // Clear any previous errors
                 const data = await analyzeMealImage(imageDataUrl);
                 setNutritionData(data);
             } catch (err) {
@@ -76,55 +77,30 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
                 setError('Failed to analyze the meal image. Using mock data instead.');
                 // Set mock data as fallback
                 setNutritionData({
-                    title: "Salmon with lemon and greens",
-                    description: "A healthy and delicious meal featuring baked salmon, fresh lemon slices, and a side of nutrient-rich greens. Perfect for a light yet satisfying dinner.",
-                    calories: 741,
-                    protein: 49,
-                    carbs: 45,
-                    fat: 44,
-                    fiber: 41,
-                    healthScore: 5
+                    title: "Grilled Chicken Salad",
+                    description: "A healthy and delicious salad featuring grilled chicken, fresh greens, cherry tomatoes, and a light vinaigrette dressing. Perfect for a light yet satisfying meal.",
+                    calories: 380,
+                    protein: 35,
+                    carbs: 22,
+                    fat: 18,
+                    fiber: 8,
+                    healthScore: 8
                 });
             } finally {
                 setLoading(false);
             }
         };
         
-        loadNutritionData();
+        if (imageDataUrl) {
+            loadNutritionData();
+        } else {
+            setError('No image data provided');
+            setLoading(false);
+        }
     }, [imageDataUrl]);
     
     const handleServingChange = (delta: number) => {
         setServingAmount(prev => Math.max(1, prev + delta));
-    };
-
-    const displayValues = useMemo(() => {
-        if (!nutritionData) return null;
-        
-        return {
-            calories: Math.round(nutritionData.calories * servingAmount),
-            protein: Math.round(nutritionData.protein * servingAmount),
-            carbs: Math.round(nutritionData.carbs * servingAmount),
-            fat: Math.round(nutritionData.fat * servingAmount),
-            fiber: Math.round(nutritionData.fiber * servingAmount),
-        };
-    }, [nutritionData, servingAmount]);
-    
-    const handleConfirm = () => {
-        if (!nutritionData || !displayValues) return;
-        
-        const newMeal: Meal = {
-            id: new Date().toISOString(),
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-            imageUrl: imageDataUrl,
-            name: nutritionData.title,
-            calories: displayValues.calories,
-            macros: {
-                protein: displayValues.protein,
-                carbs: displayValues.carbs,
-                fat: displayValues.fat,
-            }
-        };
-        onConfirm(newMeal);
     };
 
     // Show loading state
@@ -141,11 +117,23 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
 
     // Show error state
     if (error) {
-        console.error(error);
+        return (
+            <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
+                <div className="text-center">
+                    <p className="text-label-primary">Error: {error}</p>
+                    <button 
+                        onClick={onRetake}
+                        className="mt-4 px-4 py-2 bg-accent-green text-label-opposite rounded-lg"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     // Ensure we have nutrition data before rendering
-    if (!nutritionData || !displayValues) {
+    if (!nutritionData) {
         return (
             <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
                 <div className="text-center">
@@ -161,57 +149,30 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageDataUrl, onConf
         );
     }
 
-    useEffect(() => {
-        // --- Non-Nutrient Card Logs ---
-        const img = document.getElementById('food-image');
-        if(img) { console.log(`Acceptance: Image size reports ~130x130 -> ${img.clientWidth}x${img.clientHeight}`); }
-        const desc = document.querySelector('.description-text');
-        if (desc) { console.log(`Acceptance: Description block truncates at 3 lines with ellipsis ->`, window.getComputedStyle(desc).webkitLineClamp === '3'); }
-        const picker = document.querySelector('.serving-picker');
-        if (picker) { console.log(`Acceptance: Picker container 40px height -> ${picker.clientHeight}px`); }
-        const pickerButtons = document.querySelectorAll('.serving-picker button');
-        if(pickerButtons.length) { const btn = pickerButtons[0] as HTMLElement; console.log(`Acceptance: Picker buttons are 32x32 -> ${btn.clientWidth}x${btn.clientHeight}`); }
-        const pickerValue = document.querySelector('.serving-picker-value');
-        if (pickerValue) { console.log(`Acceptance: Picker value text uses label/lg ->`, window.getComputedStyle(pickerValue).fontSize === '17px'); }
+    // Calculate display values
+    const displayValues = {
+        calories: Math.round(nutritionData.calories * servingAmount),
+        protein: Math.round(nutritionData.protein * servingAmount),
+        carbs: Math.round(nutritionData.carbs * servingAmount),
+        fat: Math.round(nutritionData.fat * servingAmount),
+        fiber: Math.round(nutritionData.fiber * servingAmount),
+    };
 
-        // --- Nutrients Card Acceptance Logs ---
-        const nutrientCard = document.querySelector('.nutrients-card');
-        if (nutrientCard) {
-            const topValues = nutrientCard.querySelectorAll('.grid > div > .text-title-h1');
-            if (topValues.length) { console.log(`Acceptance: Top values use title/h1 -> font-size: ${window.getComputedStyle(topValues[0]).fontSize}`); }
-
-            const divider = nutrientCard.querySelector('.my-\\[1\\.25rem\\]');
-            if (divider) { const style = window.getComputedStyle(divider); console.log(`Acceptance: Divider exists between top and bottom areas with 20px padding above and below -> margin-top: ${style.marginTop}, margin-bottom: ${style.marginBottom}`); }
-
-            const bottomGrid = nutrientCard.querySelector('.nutrient-grid');
-            if(bottomGrid) {
-                const style = window.getComputedStyle(bottomGrid);
-                console.log(`Acceptance: Console shows grid with 2 columns and row-gap 16px -> columns: ${style.gridTemplateColumns}, row-gap: ${style.rowGap}`);
-                
-                const bottomValues = bottomGrid.querySelectorAll('.text-title-h4');
-                if (bottomValues.length) { console.log(`Acceptance: Bottom values use title/h4 -> font-size: ${window.getComputedStyle(bottomValues[0]).fontSize}`); }
-                
-                const iconContainers = bottomGrid.querySelectorAll('.flex.items-center.gap-x-1');
-                iconContainers.forEach((container, index) => {
-                    const icon = container.querySelector('img');
-                    if (icon) { 
-                        const imgElement = icon as HTMLImageElement;
-                        console.log(`Acceptance: Nutrient icon ${index + 1} -> src: ${imgElement.src}, width: ${icon.clientWidth}px, height: ${icon.clientHeight}px`);
-                        if (!imgElement.complete || imgElement.naturalWidth === 0) {
-                            console.log(`Warning: Icon ${index + 1} failed to load or is not visible`);
-                        }
-                    }
-                });
+    const handleConfirm = () => {
+        const newMeal: Meal = {
+            id: new Date().toISOString(),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+            imageUrl: imageDataUrl,
+            name: nutritionData.title,
+            calories: displayValues.calories,
+            macros: {
+                protein: displayValues.protein,
+                carbs: displayValues.carbs,
+                fat: displayValues.fat,
             }
-        }
-        
-        // Check if all icons are loading correctly
-        const allIcons = document.querySelectorAll('img.w-5.h-5');
-        allIcons.forEach((icon, index) => {
-            const imgElement = icon as HTMLImageElement;
-            console.log(`Icon ${index + 1}: src=${imgElement.src}, complete=${imgElement.complete}, naturalWidth=${imgElement.naturalWidth}`);
-        });
-    }, []);
+        };
+        onConfirm(newMeal);
+    };
 
     return (
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
