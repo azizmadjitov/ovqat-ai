@@ -100,7 +100,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 carbs_g: existingMeal.macros.carbs,
                 fat_g: existingMeal.macros.fat,
                 fiber_g: existingMeal.macros.fiber || 0,
-                healthScore_10: 7, // Default score since we don't store it
+                healthScore_10: existingMeal.healthScore || 7, // Load health score from stored meal, default to 7 if not available
             });
             setLoading(false);
         }
@@ -262,11 +262,13 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             imageUrl: imageDataUrl,
             name: nutritionData.title,
             description: nutritionData.description, // Save description
+            healthScore: nutritionData.healthScore_10, // Save health score
             calories: displayValues.calories,
             macros: {
                 protein: displayValues.protein,
                 carbs: displayValues.carbs,
                 fat: displayValues.fat,
+                fiber: displayValues.fiber,
             }
         };
         onConfirm(newMeal);

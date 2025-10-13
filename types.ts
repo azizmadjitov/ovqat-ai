@@ -20,6 +20,7 @@ export interface Meal {
   imageUrl: string;
   date: string; // ISO date string (YYYY-MM-DD)
   description?: string; // Optional for backward compatibility
+  healthScore?: number; // Health score out of 10
 }
 
 export interface DailyGoal {
