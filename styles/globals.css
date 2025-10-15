@@ -49,14 +49,6 @@ html, body {
   color: var(--label-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Disable text selection */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  /* Disable touch actions for zoom */
-  touch-action: pan-x pan-y;
-  -webkit-touch-callout: none;
 }
 
 /* === Safe Area Padding === */

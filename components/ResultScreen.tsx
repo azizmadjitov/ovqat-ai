@@ -404,10 +404,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 </section>
                 
                 {!isViewMode && (
-                    <div className="fab-container animate-[fadeIn_0.3s_ease-out]" style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                    <div className="mt-auto pt-5 flex justify-center">
                         <button
                             onClick={handleConfirm}
-                            className="bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] rounded-full p-5 shadow-1 transform active:scale-95 transition-transform duration-150 focus:outline-none focus:ring-4 focus:ring-[#FFC3EB]/50 flex items-center gap-x-2 px-8"
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
                         >
                             <SparklesIcon className="w-6 h-6 text-label-opposite" />
                             <span className="text-label-lg text-label-opposite">Done</span>
