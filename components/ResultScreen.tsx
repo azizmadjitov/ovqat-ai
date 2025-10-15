@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Meal } from '../types';
 import { t } from '../i18n';
-import { analyzeMealImage, NutritionData } from '../lib/api/nutritionAnalysis';
+import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
 
 // --- Asset Imports ---
 const chevronLeftIcon = '/assets/icons/chevron-left.svg';
@@ -42,8 +42,6 @@ const SparklesIcon: React.FC<{ className?: string }> = ({ className }) => (
         <path d="M17.5001 14.2002C17.6818 14.2001 17.8585 14.26 18.0027 14.3705C18.1469 14.4811 18.2506 14.6362 18.2976 14.8118C18.4126 15.2687 18.6492 15.6859 18.9824 16.019C19.3155 16.3522 19.7327 16.5888 20.1896 16.7038C20.3651 16.7508 20.5201 16.8543 20.6308 16.9984C20.7414 17.1425 20.8013 17.3191 20.8013 17.5007C20.8013 17.6824 20.7414 17.859 20.6308 18.0031C20.5201 18.1472 20.3651 18.2507 20.1896 18.2977C19.7327 18.4127 19.3155 18.6493 18.9824 18.9825C18.6492 19.3156 18.4126 19.7328 18.2976 20.1897C18.251 20.3656 18.1475 20.5212 18.0033 20.6323C17.859 20.7433 17.6821 20.8035 17.5001 20.8035C17.3181 20.8035 17.1412 20.7433 16.9969 20.6323C16.8527 20.5212 16.7492 20.3656 16.7026 20.1897C16.5876 19.7328 16.351 19.3156 16.0178 18.9825C15.6847 18.6493 15.2675 18.4127 14.8106 18.2977C14.6347 18.2511 14.4791 18.1476 14.368 18.0034C14.257 17.8591 14.1968 17.6822 14.1968 17.5002C14.1968 17.3182 14.257 17.1413 14.368 16.997C14.4791 16.8528 14.6347 16.7493 14.8106 16.7027C15.2675 16.5877 15.6847 16.3511 16.0178 16.0179C16.351 15.6848 16.5876 15.2676 16.7026 14.8107L16.7499 14.682C16.8157 14.5383 16.9213 14.4164 17.0543 14.331C17.1873 14.2456 17.342 14.2002 17.5001 14.2002ZM9.90011 2.2002C10.1605 2.20032 10.4124 2.29279 10.611 2.46118C10.8096 2.62957 10.942 2.86294 10.9847 3.1198C11.2916 4.9568 11.8812 6.1998 12.7403 7.06C13.5994 7.9191 14.8435 8.5087 16.6805 8.8156C16.9368 8.85894 17.1695 8.99165 17.3373 9.19018C17.505 9.38872 17.5971 9.64026 17.5971 9.9002C17.5971 10.1601 17.505 10.4117 17.3373 10.6102C17.1695 10.8087 16.9368 10.9415 16.6805 10.9848C14.8435 11.2917 13.6005 11.8813 12.7403 12.7404C11.8812 13.5995 11.2916 14.8436 10.9847 16.6806C10.9414 16.9369 10.8087 17.1696 10.6101 17.3373C10.4116 17.5051 10.16 17.5972 9.90011 17.5972C9.64017 17.5972 9.38863 17.5051 9.19009 17.3373C8.99156 17.1696 8.85885 16.9369 8.81551 16.6806C8.50861 14.8436 7.91901 13.6006 7.05991 12.7404C6.20081 11.8813 4.95671 11.2917 3.11971 10.9848C2.86341 10.9415 2.63074 10.8087 2.46296 10.6102C2.29518 10.4117 2.20312 10.1601 2.20312 9.9002C2.20312 9.64026 2.29518 9.38872 2.46296 9.19018C2.63074 8.99165 2.86341 8.85894 3.11971 8.8156C4.95671 8.5087 6.19971 7.9191 7.05991 7.06C7.91901 6.2009 8.50861 4.9568 8.81551 3.1198L8.83531 3.0219C8.89688 2.78643 9.03481 2.57804 9.22749 2.42935C9.42017 2.28066 9.65672 2.20007 9.90011 2.2002Z" />
     </svg>
 );
-
-import { analyzeMeal, NutritionResult } from '../src/services/nutrition';
 
 // --- Main Component ---
 
@@ -120,34 +118,15 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 
                 console.log('Loading nutrition data with:', { imageDataUrl, imageFile });
                 
-                // Use the new nutrition service if we have a file
+                // Use the Supabase nutrition service
                 if (imageFile) {
-                    console.log('Using new nutrition service with file');
+                    console.log('Using Supabase nutrition service with file');
                     const data = await analyzeMeal(imageFile, 1); // Always use 1 for initial analysis
                     console.log('Received data from analyzeMeal:', data);
                     
-                    // Check if this is a billing error
-                    if (data.title === "Service Unavailable" && data.description.includes('billing')) {
-                        setError('Google Vision API billing is not enabled. Please contact the administrator to enable billing.');
-                    }
-                    
                     setNutritionData(data);
                 } else {
-                    console.log('Using fallback method with image data URL');
-                    // Fallback to the old method if no file is available
-                    const data = await analyzeMealImage(imageDataUrl);
-                    console.log('Received data from analyzeMealImage:', data);
-                    setNutritionData({
-                        title: data.title,
-                        description: data.description,
-                        takenAtISO: new Date().toISOString(),
-                        calories: data.calories,
-                        protein_g: data.protein,
-                        carbs_g: data.carbs,
-                        fat_g: data.fat,
-                        fiber_g: data.fiber,
-                        healthScore_10: data.healthScore
-                    });
+                    throw new Error('No image file available for analysis');
                 }
             } catch (err) {
                 console.error('Error loading nutrition data:', err);

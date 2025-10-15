@@ -8,9 +8,12 @@
     "build": "npm run css-build && vite build",
     "preview": "vite preview",
     "css-build": "mkdir -p dist && npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css",
-    "css-watch": "npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css --watch"
+    "css-watch": "npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css --watch",
+    "deploy:supabase": "./deploy-supabase.sh",
+    "supabase:logs": "supabase functions logs analyze-food"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.75.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

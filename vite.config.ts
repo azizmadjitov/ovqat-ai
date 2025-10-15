@@ -39,6 +39,22 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          '/api/openai': {
+            target: 'https://api.openai.com/v1',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api\/openai/, ''),
+            configure: (proxy, options) => {
+              proxy.on('proxyReq', (proxyReq, req, res) => {
+                // Add the API key from environment to the request
+                const apiKey = env.VITE_OPENAI_API_KEY;
+                if (apiKey) {
+                  proxyReq.setHeader('Authorization', `Bearer ${apiKey}`);
+                }
+              });
+            },
+          },
+        },
       },
       plugins: [react(), copyAssetsPlugin()],
       define: {
