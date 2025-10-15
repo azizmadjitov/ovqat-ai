@@ -1,6 +1,10 @@
+// @ts-nocheck
+// Deno runtime environment - TypeScript checks are disabled for this file
+// This file runs on Supabase Edge Functions (Deno), not Node.js
 // Supabase Edge Function: analyze-food
 // Deploy this to: supabase/functions/analyze-food/index.ts
 
+// @deno-types="https://deno.land/std@0.168.0/http/server.ts"
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
