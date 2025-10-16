@@ -24,8 +24,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
     const todayDate = getTodayDate();
     const isSelectedDateTodayOrFuture = selectedDate >= todayDate;
     
-    // Filter meals for the selected date
-    const mealsForSelectedDate = meals.filter(meal => meal.date === selectedDate);
+    // Filter meals for the selected date and sort by creation time (newest first)
+    const mealsForSelectedDate = meals
+        .filter(meal => meal.date === selectedDate)
+        .sort((a, b) => b.id.localeCompare(a.id)); // Sort descending by ISO timestamp (id)
     
     const consumedCalories = mealsForSelectedDate.reduce((sum, meal) => sum + meal.calories, 0);
     const consumedMacros = mealsForSelectedDate.reduce((sum, meal) => ({
