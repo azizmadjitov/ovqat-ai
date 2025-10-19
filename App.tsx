@@ -7,11 +7,13 @@ import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
 import { questionnaireService } from './src/services/questionnaireService';
+import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
 import { t } from './i18n';
 
 const App = () => {
     const [tokensLoaded, setTokensLoaded] = useState(false);
+    const [appInitialized, setAppInitialized] = useState(false);
 
     useEffect(() => {
         loadTokens().then(() => {
@@ -21,27 +23,24 @@ const App = () => {
 
     // Authentication state
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState(null as UserProfile | null);
+    const [user, setUser] = useState<UserProfile | null>(null);
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [dailyGoal, setDailyGoal] = useState(null as DailyGoal | null);
+    const [dailyGoal, setDailyGoal] = useState<DailyGoal | null>(null);
 
-    const [currentScreen, setCurrentScreen] = useState(Screen.Home);
+    const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
     
     // Load meals from localStorage on mount
-    const [meals, setMeals] = useState([] as Meal[]);
-    
-    // Save meals to localStorage whenever they change
-    useEffect(() => {
+    const [meals, setMeals] = useState<Meal[]>(() => {
         try {
             const savedMeals = localStorage.getItem('ovqat-meals');
-            if (savedMeals) {
-                setMeals(JSON.parse(savedMeals));
-            }
+            return savedMeals ? JSON.parse(savedMeals) : [];
         } catch (error) {
             console.error('Failed to load meals from localStorage:', error);
+            return [];
         }
-    }, []);
+    });
     
+    // Save meals to localStorage whenever they change
     useEffect(() => {
         try {
             localStorage.setItem('ovqat-meals', JSON.stringify(meals));
@@ -50,8 +49,93 @@ const App = () => {
         }
     }, [meals]);
     
-    const [capturedImage, setCapturedImage] = useState(null as {dataUrl: string, file?: File} | null);
-    const [viewingMeal, setViewingMeal] = useState(null as Meal | null);
+    const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
+    const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
+
+    // Check for existing authenticated user on app load
+    useEffect(() => {
+        if (tokensLoaded && !appInitialized) {
+            checkExistingSession();
+        }
+    }, [tokensLoaded, appInitialized]);
+
+    const checkExistingSession = async () => {
+        try {
+            console.log('🔍 Checking for existing authenticated session...');
+            
+            // Check if there's an existing user session
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            
+            if (authUser) {
+                console.log('✅ Found existing auth session:', authUser.id);
+                
+                // Get user profile data
+                const userProfile = await authService.getCurrentUser();
+                
+                if (userProfile) {
+                    console.log('✅ Found user profile:', userProfile);
+                    
+                    // Set authentication state
+                    setIsAuthenticated(true);
+                    setUser(userProfile);
+                    setPhoneNumber(userProfile.phone_number || '');
+                    
+                    // Check onboarding status
+                    const { completed } = await questionnaireService.checkOnboardingStatus(authUser.id);
+                    
+                    if (completed) {
+                        // User has completed onboarding - load goals
+                        const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                        if (goals) {
+                            setDailyGoal({
+                                calories: goals.goal_calories,
+                                macros: {
+                                    protein: goals.goal_protein_g,
+                                    fat: goals.goal_fat_g,
+                                    carbs: goals.goal_carbs_g,
+                                },
+                            });
+                        }
+                        setCurrentScreen(Screen.Home);
+                    } else {
+                        // User needs to complete onboarding
+                        setCurrentScreen(Screen.Questionnaire);
+                    }
+                } else {
+                    console.log('ℹ️ No user profile found, showing login screen');
+                }
+            } else {
+                console.log('ℹ️ No existing auth session found');
+            }
+        } catch (error) {
+            console.error('Error checking existing session:', error);
+        } finally {
+            setAppInitialized(true);
+        }
+    };
+
+    // Load user goals on authentication
+    useEffect(() => {
+        const loadUserGoals = async () => {
+            if (isAuthenticated && user) {
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                if (authUser) {
+                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                    if (goals) {
+                        setDailyGoal({
+                            calories: goals.goal_calories,
+                            macros: {
+                                protein: goals.goal_protein_g,
+                                fat: goals.goal_fat_g,
+                                carbs: goals.goal_carbs_g,
+                            },
+                        });
+                    }
+                }
+            }
+        };
+        loadUserGoals();
+    }, [isAuthenticated, user]);
 
     const handleOpenCamera = () => {
         console.log('Navigating to Camera screen');
@@ -188,9 +272,13 @@ const App = () => {
         }
     };
     
-    if (!tokensLoaded) {
-        // Render nothing or a loading spinner until tokens are loaded to prevent style flashing
-        return null;
+    // Show loading screen while initializing
+    if (!tokensLoaded || !appInitialized) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-bg-base">
+                <div className="text-label-primary">Initializing...</div>
+            </div>
+        );
     }
 
     // Show login screen if not authenticated
