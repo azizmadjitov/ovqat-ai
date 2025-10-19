@@ -18,6 +18,15 @@ BEGIN
     -- Clean the phone number by removing all non-digit characters
     clean_phone := regexp_replace(phone_text, '[^0-9]', '', 'g');
     
+    -- Handle empty or invalid phone numbers
+    IF LENGTH(clean_phone) < 10 THEN
+        RETURN QUERY SELECT FALSE, NULL::UUID;
+        RETURN;
+    END IF;
+    
+    -- Debug: Uncomment for debugging
+    -- RAISE NOTICE 'Checking phone: %', clean_phone;
+    
     -- Check for exact match first (without + prefix)
     SELECT u.id INTO found_user_id 
     FROM public.users u 
@@ -32,7 +41,7 @@ BEGIN
     -- Check for alternative formats (with + prefix)
     SELECT u.id INTO found_user_id 
     FROM public.users u 
-    WHERE u.phone = '+' || regexp_replace(phone_text, '[^0-9]', '', 'g')
+    WHERE u.phone = '+' || clean_phone
     LIMIT 1;
     
     IF found_user_id IS NOT NULL THEN
@@ -51,6 +60,7 @@ BEGIN
         RETURN;
     END IF;
     
+    -- No user found
     RETURN QUERY SELECT FALSE, NULL::UUID;
 END;
 $$;
