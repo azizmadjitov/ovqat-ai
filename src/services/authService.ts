@@ -77,18 +77,8 @@ export const authService = {
 
         console.log('Found existing user:', existingUser);
 
-        // Update the user's auth ID to match the new session
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({ id: authData.user.id })
-          .eq('phone', existingUser.phone);
-
-        if (updateError) {
-          console.error('Update user ID error:', updateError);
-          return { error: updateError.message };
-        }
-        
-        console.log('✅ Updated user auth ID');
+        // DO NOT update the user's auth ID - instead, we'll link the session differently
+        // This prevents PRIMARY KEY constraint violations and allows cross-device access
         
         // Fetch additional user data from user_profiles and user_goals tables
         const { data: userProfiles, error: profileError } = await supabase
