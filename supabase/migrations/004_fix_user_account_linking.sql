@@ -6,7 +6,7 @@
 DROP FUNCTION IF EXISTS check_phone_exists(TEXT);
 
 CREATE OR REPLACE FUNCTION check_phone_exists(phone_text TEXT)
-RETURNS TABLE(exists BOOLEAN, user_id UUID)
+RETURNS TABLE("exists" BOOLEAN, user_id UUID)
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, pg_temp

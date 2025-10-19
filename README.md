@@ -115,8 +115,23 @@ All tables have Row Level Security (RLS) policies for data protection.
 
 ## Recent Fixes
 
+### Critical Fix: User Account Linking and Phone Number Issues
+Resolved all critical issues with user authentication and phone number handling:
+
+**Issue 1: "User not found" error when logging in from different devices**
+- Fixed by properly linking new anonymous sessions to existing user data
+- Enhanced the authentication service to correctly identify existing users by phone number
+
+**Issue 2: Duplicate users being created with different UIDs**
+- Fixed by implementing proper account linking mechanism
+- Ensured each phone number uniquely identifies one user account
+
+**Issue 3: Empty phone field in user records**
+- Fixed phone number storage format to ensure consistent data
+- Phone numbers are now properly stored and retrieved
+
 ### Fixed User Account Linking Issue
-Resolved the issue where users logging in with existing phone numbers were creating duplicate accounts instead of linking to their existing account. The updated implementation:
+Resolved the issue where users logging in with existing phone numbers were creating duplicate accounts instead of linking to the existing account. The updated implementation:
 - Uses an enhanced `check_phone_exists` database function that returns both existence status and user ID
 - Properly links new anonymous sessions to existing user data
 - Prevents duplicate user creation for the same phone number

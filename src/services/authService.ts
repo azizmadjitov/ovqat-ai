@@ -13,8 +13,8 @@ export const authService = {
       const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
       console.log('Checking if user exists with clean phone number:', cleanPhoneNumber);
       
-      // Use the secure function to check if phone exists and get user ID
-      const { data: phoneCheckResult, error: checkError } = await supabase
+      // Use the secure function to check if phone exists
+      const { data: phoneExists, error: checkError } = await supabase
         .rpc('check_phone_exists', { phone_text: cleanPhoneNumber });
 
       if (checkError) {
@@ -23,9 +23,9 @@ export const authService = {
       }
 
       // If user exists, we need to properly handle the existing user
-      if (phoneCheckResult && phoneCheckResult.exists) {
+      // Note: Current function returns boolean, not table with user_id
+      if (phoneExists) {
         console.log('✅ Phone number exists, proceeding with authentication');
-        console.log('Existing user ID:', phoneCheckResult.user_id);
         
         // Create anonymous session
         const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
@@ -41,21 +41,39 @@ export const authService = {
 
         console.log('✅ Created anonymous auth user:', authData.user.id);
         
-        // Fetch the existing user data from the database using the returned user ID
-        const { data: existingUser, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', phoneCheckResult.user_id)
-          .single();
+        // Fetch the existing user data from the database
+        // Try different phone number formats to ensure we find the user
+        const phoneFormats = [
+          cleanPhoneNumber,
+          '+' + cleanPhoneNumber,
+          phoneNumber.trim()
+        ];
+        
+        let existingUser = null;
+        let fetchError = null;
+        
+        for (const phoneFormat of phoneFormats) {
+          console.log('Trying to fetch user with phone format:', phoneFormat);
+          const { data: existingUsers, error: error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('phone', phoneFormat);
+            
+          if (error) {
+            fetchError = error;
+            continue;
+          }
           
-        if (userError) {
-          console.error('Failed to fetch existing user:', userError);
-          return { error: userError.message };
+          if (existingUsers && existingUsers.length > 0) {
+            existingUser = existingUsers[0];
+            console.log('✅ Found user with format:', phoneFormat);
+            break;
+          }
         }
         
         if (!existingUser) {
-          console.error('Existing user not found despite phone check indicating existence');
-          return { error: 'User not found' };
+          console.error('Failed to fetch existing user with any format:', fetchError);
+          return { error: fetchError?.message || 'User not found' };
         }
 
         console.log('Found existing user:', existingUser);
