@@ -5,6 +5,7 @@ export enum Screen {
   Camera = 'CAMERA',
   Result = 'RESULT',
   Settings = 'SETTINGS',
+  AuthCallback = 'AUTH_CALLBACK'
 }
 
 export interface Macros {

@@ -14,6 +14,10 @@ const translations = {
     'retake': 'Retake',
     'add_meal': 'Add Meal',
     // Auth
+    'welcome': 'Welcome',
+    'sign_in_to_continue': 'Sign in to continue',
+    'continue_with_google': 'Continue with Google',
+    'continue_with_apple': 'Continue with Apple',
     'welcome_back': 'Welcome back',
     'login_subtitle': 'Enter your phone number to continue',
     'phone_number': 'What\'s your number?',
@@ -79,6 +83,10 @@ const translations = {
     'retake': 'Переснять',
     'add_meal': 'Добавить',
     // Auth
+    'welcome': 'Добро пожаловать',
+    'sign_in_to_continue': 'Войдите, чтобы продолжить',
+    'continue_with_google': 'Продолжить с Google',
+    'continue_with_apple': 'Продолжить с Apple',
     'welcome_back': 'С возвращением',
     'login_subtitle': 'Введите номер телефона для продолжения',
     'phone_number': 'Номер телефона',
@@ -144,6 +152,10 @@ const translations = {
     'retake': 'Qayta olish',
     'add_meal': 'Taom qo\'shish',
     // Auth
+    'welcome': 'Xush kelibsiz',
+    'sign_in_to_continue': 'Davom etish uchun kiring',
+    'continue_with_google': 'Google orqali davom etish',
+    'continue_with_apple': 'Apple orqali davom etish',
     'welcome_back': 'Xush kelibsiz',
     'login_subtitle': 'Davom etish uchun telefon raqamingizni kiriting',
     'phone_number': 'Telefon raqami',

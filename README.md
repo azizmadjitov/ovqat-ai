@@ -96,12 +96,24 @@ ovqat-ai/
 
 ## Authentication Flow
 
-1. User enters phone number on LoginScreen
-2. App checks if user exists using secure `check_phone_exists` function
-3. If user exists, creates anonymous session and links to existing data
-4. If new user, creates anonymous session and new user record
-5. User completes questionnaire if onboarding not completed
-6. App loads personalized nutrition goals
+The app now uses OAuth authentication with Google and Apple providers instead of phone number verification.
+
+### User Flow
+
+1. User opens the app and is presented with the AuthScreen
+2. User chooses to sign in with either Google or Apple
+3. User is redirected to the provider's authentication page
+4. After successful authentication, user is redirected back to the app's callback URL
+5. App processes the authentication and creates/updates user profile
+6. If user hasn't completed the questionnaire, they are directed to QuestionnaireScreen
+7. Otherwise, they are directed to HomeScreen
+
+### Technical Implementation
+
+- Authentication is handled by Supabase Auth with OAuth providers
+- User profiles are stored in the `user_profiles` table with OAuth-specific fields
+- The app uses state-based routing instead of react-router-dom
+- Session management is handled automatically by Supabase
 
 ## Database Schema
 
@@ -112,6 +124,42 @@ The application uses three main tables:
 3. `user_goals` - Calculated nutrition goals
 
 All tables have Row Level Security (RLS) policies for data protection.
+
+### user_profiles
+
+Stores user questionnaire data and profile information.
+
+Fields:
+- `user_id` (UUID, PK) - References auth.users(id)
+- `gender` (TEXT) - 'male' or 'female'
+- `birth_year` (INTEGER) - Birth year (1900-2020)
+- `weight_kg` (NUMERIC) - Weight in kg (30-300)
+- `height_cm` (INTEGER) - Height in cm (120-220)
+- `workout_freq` (TEXT) - 'rarely', 'regularly', or 'very_active'
+- `activity_level` (TEXT) - 'sedentary', 'light', 'moderate', or 'very_active'
+- `primary_goal` (TEXT) - 'lose', 'maintain', or 'gain'
+- `diet_type` (TEXT) - 'balanced', 'pescetarian', 'vegetarian', or 'vegan'
+- `bmi` (NUMERIC) - Calculated BMI
+- `email` (TEXT) - User's email (for OAuth users)
+- `full_name` (TEXT) - User's full name (for OAuth users)
+- `avatar_url` (TEXT) - User's avatar URL (for OAuth users)
+- `provider` (TEXT) - Authentication provider ('google' or 'apple')
+- `questionnaire_completed` (BOOLEAN) - Whether user has completed questionnaire
+- `created_at` (TIMESTAMPTZ) - Creation timestamp
+- `updated_at` (TIMESTAMPTZ) - Last update timestamp
+
+### user_goals
+
+Stores calculated nutrition goals for users.
+
+Fields:
+- `user_id` (UUID, PK) - References auth.users(id)
+- `calories` (INTEGER) - Daily calorie target
+- `protein` (INTEGER) - Daily protein target (grams)
+- `carbs` (INTEGER) - Daily carb target (grams)
+- `fat` (INTEGER) - Daily fat target (grams)
+- `created_at` (TIMESTAMPTZ) - Creation timestamp
+- `updated_at` (TIMESTAMPTZ) - Last update timestamp
 
 ## Recent Fixes
 

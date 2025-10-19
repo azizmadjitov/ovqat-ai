@@ -3,7 +3,8 @@ import { Screen, Meal, DailyGoal, UserProfile } from './types';
 import { HomeScreen } from './components/HomeScreen';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultScreen } from './components/ResultScreen';
-import { LoginScreen } from './components/LoginScreen';
+import { AuthScreen } from './components/AuthScreen';
+import { AuthCallback } from './components/AuthCallback';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
 import { questionnaireService } from './src/services/questionnaireService';
@@ -23,24 +24,27 @@ const App = () => {
 
     // Authentication state
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState<UserProfile | null>(null);
+    const [user, setUser] = useState(null as UserProfile | null);
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [dailyGoal, setDailyGoal] = useState<DailyGoal | null>(null);
+    const [dailyGoal, setDailyGoal] = useState(null as DailyGoal | null);
 
-    const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
+    const [currentScreen, setCurrentScreen] = useState(Screen.Home);
     
     // Load meals from localStorage on mount
-    const [meals, setMeals] = useState<Meal[]>(() => {
-        try {
-            const savedMeals = localStorage.getItem('ovqat-meals');
-            return savedMeals ? JSON.parse(savedMeals) : [];
-        } catch (error) {
-            console.error('Failed to load meals from localStorage:', error);
-            return [];
-        }
-    });
+    const [meals, setMeals] = useState([] as Meal[]);
     
     // Save meals to localStorage whenever they change
+    useEffect(() => {
+        try {
+            const savedMeals = localStorage.getItem('ovqat-meals');
+            if (savedMeals) {
+                setMeals(JSON.parse(savedMeals));
+            }
+        } catch (error) {
+            console.error('Failed to load meals from localStorage:', error);
+        }
+    }, []);
+    
     useEffect(() => {
         try {
             localStorage.setItem('ovqat-meals', JSON.stringify(meals));
@@ -49,8 +53,8 @@ const App = () => {
         }
     }, [meals]);
     
-    const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
-    const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
+    const [capturedImage, setCapturedImage] = useState(null as {dataUrl: string, file?: File} | null);
+    const [viewingMeal, setViewingMeal] = useState(null as Meal | null);
 
     // Check for existing authenticated user on app load
     useEffect(() => {
@@ -106,6 +110,10 @@ const App = () => {
                 }
             } else {
                 console.log('ℹ️ No existing auth session found');
+                // Check if we're on the auth callback route
+                if (window.location.pathname === '/auth/callback') {
+                    setCurrentScreen(Screen.AuthCallback);
+                }
             }
         } catch (error) {
             console.error('Error checking existing session:', error);
@@ -182,33 +190,58 @@ const App = () => {
         setCurrentScreen(Screen.Home);
     };
 
-    // Handle successful login
-    const handleLoginSuccess = async (userProfile: UserProfile | null, phone: string, needsOnboarding: boolean) => {
-        console.log('Login successful:', { userProfile, phone, needsOnboarding });
-        setIsAuthenticated(true);
-        setUser(userProfile);
-        setPhoneNumber(phone);
+    // Handle successful authentication
+    const handleAuthSuccess = async () => {
+        console.log('Authentication successful');
+        // The actual session handling will be done in the callback
+        // For now, we'll navigate to the callback screen
+        setCurrentScreen(Screen.AuthCallback);
+    };
+
+    // Handle authentication completion (from AuthCallback)
+    const handleAuthComplete = async (needsOnboarding: boolean) => {
+        console.log('Auth complete, needs onboarding:', needsOnboarding);
         
-        if (needsOnboarding) {
-            // User needs to complete questionnaire
-            setCurrentScreen(Screen.Questionnaire);
-        } else {
-            // User has completed onboarding - load goals and show home screen
+        try {
+            // Get the authenticated user
             const { data: { user: authUser } } = await supabase.auth.getUser();
+            
             if (authUser) {
-                const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                if (goals) {
-                    setDailyGoal({
-                        calories: goals.goal_calories,
-                        macros: {
-                            protein: goals.goal_protein_g,
-                            fat: goals.goal_fat_g,
-                            carbs: goals.goal_carbs_g,
-                        },
-                    });
+                console.log('✅ Authenticated user:', authUser.id);
+                
+                // Set authentication state
+                setIsAuthenticated(true);
+                
+                // Get user profile data
+                const userProfile = await authService.getCurrentUser();
+                setUser(userProfile);
+                setPhoneNumber(userProfile?.phone_number || '');
+                
+                if (needsOnboarding) {
+                    // User needs to complete questionnaire
+                    setCurrentScreen(Screen.Questionnaire);
+                } else {
+                    // User has completed onboarding - load goals and show home screen
+                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                    if (goals) {
+                        setDailyGoal({
+                            calories: goals.goal_calories,
+                            macros: {
+                                protein: goals.goal_protein_g,
+                                fat: goals.goal_fat_g,
+                                carbs: goals.goal_carbs_g,
+                            },
+                        });
+                    }
+                    setCurrentScreen(Screen.Home);
                 }
+            } else {
+                console.log('❌ No authenticated user found');
+                setCurrentScreen(Screen.Login);
             }
-            setCurrentScreen(Screen.Home);
+        } catch (error) {
+            console.error('Error in handleAuthComplete:', error);
+            setCurrentScreen(Screen.Login);
         }
     };
 
@@ -238,6 +271,8 @@ const App = () => {
     const renderScreen = () => {
         console.log('Rendering screen:', currentScreen);
         switch (currentScreen) {
+            case Screen.AuthCallback:
+                return <AuthCallback onAuthComplete={handleAuthComplete} />;
             case Screen.Questionnaire:
                 return <QuestionnaireScreen phoneNumber={phoneNumber} onComplete={handleQuestionnaireComplete} />;
             case Screen.Home:
@@ -281,11 +316,11 @@ const App = () => {
         );
     }
 
-    // Show login screen if not authenticated
-    if (!isAuthenticated) {
+    // Show auth screen if not authenticated and not on callback
+    if (!isAuthenticated && currentScreen !== Screen.AuthCallback) {
         return (
             <div className="max-w-md mx-auto shadow-2xl min-h-screen">
-                <LoginScreen onLoginSuccess={handleLoginSuccess} />
+                <AuthScreen onAuthSuccess={handleAuthSuccess} />
             </div>
         );
     }
