@@ -62,6 +62,7 @@ cp .env.example .env
    - supabase/migrations/001_initial_schema.sql
    - supabase/migrations/002_security_fixes.sql
    - supabase/migrations/003_fix_function_search_path.sql
+   - supabase/migrations/004_fix_user_account_linking.sql
 
 ### Development
 
@@ -113,6 +114,16 @@ The application uses three main tables:
 All tables have Row Level Security (RLS) policies for data protection.
 
 ## Recent Fixes
+
+### Fixed User Account Linking Issue
+Resolved the issue where users logging in with existing phone numbers were creating duplicate accounts instead of linking to their existing account. The updated implementation:
+- Uses an enhanced `check_phone_exists` database function that returns both existence status and user ID
+- Properly links new anonymous sessions to existing user data
+- Prevents duplicate user creation for the same phone number
+- Enables consistent cross-device authentication
+
+### Fixed Phone Number Format
+Updated phone number storage format to store numbers without the "+" sign (e.g., 998997961877 instead of +998997961877) for consistency and to fix empty phone number issues in the database.
 
 ### Fixed Authentication Session Expiration
 Enhanced the questionnaire submission flow with automatic session refresh capabilities to prevent "Authentication session expired" errors.
@@ -167,7 +178,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Troubleshooting
 
 ### Authentication Issues
-- Ensure phone numbers are consistently formatted with + prefix
+- Ensure phone numbers are consistently formatted without + prefix
 - Check that Supabase RLS policies are correctly applied
 - Verify environment variables are correctly set
 

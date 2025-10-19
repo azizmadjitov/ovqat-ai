@@ -9,12 +9,12 @@ export const authService = {
       console.log('Phone number:', phoneNumber);
       
       // First, check if user already exists by phone number using the secure function
-      // Clean the phone number for consistent storage and search
-      const cleanPhoneNumber = '+' + phoneNumber.replace(/\D/g, '');
+      // Clean the phone number for consistent storage and search (without + sign)
+      const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
       console.log('Checking if user exists with clean phone number:', cleanPhoneNumber);
       
-      // Use the secure function to check if phone exists
-      const { data: phoneExists, error: checkError } = await supabase
+      // Use the secure function to check if phone exists and get user ID
+      const { data: phoneCheckResult, error: checkError } = await supabase
         .rpc('check_phone_exists', { phone_text: cleanPhoneNumber });
 
       if (checkError) {
@@ -23,8 +23,9 @@ export const authService = {
       }
 
       // If user exists, we need to properly handle the existing user
-      if (phoneExists) {
+      if (phoneCheckResult && phoneCheckResult.exists) {
         console.log('✅ Phone number exists, proceeding with authentication');
+        console.log('Existing user ID:', phoneCheckResult.user_id);
         
         // Create anonymous session
         const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
@@ -40,46 +41,25 @@ export const authService = {
 
         console.log('✅ Created anonymous auth user:', authData.user.id);
         
-        // Fetch the existing user data from the database
-        // Let's try different phone number formats to ensure we find the user
-        const phoneFormats = [
-          cleanPhoneNumber,
-          cleanPhoneNumber.replace('+', ''),
-          phoneNumber.trim()
-        ];
-        
-        let existingUser = null;
-        let fetchError = null;
-        
-        for (const phoneFormat of phoneFormats) {
-          console.log('Trying to fetch user with phone format:', phoneFormat);
-          const { data: existingUsers, error: error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('phone', phoneFormat);
-            
-          if (error) {
-            fetchError = error;
-            continue;
-          }
+        // Fetch the existing user data from the database using the returned user ID
+        const { data: existingUser, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', phoneCheckResult.user_id)
+          .single();
           
-          if (existingUsers && existingUsers.length > 0) {
-            existingUser = existingUsers[0];
-            console.log('✅ Found user with format:', phoneFormat);
-            break;
-          }
+        if (userError) {
+          console.error('Failed to fetch existing user:', userError);
+          return { error: userError.message };
         }
         
         if (!existingUser) {
-          console.error('Failed to fetch existing user with any format:', fetchError);
-          return { error: fetchError?.message || 'User not found' };
+          console.error('Existing user not found despite phone check indicating existence');
+          return { error: 'User not found' };
         }
 
         console.log('Found existing user:', existingUser);
 
-        // DO NOT update the user's auth ID - instead, we'll link the session differently
-        // This prevents PRIMARY KEY constraint violations and allows cross-device access
-        
         // Fetch additional user data from user_profiles and user_goals tables
         const { data: userProfiles, error: profileError } = await supabase
           .from('user_profiles')
@@ -99,7 +79,7 @@ export const authService = {
 
         // Construct a complete UserProfile object
         const userData: UserProfile = {
-          id: authData.user.id,
+          id: existingUser.id, // Use existing user ID, not the new anonymous session ID
           phone_number: existingUser.phone,
           age: userProfile?.birth_year ? new Date().getFullYear() - userProfile.birth_year : 0,
           gender: userProfile?.gender || 'male',
@@ -145,7 +125,7 @@ export const authService = {
       console.log('Step 2: Inserting user into database...');
 
       // Create user profile in our users table
-      const cleanPhoneForInsert = '+' + phoneNumber.replace(/\D/g, '');
+      const cleanPhoneForInsert = phoneNumber.replace(/\D/g, ''); // Store without + sign
       const { data: newProfile, error: createError } = await supabase
         .from('users')
         .insert({
@@ -153,7 +133,8 @@ export const authService = {
           phone: cleanPhoneForInsert,
           onboarding_completed: false,
         })
-        .select();
+        .select()
+        .single();
 
       if (createError) {
         console.error('❌ Profile creation error:', createError);
@@ -161,12 +142,11 @@ export const authService = {
         return { error: createError.message };
       }
       
-      // Handle case where we might have multiple or no results
-      if (!newProfile || newProfile.length === 0) {
+      if (!newProfile) {
         return { error: 'Failed to create user profile' };
       }
 
-      console.log('✅ Created user profile:', newProfile[0]);
+      console.log('✅ Created user profile:', newProfile);
       
       // Return minimal user data for new users
       const userData: UserProfile = {
@@ -225,16 +205,14 @@ export const authService = {
       const { data: profiles, error: profileError } = await supabase
         .from('users')
         .select('*')
-        .eq('id', data.user.id);
+        .eq('id', data.user.id)
+        .single();
 
       if (profileError && profileError.code !== 'PGRST116') {
         return { error: profileError.message };
       }
 
-      // Handle the case where we might have multiple or no results
-      const profile = profiles && profiles.length > 0 ? profiles[0] : null;
-
-      return { user: profile || null };
+      return { user: profiles || null };
     } catch (error) {
       return { error: 'Failed to verify OTP' };
     }
@@ -249,17 +227,15 @@ export const authService = {
       const { data: profiles, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .single();
 
       if (error) {
         console.error('Get current user error:', error);
         return null;
       }
 
-      // Handle the case where we might have multiple or no results
-      const profile = profiles && profiles.length > 0 ? profiles[0] : null;
-
-      return profile;
+      return profiles;
     } catch (error) {
       console.error('Get current user exception:', error);
       return null;

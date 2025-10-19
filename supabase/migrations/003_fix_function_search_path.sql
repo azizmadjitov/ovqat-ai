@@ -41,16 +41,16 @@ AS $$
 DECLARE
     clean_phone TEXT;
 BEGIN
-    -- Clean the phone number by removing all non-digit characters and adding + prefix
-    clean_phone := '+' || regexp_replace(phone_text, '[^0-9]', '', 'g');
+    -- Clean the phone number by removing all non-digit characters (without adding + prefix)
+    clean_phone := regexp_replace(phone_text, '[^0-9]', '', 'g');
     
-    -- Check for exact match first
+    -- Check for exact match first (without + prefix)
     IF EXISTS (SELECT 1 FROM public.users WHERE phone = clean_phone) THEN
         RETURN TRUE;
     END IF;
     
-    -- Check for alternative formats
-    IF EXISTS (SELECT 1 FROM public.users WHERE phone = regexp_replace(phone_text, '[^0-9]', '', 'g')) THEN
+    -- Check for alternative formats (with + prefix)
+    IF EXISTS (SELECT 1 FROM public.users WHERE phone = '+' || regexp_replace(phone_text, '[^0-9]', '', 'g')) THEN
         RETURN TRUE;
     END IF;
     

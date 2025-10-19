@@ -6,6 +6,9 @@ export const questionnaireService = {
   // Create or get user by phone
   async upsertUser(phone: string): Promise<{ user: DBUser | null; error?: string }> {
     try {
+      // Clean the phone number by removing all non-digit characters (without + prefix)
+      const cleanPhone = phone.replace(/\D/g, '');
+      
       // Try to get the authenticated user
       const { data: authUser, error: authError } = await supabase.auth.getUser();
       
@@ -38,7 +41,7 @@ export const questionnaireService = {
           .from('users')
           .upsert({
             id: refreshedAuthUser.user.id,
-            phone: phone,
+            phone: cleanPhone,
             onboarding_completed: existingUser?.onboarding_completed || false,
           }, {
             onConflict: 'id',
@@ -63,7 +66,7 @@ export const questionnaireService = {
       const { data: existingUsers, error: searchError } = await supabase
         .from('users')
         .select('*')
-        .eq('phone', phone);
+        .eq('phone', cleanPhone);
 
       if (searchError && searchError.code !== 'PGRST116') {
         console.error('Search error:', searchError);
@@ -93,7 +96,7 @@ export const questionnaireService = {
         .from('users')
         .upsert({
           id: authUser.user.id,
-          phone: phone,
+          phone: cleanPhone,
           onboarding_completed: userRecord?.onboarding_completed || false,
         }, {
           onConflict: 'id',
