@@ -7,11 +7,13 @@ import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
 import { questionnaireService } from './src/services/questionnaireService';
+import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
 import { t } from './i18n';
 
 const App = () => {
     const [tokensLoaded, setTokensLoaded] = useState(false);
+    const [appInitialized, setAppInitialized] = useState(false);
 
     useEffect(() => {
         loadTokens().then(() => {
@@ -49,6 +51,68 @@ const App = () => {
     
     const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
     const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
+
+    // Check for existing authenticated user on app load
+    useEffect(() => {
+        if (tokensLoaded && !appInitialized) {
+            checkExistingSession();
+        }
+    }, [tokensLoaded, appInitialized]);
+
+    const checkExistingSession = async () => {
+        try {
+            console.log('🔍 Checking for existing authenticated session...');
+            
+            // Check if there's an existing user session
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            
+            if (authUser) {
+                console.log('✅ Found existing auth session:', authUser.id);
+                
+                // Get user profile data
+                const userProfile = await authService.getCurrentUser();
+                
+                if (userProfile) {
+                    console.log('✅ Found user profile:', userProfile);
+                    
+                    // Set authentication state
+                    setIsAuthenticated(true);
+                    setUser(userProfile);
+                    setPhoneNumber(userProfile.phone_number || '');
+                    
+                    // Check onboarding status
+                    const { completed } = await questionnaireService.checkOnboardingStatus(authUser.id);
+                    
+                    if (completed) {
+                        // User has completed onboarding - load goals
+                        const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                        if (goals) {
+                            setDailyGoal({
+                                calories: goals.goal_calories,
+                                macros: {
+                                    protein: goals.goal_protein_g,
+                                    fat: goals.goal_fat_g,
+                                    carbs: goals.goal_carbs_g,
+                                },
+                            });
+                        }
+                        setCurrentScreen(Screen.Home);
+                    } else {
+                        // User needs to complete onboarding
+                        setCurrentScreen(Screen.Questionnaire);
+                    }
+                } else {
+                    console.log('ℹ️ No user profile found, showing login screen');
+                }
+            } else {
+                console.log('ℹ️ No existing auth session found');
+            }
+        } catch (error) {
+            console.error('Error checking existing session:', error);
+        } finally {
+            setAppInitialized(true);
+        }
+    };
 
     // Load user goals on authentication
     useEffect(() => {
@@ -208,9 +272,13 @@ const App = () => {
         }
     };
     
-    if (!tokensLoaded) {
-        // Render nothing or a loading spinner until tokens are loaded to prevent style flashing
-        return null;
+    // Show loading screen while initializing
+    if (!tokensLoaded || !appInitialized) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-bg-base">
+                <div className="text-label-primary">Initializing...</div>
+            </div>
+        );
     }
 
     // Show login screen if not authenticated
