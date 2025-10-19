@@ -26,14 +26,15 @@ export const questionnaireService = {
         }
         
         // Check if user already exists and get their onboarding status
-        const { data: existingUser } = await supabase
+        const { data: existingUsers } = await supabase
           .from('users')
           .select('onboarding_completed')
-          .eq('id', refreshedAuthUser.user.id)
-          .single();
+          .eq('id', refreshedAuthUser.user.id);
+        
+        const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
         
         // Use the refreshed user data
-        const { data, error } = await supabase
+        const { data: userData, error: upsertError } = await supabase
           .from('users')
           .upsert({
             id: refreshedAuthUser.user.id,
@@ -42,11 +43,16 @@ export const questionnaireService = {
           }, {
             onConflict: 'id',
           })
-          .select()
-          .single();
+          .select();
 
-        if (error) return { user: null, error: error.message };
-        return { user: data };
+        if (upsertError) return { user: null, error: upsertError.message };
+        
+        // Handle case where we might have multiple or no results
+        if (!userData || userData.length === 0) {
+          return { user: null, error: 'Failed to create or update user' };
+        }
+        
+        return { user: userData[0] };
       }
       
       if (!authUser?.user) {
@@ -76,26 +82,32 @@ export const questionnaireService = {
       }
 
       // Check if user already exists and get their onboarding status
-      const { data: existingUser } = await supabase
+      const { data: userRecords } = await supabase
         .from('users')
         .select('onboarding_completed')
-        .eq('id', authUser.user.id)
-        .single();
+        .eq('id', authUser.user.id);
       
-      const { data, error } = await supabase
+      const userRecord = userRecords && userRecords.length > 0 ? userRecords[0] : null;
+      
+      const { data: upsertData, error: upsertError } = await supabase
         .from('users')
         .upsert({
           id: authUser.user.id,
           phone: phone,
-          onboarding_completed: existingUser?.onboarding_completed || false,
+          onboarding_completed: userRecord?.onboarding_completed || false,
         }, {
           onConflict: 'id',
         })
-        .select()
-        .single();
+        .select();
 
-      if (error) return { user: null, error: error.message };
-      return { user: data };
+      if (upsertError) return { user: null, error: upsertError.message };
+      
+      // Handle case where we might have multiple or no results
+      if (!upsertData || upsertData.length === 0) {
+        return { user: null, error: 'Failed to create or update user' };
+      }
+      
+      return { user: upsertData[0] };
     } catch (error) {
       console.error('Error in upsertUser:', error);
       return { user: null, error: 'Failed to create user: ' + (error as Error).message };
@@ -184,11 +196,21 @@ export const questionnaireService = {
       const { data, error } = await supabase
         .from('users')
         .select('onboarding_completed')
-        .eq('id', userId)
-        .single();
+        .eq('id', userId);
 
       if (error) return { completed: false, error: error.message };
-      return { completed: data?.onboarding_completed || false };
+      
+      // Handle case where we might have multiple or no results
+      if (!data || data.length === 0) {
+        return { completed: false, error: 'User not found' };
+      }
+      
+      if (data.length > 1) {
+        console.warn('Multiple users found with the same ID:', userId);
+      }
+      
+      // Use the first result
+      return { completed: data[0]?.onboarding_completed || false };
     } catch (error) {
       return { completed: false, error: 'Failed to check onboarding status' };
     }
@@ -200,11 +222,21 @@ export const questionnaireService = {
       const { data, error } = await supabase
         .from('user_goals')
         .select('*')
-        .eq('user_id', userId)
-        .single();
+        .eq('user_id', userId);
 
       if (error) return { goals: null, error: error.message };
-      return { goals: data };
+      
+      // Handle case where we might have multiple or no results
+      if (!data || data.length === 0) {
+        return { goals: null, error: 'User goals not found' };
+      }
+      
+      if (data.length > 1) {
+        console.warn('Multiple user goals found with the same user ID:', userId);
+      }
+      
+      // Use the first result
+      return { goals: data[0] };
     } catch (error) {
       return { goals: null, error: 'Failed to get user goals' };
     }

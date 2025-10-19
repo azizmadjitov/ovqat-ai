@@ -1,56 +1,194 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Ovqat AI - AI-Powered Nutrition Analysis App
 
-# Run and deploy your AI Studio app
+Ovqat AI is an innovative nutrition analysis application that leverages artificial intelligence to help users track their meals and achieve their health goals. Simply take a photo of your food, and Ovqat AI will analyze its nutritional content, providing detailed information about calories and macronutrients.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/117ORxNHIybMBWxguGL5xr-ZszgMOAeXT
+- 📸 **AI-Powered Food Recognition**: Advanced computer vision identifies food items in photos
+- 📊 **Nutritional Analysis**: Detailed breakdown of calories, proteins, carbs, and fats
+- 🎯 **Personalized Goals**: Custom nutrition targets based on user profile and objectives
+- 📱 **Mobile-First Design**: Optimized for smartphones with intuitive interface
+- 🌍 **Multilingual Support**: Available in Russian and Uzbek languages
+- 🔐 **Secure Authentication**: Phone-based authentication without complex OTP flows
 
-## Run Locally
+## Technology Stack
 
-**Prerequisites:**  Node.js
+- **Frontend**: React with TypeScript, Vite build tool
+- **Backend**: Supabase (Database, Authentication, Storage)
+- **AI/ML**: OpenAI Vision API for food recognition
+- **Styling**: Tailwind CSS with custom design system
+- **Deployment**: Netlify (Frontend), Supabase (Backend)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Getting Started
 
-## AI-Powered Nutrition Analysis
+### Prerequisites
 
-This app uses **OpenAI GPT-4o-mini multimodal** with professional nutritionist expertise:
+- Node.js (v16 or higher)
+- npm or yarn
+- Supabase account
+- OpenAI API key (for AI features)
 
-- **Advanced Vision Analysis**: GPT-4o-mini analyzes food images with high detail recognition
-- **Regional Focus**: Optimized for **Uzbek, CIS, and Central Asian cuisines** (Plov, Lagman, Manti, Shashlik, Samsa, etc.)
-- **Cost-Effective**: More affordable than GPT-4o while maintaining excellent vision capabilities
-- **Professional Nutritionist Role**: AI acts as a certified nutritionist and dietitian
-- **Accurate Dish Identification**: Recognizes dishes with regional priority:
-  - **Primary**: Uzbek, Russian, Kazakh, Kyrgyz, Tajik, Turkmen cuisines
-  - **Secondary**: Other world cuisines when applicable
-- **Detailed Nutritional Breakdown**: Calculates calories, protein, carbs, fats, and fiber based on:
-  - Visible ingredients and their quantities
-  - Cooking methods (fried, grilled, steamed, baked, raw)
-  - Portion size estimation using standard serving sizes
-  - Hidden ingredients (cooking oils, sauces, dressings)
-- **Health Score Assessment**: Professional 0-10 rating based on nutritional balance
-- **Concise Descriptions**: Brief, informative descriptions (max 90-100 characters)
-- **Visual-First Analysis**: Examines colors, textures, cooking style, plating, and text labels
+### Installation
 
-**Professional Calculation Method:**
-- Uses food science formula: calories ≈ (4×protein + 4×carbs + 9×fat)
-- Considers all macro and micronutrients
-- Accounts for cooking methods that affect nutrition
+1. Clone the repository:
+```bash
+git clone git@github.com:azizmadjitov/ovqat-ai.git
+cd ovqat-ai
+```
 
-To enable the AI features:
-1. Set `VITE_OPENAI_API_KEY` in your environment variables with your OpenAI API key
-2. The app uses GPT-4o-mini model with vision capabilities and nutritionist expertise
-3. Set `VITE_USE_MOCK="0"` to use real API (set to "1" for mock data)
+2. Install dependencies:
+```bash
+npm install
+```
 
-**Why GPT-4o-mini Multimodal:**
-- Cost-effective solution for production use
-- Single API call for complete analysis (vision + nutrition calculation)
-- Professional-grade nutritional assessment with regional cuisine expertise
-- High accuracy in identifying Central Asian and CIS dishes
-- Understanding of local food culture and traditional recipes
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your Supabase and OpenAI credentials
+```
+
+### Supabase Setup
+
+1. Create a new Supabase project at https://app.supabase.com/
+2. Get your project credentials from Settings → API
+3. Update your `.env` file with the new credentials:
+   ```
+   VITE_SUPABASE_URL=your_new_project_url
+   VITE_SUPABASE_ANON_KEY=your_new_anon_key
+   ```
+4. Enable Anonymous Sign-ins in Authentication → Settings
+5. Apply database migrations:
+   ```bash
+   # Follow the instructions in apply-migrations.sh
+   cat apply-migrations.sh
+   ```
+   Apply these files in order in your Supabase SQL Editor:
+   - supabase/migrations/001_initial_schema.sql
+   - supabase/migrations/002_security_fixes.sql
+   - supabase/migrations/003_fix_function_search_path.sql
+
+6. Verify your setup:
+   ```bash
+   npm run verify-supabase
+   ```
+
+### Development
+
+```bash
+npm run dev
+```
+
+The app will be available at http://localhost:3000
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+## Project Structure
+
+```
+ovqat-ai/
+├── components/          # React components
+├── src/
+│   ├── lib/            # Supabase client configuration
+│   ├── services/       # Business logic and API services
+│   └── utils/          # Utility functions
+├── supabase/
+│   └── migrations/     # Database schema migrations
+├── assets/             # Static assets
+├── styles/             # Global styles
+└── types.ts           # TypeScript type definitions
+```
+
+## Authentication Flow
+
+1. User enters phone number on LoginScreen
+2. App checks if user exists using secure `check_phone_exists` function
+3. If user exists, creates anonymous session and links to existing data
+4. If new user, creates anonymous session and new user record
+5. User completes questionnaire if onboarding not completed
+6. App loads personalized nutrition goals
+
+## Database Schema
+
+The application uses three main tables:
+
+1. `users` - Core user information and authentication
+2. `user_profiles` - Detailed user profile from questionnaire
+3. `user_goals` - Calculated nutrition goals
+
+All tables have Row Level Security (RLS) policies for data protection.
+
+## Recent Fixes
+
+### Fixed Authentication Session Expiration
+Enhanced the questionnaire submission flow with automatic session refresh capabilities to prevent "Authentication session expired" errors.
+
+### Fixed User Identification by Phone Number
+Enhanced the createUserByPhone function to properly identify users by their phone number as the primary identifier, ensuring cross-device authentication works correctly and maintaining all user data integrity.
+
+### Fixed Database Query Errors
+Resolved "cannot coerce the result to a single json object" errors by removing problematic .single() calls and adding proper error handling for database operations.
+
+### Fixed Supabase Security Warnings
+Addressed all security concerns reported by Supabase Security Advisor:
+- Removed custom RLS policies on auth.users
+- Restricted all table access to authenticated users only
+- Scoped all RLS policies to auth.uid()
+- Implemented secure phone number checking via function
+
+### Fixed Duplicate Users Issue
+Enhanced phone number checking and user identification to prevent duplicate users from being created when the same phone number is entered multiple times.
+
+## Deployment
+
+### Frontend (Netlify)
+1. Connect your GitHub repository to Netlify
+2. Set build command: `npm run build`
+3. Set publish directory: `dist/`
+4. Add environment variables in Netlify dashboard
+
+### Backend (Supabase)
+1. Run all SQL migrations in the `supabase/migrations/` folder
+2. Enable Phone Authentication in Supabase Auth settings
+3. Configure your SMS provider (Twilio recommended)
+
+## Environment Variables
+
+```
+VITE_OPENAI_API_KEY=your_openai_api_key
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## Troubleshooting
+
+### Authentication Issues
+- Ensure phone numbers are consistently formatted with + prefix
+- Check that Supabase RLS policies are correctly applied
+- Verify environment variables are correctly set
+
+### AI Analysis Not Working
+- Confirm OpenAI API key is valid and has vision capabilities
+- Check internet connection
+- Verify image format and size requirements
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- OpenAI for the Vision API
+- Supabase for the excellent backend platform
+- Tailwind CSS for the styling framework

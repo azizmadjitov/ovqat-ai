@@ -40,6 +40,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
     // Clean the phone number by removing all non-digit characters and adding the + prefix
     const cleanPhoneNumber = '+' + phoneNumber.replace(/\D/g, '');
+    console.log('Submitting phone number:', cleanPhoneNumber);
 
     setLoading(true);
 

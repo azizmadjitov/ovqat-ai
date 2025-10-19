@@ -10,10 +10,13 @@
     "css-build": "mkdir -p dist && npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css",
     "css-watch": "npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css --watch",
     "deploy:supabase": "./deploy-supabase.sh",
-    "supabase:logs": "supabase functions logs analyze-food"
+    "supabase:logs": "supabase functions logs analyze-food",
+    "verify-supabase": "npx tsx setup-supabase.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.0",
+    "@types/dotenv": "^6.1.1",
+    "dotenv": "^17.2.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

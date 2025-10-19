@@ -8,28 +8,133 @@ export const authService = {
       console.log('=== createUserByPhone called ===');
       console.log('Phone number:', phoneNumber);
       
-      // First, check if user already exists by phone number
+      // First, check if user already exists by phone number using the secure function
       // Clean the phone number for consistent storage and search
       const cleanPhoneNumber = '+' + phoneNumber.replace(/\D/g, '');
       console.log('Checking if user exists with clean phone number:', cleanPhoneNumber);
-      const { data: existingUsers, error: searchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('phone', cleanPhoneNumber);
+      
+      // Use the secure function to check if phone exists
+      const { data: phoneExists, error: checkError } = await supabase
+        .rpc('check_phone_exists', { phone_text: cleanPhoneNumber });
 
-      console.log('Search result:', { existingUsers, searchError });
-
-      if (searchError && searchError.code !== 'PGRST116') {
-        console.error('Search error:', searchError);
-        return { error: searchError.message };
+      if (checkError) {
+        console.error('Phone check error:', checkError);
+        return { error: checkError.message };
       }
 
-      // If user exists, just return them - DON'T create new session or insert
-      if (existingUsers && existingUsers.length > 0) {
-        const existingUser = existingUsers[0];
-        console.log('✅ Found existing user:', existingUser);
-        console.log('✅ Returning existing user without creating new records');
-        return { user: existingUser };
+      // If user exists, we need to properly handle the existing user
+      if (phoneExists) {
+        console.log('✅ Phone number exists, proceeding with authentication');
+        
+        // Create anonymous session
+        const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+        
+        if (authError) {
+          console.error('Anonymous auth error:', authError);
+          return { error: authError.message };
+        }
+
+        if (!authData.user) {
+          return { error: 'Failed to create authentication session' };
+        }
+
+        console.log('✅ Created anonymous auth user:', authData.user.id);
+        
+        // Fetch the existing user data from the database
+        // Let's try different phone number formats to ensure we find the user
+        const phoneFormats = [
+          cleanPhoneNumber,
+          cleanPhoneNumber.replace('+', ''),
+          phoneNumber.trim()
+        ];
+        
+        let existingUser = null;
+        let fetchError = null;
+        
+        for (const phoneFormat of phoneFormats) {
+          console.log('Trying to fetch user with phone format:', phoneFormat);
+          const { data: existingUsers, error: error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('phone', phoneFormat);
+            
+          if (error) {
+            fetchError = error;
+            continue;
+          }
+          
+          if (existingUsers && existingUsers.length > 0) {
+            existingUser = existingUsers[0];
+            console.log('✅ Found user with format:', phoneFormat);
+            break;
+          }
+        }
+        
+        if (!existingUser) {
+          console.error('Failed to fetch existing user with any format:', fetchError);
+          return { error: fetchError?.message || 'User not found' };
+        }
+
+        console.log('Found existing user:', existingUser);
+
+        // Update the user's auth ID to match the new session
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ id: authData.user.id })
+          .eq('phone', existingUser.phone);
+
+        if (updateError) {
+          console.error('Update user ID error:', updateError);
+          return { error: updateError.message };
+        }
+        
+        console.log('✅ Updated user auth ID');
+        
+        // Fetch additional user data from user_profiles and user_goals tables
+        const { data: userProfiles, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', existingUser.id);
+
+        const { data: userGoalsData, error: goalsError } = await supabase
+          .from('user_goals')
+          .select('*')
+          .eq('user_id', existingUser.id);
+
+        // Handle profile data
+        const userProfile = userProfiles && userProfiles.length > 0 ? userProfiles[0] : null;
+        
+        // Handle goals data
+        const userGoals = userGoalsData && userGoalsData.length > 0 ? userGoalsData[0] : null;
+
+        // Construct a complete UserProfile object
+        const userData: UserProfile = {
+          id: authData.user.id,
+          phone_number: existingUser.phone,
+          age: userProfile?.birth_year ? new Date().getFullYear() - userProfile.birth_year : 0,
+          gender: userProfile?.gender || 'male',
+          weight: userProfile?.weight_kg || 0,
+          height: userProfile?.height_cm || 0,
+          activity_level: userProfile?.activity_level || 'sedentary',
+          goal: (() => {
+            switch (userProfile?.primary_goal) {
+              case 'lose': return 'lose_weight';
+              case 'gain': return 'gain_weight';
+              default: return 'maintain';
+            }
+          })(),
+          goal_calories: userGoals?.goal_calories || 0,
+          goal_protein: userGoals?.goal_protein_g || 0,
+          goal_carbs: userGoals?.goal_carbs_g || 0,
+          goal_fat: userGoals?.goal_fat_g || 0,
+          language: 'ru',
+          questionnaire_completed: existingUser.onboarding_completed,
+          created_at: existingUser.created_at,
+          updated_at: userProfile?.updated_at || existingUser.updated_at || existingUser.created_at
+        };
+        
+        console.log('✅ Constructed user data:', userData);
+        return { user: userData };
       }
 
       // New user - create anonymous session first
@@ -58,17 +163,42 @@ export const authService = {
           phone: cleanPhoneForInsert,
           onboarding_completed: false,
         })
-        .select()
-        .single();
+        .select();
 
       if (createError) {
         console.error('❌ Profile creation error:', createError);
         console.error('Error details:', JSON.stringify(createError, null, 2));
         return { error: createError.message };
       }
+      
+      // Handle case where we might have multiple or no results
+      if (!newProfile || newProfile.length === 0) {
+        return { error: 'Failed to create user profile' };
+      }
 
-      console.log('✅ Created user profile:', newProfile);
-      return { user: newProfile };
+      console.log('✅ Created user profile:', newProfile[0]);
+      
+      // Return minimal user data for new users
+      const userData: UserProfile = {
+        id: authData.user.id,
+        phone_number: cleanPhoneForInsert,
+        age: 0,
+        gender: 'male',
+        weight: 0,
+        height: 0,
+        activity_level: 'sedentary',
+        goal: 'maintain',
+        goal_calories: 0,
+        goal_protein: 0,
+        goal_carbs: 0,
+        goal_fat: 0,
+        language: 'ru',
+        questionnaire_completed: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      return { user: userData };
     } catch (error: any) {
       console.error('❌ Unexpected error in createUserByPhone:', error);
       return { error: error.message || 'Failed to create user' };
@@ -102,15 +232,17 @@ export const authService = {
       if (!data.user) return { error: 'No user found' };
 
       // Check if user profile exists
-      const { data: profile, error: profileError } = await supabase
+      const { data: profiles, error: profileError } = await supabase
         .from('users')
         .select('*')
-        .eq('id', data.user.id)
-        .single();
+        .eq('id', data.user.id);
 
       if (profileError && profileError.code !== 'PGRST116') {
         return { error: profileError.message };
       }
+
+      // Handle the case where we might have multiple or no results
+      const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
       return { user: profile || null };
     } catch (error) {
@@ -124,14 +256,22 @@ export const authService = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: profile } = await supabase
+      const { data: profiles, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', user.id)
-        .single();
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Get current user error:', error);
+        return null;
+      }
+
+      // Handle the case where we might have multiple or no results
+      const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
       return profile;
     } catch (error) {
+      console.error('Get current user exception:', error);
       return null;
     }
   },
