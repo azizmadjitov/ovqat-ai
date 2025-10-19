@@ -32,14 +32,10 @@ export const Button: React.FC<ButtonProps> = ({
         ${
           isDisabled
             ? 'bg-stroke-non-opaque text-label-secondary cursor-not-allowed'
-            : 'bg-label-primary cursor-pointer hover:opacity-90 active:opacity-80'
+            : 'bg-label-primary cursor-pointer hover:opacity-90 active:opacity-80 text-label-opposite'
         }
         ${className}
       `.trim().replace(/\s+/g, ' ')}
-      style={{
-        backgroundColor: isDisabled ? 'rgba(180, 184, 204, 0.28)' : undefined,
-        color: isDisabled ? undefined : 'rgba(255, 255, 255, 1.00)'
-      }}
     >
       {loading ? (
         <span className="flex items-center justify-center">

@@ -3,18 +3,15 @@ import { Screen, Meal, DailyGoal, UserProfile } from './types';
 import { HomeScreen } from './components/HomeScreen';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultScreen } from './components/ResultScreen';
-import { AuthScreen } from './components/AuthScreen';
-import { AuthCallback } from './components/AuthCallback';
+import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
 import { questionnaireService } from './src/services/questionnaireService';
-import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
 import { t } from './i18n';
 
 const App = () => {
     const [tokensLoaded, setTokensLoaded] = useState(false);
-    const [appInitialized, setAppInitialized] = useState(false);
 
     useEffect(() => {
         loadTokens().then(() => {
@@ -55,95 +52,6 @@ const App = () => {
     
     const [capturedImage, setCapturedImage] = useState(null as {dataUrl: string, file?: File} | null);
     const [viewingMeal, setViewingMeal] = useState(null as Meal | null);
-
-    // Check for existing authenticated user on app load
-    useEffect(() => {
-        if (tokensLoaded && !appInitialized) {
-            checkExistingSession();
-        }
-    }, [tokensLoaded, appInitialized]);
-
-    const checkExistingSession = async () => {
-        try {
-            console.log('🔍 Checking for existing authenticated session...');
-            
-            // Check if there's an existing user session
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            
-            if (authUser) {
-                console.log('✅ Found existing auth session:', authUser.id);
-                
-                // Get user profile data
-                const userProfile = await authService.getCurrentUser();
-                
-                if (userProfile) {
-                    console.log('✅ Found user profile:', userProfile);
-                    
-                    // Set authentication state
-                    setIsAuthenticated(true);
-                    setUser(userProfile);
-                    setPhoneNumber(userProfile.phone_number || '');
-                    
-                    // Check onboarding status
-                    const { completed } = await questionnaireService.checkOnboardingStatus(authUser.id);
-                    
-                    if (completed) {
-                        // User has completed onboarding - load goals
-                        const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                        if (goals) {
-                            setDailyGoal({
-                                calories: goals.goal_calories,
-                                macros: {
-                                    protein: goals.goal_protein_g,
-                                    fat: goals.goal_fat_g,
-                                    carbs: goals.goal_carbs_g,
-                                },
-                            });
-                        }
-                        setCurrentScreen(Screen.Home);
-                    } else {
-                        // User needs to complete onboarding
-                        setCurrentScreen(Screen.Questionnaire);
-                    }
-                } else {
-                    console.log('ℹ️ No user profile found, showing login screen');
-                }
-            } else {
-                console.log('ℹ️ No existing auth session found');
-                // Check if we're on the auth callback route
-                if (window.location.pathname === '/auth/callback') {
-                    setCurrentScreen(Screen.AuthCallback);
-                }
-            }
-        } catch (error) {
-            console.error('Error checking existing session:', error);
-        } finally {
-            setAppInitialized(true);
-        }
-    };
-
-    // Load user goals on authentication
-    useEffect(() => {
-        const loadUserGoals = async () => {
-            if (isAuthenticated && user) {
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                if (authUser) {
-                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                    if (goals) {
-                        setDailyGoal({
-                            calories: goals.goal_calories,
-                            macros: {
-                                protein: goals.goal_protein_g,
-                                fat: goals.goal_fat_g,
-                                carbs: goals.goal_carbs_g,
-                            },
-                        });
-                    }
-                }
-            }
-        };
-        loadUserGoals();
-    }, [isAuthenticated, user]);
 
     const handleOpenCamera = () => {
         console.log('Navigating to Camera screen');
@@ -190,58 +98,33 @@ const App = () => {
         setCurrentScreen(Screen.Home);
     };
 
-    // Handle successful authentication
-    const handleAuthSuccess = async () => {
-        console.log('Authentication successful');
-        // The actual session handling will be done in the callback
-        // For now, we'll navigate to the callback screen
-        setCurrentScreen(Screen.AuthCallback);
-    };
-
-    // Handle authentication completion (from AuthCallback)
-    const handleAuthComplete = async (needsOnboarding: boolean) => {
-        console.log('Auth complete, needs onboarding:', needsOnboarding);
+    // Handle successful login
+    const handleLoginSuccess = async (userProfile: UserProfile | null, phone: string, needsOnboarding: boolean) => {
+        console.log('Login successful:', { userProfile, phone, needsOnboarding });
+        setIsAuthenticated(true);
+        setUser(userProfile);
+        setPhoneNumber(phone);
         
-        try {
-            // Get the authenticated user
+        if (needsOnboarding) {
+            // User needs to complete questionnaire
+            setCurrentScreen(Screen.Questionnaire);
+        } else {
+            // User has completed onboarding - load goals and show home screen
             const { data: { user: authUser } } = await supabase.auth.getUser();
-            
             if (authUser) {
-                console.log('✅ Authenticated user:', authUser.id);
-                
-                // Set authentication state
-                setIsAuthenticated(true);
-                
-                // Get user profile data
-                const userProfile = await authService.getCurrentUser();
-                setUser(userProfile);
-                setPhoneNumber(userProfile?.phone_number || '');
-                
-                if (needsOnboarding) {
-                    // User needs to complete questionnaire
-                    setCurrentScreen(Screen.Questionnaire);
-                } else {
-                    // User has completed onboarding - load goals and show home screen
-                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                    if (goals) {
-                        setDailyGoal({
-                            calories: goals.goal_calories,
-                            macros: {
-                                protein: goals.goal_protein_g,
-                                fat: goals.goal_fat_g,
-                                carbs: goals.goal_carbs_g,
-                            },
-                        });
-                    }
-                    setCurrentScreen(Screen.Home);
+                const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                if (goals) {
+                    setDailyGoal({
+                        calories: goals.goal_calories,
+                        macros: {
+                            protein: goals.goal_protein_g,
+                            fat: goals.goal_fat_g,
+                            carbs: goals.goal_carbs_g,
+                        },
+                    });
                 }
-            } else {
-                console.log('❌ No authenticated user found');
-                setCurrentScreen(Screen.Login);
             }
-        } catch (error) {
-            console.error('Error in handleAuthComplete:', error);
-            setCurrentScreen(Screen.Login);
+            setCurrentScreen(Screen.Home);
         }
     };
 
@@ -271,8 +154,6 @@ const App = () => {
     const renderScreen = () => {
         console.log('Rendering screen:', currentScreen);
         switch (currentScreen) {
-            case Screen.AuthCallback:
-                return <AuthCallback onAuthComplete={handleAuthComplete} />;
             case Screen.Questionnaire:
                 return <QuestionnaireScreen phoneNumber={phoneNumber} onComplete={handleQuestionnaireComplete} />;
             case Screen.Home:
@@ -307,20 +188,16 @@ const App = () => {
         }
     };
     
-    // Show loading screen while initializing
-    if (!tokensLoaded || !appInitialized) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-bg-base">
-                <div className="text-label-primary">Initializing...</div>
-            </div>
-        );
+    if (!tokensLoaded) {
+        // Render nothing or a loading spinner until tokens are loaded to prevent style flashing
+        return null;
     }
 
-    // Show auth screen if not authenticated and not on callback
-    if (!isAuthenticated && currentScreen !== Screen.AuthCallback) {
+    // Show login screen if not authenticated
+    if (!isAuthenticated) {
         return (
             <div className="max-w-md mx-auto shadow-2xl min-h-screen">
-                <AuthScreen onAuthSuccess={handleAuthSuccess} />
+                <LoginScreen onLoginSuccess={handleLoginSuccess} />
             </div>
         );
     }

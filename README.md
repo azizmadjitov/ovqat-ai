@@ -1,129 +1,80 @@
-# Ovqat AI - AI-Powered Nutrition Analysis App
+# Ovqat AI
 
-Ovqat AI is an innovative nutrition analysis application that leverages artificial intelligence to help users track their meals and achieve their health goals. Simply take a photo of your food, and Ovqat AI will analyze its nutritional content, providing detailed information about calories and macronutrients.
+Ovqat AI is a nutrition tracking application that helps users monitor their daily meals and nutritional intake. The app uses AI-powered food recognition to analyze meal photos and provide detailed nutritional information.
 
 ## Features
 
-- 📸 **AI-Powered Food Recognition**: Advanced computer vision identifies food items in photos
-- 📊 **Nutritional Analysis**: Detailed breakdown of calories, proteins, carbs, and fats
-- 🎯 **Personalized Goals**: Custom nutrition targets based on user profile and objectives
-- 📱 **Mobile-First Design**: Optimized for smartphones with intuitive interface
-- 🌍 **Multilingual Support**: Available in Russian and Uzbek languages
-- 🔐 **Secure Authentication**: Phone-based authentication without complex OTP flows
-
-## Technology Stack
-
-- **Frontend**: React with TypeScript, Vite build tool
-- **Backend**: Supabase (Database, Authentication, Storage)
-- **AI/ML**: OpenAI Vision API for food recognition
-- **Styling**: Tailwind CSS with custom design system
-- **Deployment**: Vercel (Frontend), Supabase (Backend)
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Supabase account
-- OpenAI API key (for AI features)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone git@github.com:azizmadjitov/ovqat-ai.git
-cd ovqat-ai
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your Supabase and OpenAI credentials
-```
-
-### Supabase Setup
-
-1. Create a new Supabase project at https://app.supabase.com/
-2. Get your project credentials from Settings → API
-3. Update your `.env` file with the new credentials:
-   ```
-   VITE_SUPABASE_URL=your_new_project_url
-   VITE_SUPABASE_ANON_KEY=your_new_anon_key
-   ```
-4. Enable Anonymous Sign-ins in Authentication → Settings
-5. Apply database migrations:
-   Apply these files in order in your Supabase SQL Editor:
-   - supabase/migrations/001_initial_schema.sql
-   - supabase/migrations/002_security_fixes.sql
-   - supabase/migrations/003_fix_function_search_path.sql
-   - supabase/migrations/004_fix_user_account_linking.sql
-
-### Development
-
-```bash
-npm run dev
-```
-
-The app will be available at http://localhost:3000
-
-### Building for Production
-
-```bash
-npm run build
-```
-
-## Project Structure
-
-```
-ovqat-ai/
-├── components/          # React components
-├── src/
-│   ├── lib/            # Supabase client configuration
-│   ├── services/       # Business logic and API services
-│   └── utils/          # Utility functions
-├── supabase/
-│   └── migrations/     # Database schema migrations
-├── assets/             # Static assets
-├── styles/             # Global styles
-└── types.ts           # TypeScript type definitions
-```
+- AI-powered food recognition from photos
+- Nutritional analysis (calories, protein, carbs, fat, fiber)
+- Daily nutrition tracking
+- Health score assessment
+- Personalized nutrition goals based on user profile
+- Multi-language support (English, Russian, Uzbek)
 
 ## Authentication Flow
 
-The app now uses OAuth authentication with Google and Apple providers instead of phone number verification.
+The app now supports multiple authentication methods:
 
-### User Flow
+### Phone Number Authentication
+Users can authenticate using their phone number with OTP verification.
 
-1. User opens the app and is presented with the AuthScreen
-2. User chooses to sign in with either Google or Apple
-3. User is redirected to the provider's authentication page
-4. After successful authentication, user is redirected back to the app's callback URL
-5. App processes the authentication and creates/updates user profile
-6. If user hasn't completed the questionnaire, they are directed to QuestionnaireScreen
-7. Otherwise, they are directed to HomeScreen
+### OAuth Authentication
+Users can also sign in with:
+- Google
+- Apple
 
-### Technical Implementation
+Both authentication methods are available on the login screen.
 
-- Authentication is handled by Supabase Auth with OAuth providers
-- User profiles are stored in the `user_profiles` table with OAuth-specific fields
-- The app uses state-based routing instead of react-router-dom
-- Session management is handled automatically by Supabase
+## User Flow
+
+1. User opens the app and is presented with the LoginScreen
+2. User can choose to:
+   a. Enter phone number for OTP verification, or
+   b. Sign in with Google or Apple
+3. After authentication:
+   - New users are directed to the QuestionnaireScreen to complete their profile
+   - Returning users are directed to HomeScreen
+4. Users can take photos of their meals
+5. App analyzes meals and provides nutritional information
+6. Nutritional data is tracked against daily goals
+
+## Technical Implementation
+
+### Frontend
+- React with TypeScript
+- Vite build tool
+- Tailwind CSS for styling
+- State-based routing (no react-router-dom)
+- Responsive design with mobile-first approach
+
+### Authentication
+- Supabase Auth for user management
+- Phone number verification with OTP
+- OAuth providers (Google, Apple)
+- Session management with automatic refresh
+
+### Database
+- Supabase PostgreSQL database
+- Row Level Security (RLS) policies
+- User profiles with questionnaire data
+- Meal tracking with nutritional information
+
+### AI Services
+- Food recognition and analysis
+- Nutritional data extraction
+- Health score calculation
 
 ## Database Schema
 
-The application uses three main tables:
+### users
 
-1. `users` - Core user information and authentication
-2. `user_profiles` - Detailed user profile from questionnaire
-3. `user_goals` - Calculated nutrition goals
+Stores basic user information linked to Supabase Auth.
 
-All tables have Row Level Security (RLS) policies for data protection.
+Fields:
+- `id` (UUID, PK) - References auth.users(id)
+- `phone` (TEXT) - User's phone number (nullable for OAuth users)
+- `onboarding_completed` (BOOLEAN) - Whether user has completed questionnaire
+- `created_at` (TIMESTAMPTZ) - Creation timestamp
 
 ### user_profiles
 
@@ -154,116 +105,34 @@ Stores calculated nutrition goals for users.
 
 Fields:
 - `user_id` (UUID, PK) - References auth.users(id)
-- `calories` (INTEGER) - Daily calorie target
-- `protein` (INTEGER) - Daily protein target (grams)
-- `carbs` (INTEGER) - Daily carb target (grams)
-- `fat` (INTEGER) - Daily fat target (grams)
-- `created_at` (TIMESTAMPTZ) - Creation timestamp
+- `goal_calories` (INTEGER) - Daily calorie goal
+- `goal_protein_g` (INTEGER) - Daily protein goal (grams)
+- `goal_fat_g` (INTEGER) - Daily fat goal (grams)
+- `goal_carbs_g` (INTEGER) - Daily carbs goal (grams)
+- `bmr` (INTEGER) - Basal Metabolic Rate
+- `tdee` (INTEGER) - Total Daily Energy Expenditure
 - `updated_at` (TIMESTAMPTZ) - Last update timestamp
 
-## Recent Fixes
+## Development Setup
 
-### Critical Fix: User Account Linking and Phone Number Issues
-Resolved all critical issues with user authentication and phone number handling:
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables in `.env` file:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Run the development server: `npm run dev`
 
-**Issue 1: "User not found" error when logging in from different devices**
-- Fixed by properly linking new anonymous sessions to existing user data
-- Enhanced the authentication service to correctly identify existing users by phone number
+## Deployment
 
-**Issue 2: Duplicate users being created with different UIDs**
-- Fixed by implementing proper account linking mechanism
-- Ensured each phone number uniquely identifies one user account
-
-**Issue 3: Empty phone field in user records**
-- Fixed phone number storage format to ensure consistent data
-- Phone numbers are now properly stored and retrieved
-
-### Fixed User Account Linking Issue
-Resolved the issue where users logging in with existing phone numbers were creating duplicate accounts instead of linking to the existing account. The updated implementation:
-- Uses an enhanced `check_phone_exists` database function that returns both existence status and user ID
-- Properly links new anonymous sessions to existing user data
-- Prevents duplicate user creation for the same phone number
-- Enables consistent cross-device authentication
-
-### Fixed Phone Number Format
-Updated phone number storage format to store numbers without the "+" sign (e.g., 998997961877 instead of +998997961877) for consistency and to fix empty phone number issues in the database.
-
-### Fixed Authentication Session Expiration
-Enhanced the questionnaire submission flow with automatic session refresh capabilities to prevent "Authentication session expired" errors.
-
-### Fixed User Identification by Phone Number
-Enhanced the createUserByPhone function to properly identify users by their phone number as the primary identifier, ensuring cross-device authentication works correctly and maintaining all user data integrity.
-
-### Fixed Database Query Errors
-Resolved "cannot coerce the result to a single json object" errors by removing problematic .single() calls and adding proper error handling for database operations.
-
-### Fixed Supabase Security Warnings
-Addressed all security concerns reported by Supabase Security Advisor:
-- Removed custom RLS policies on auth.users
-- Restricted all table access to authenticated users only
-- Scoped all RLS policies to auth.uid()
-- Implemented secure phone number checking via function
-
-### Fixed Duplicate Users Issue
-Enhanced phone number checking and user identification to prevent duplicate users from being created when the same phone number is entered multiple times.
-
-## Deployment to Vercel
-
-### Automatic Deployment
-1. Push your code to GitHub
-2. Connect your GitHub repository to Vercel
-3. Set these environment variables in Vercel:
-   ```
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_OPENAI_API_KEY=your_openai_api_key
-   ```
-4. Vercel will automatically detect the build settings and deploy your app
-
-### Manual Deployment
-1. Install Vercel CLI:
-   ```bash
-   npm install -g vercel
-   ```
-2. Deploy:
-   ```bash
-   vercel
-   ```
-
-## Environment Variables
-
-```
-VITE_OPENAI_API_KEY=your_openai_api_key
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-## Troubleshooting
-
-### Authentication Issues
-- Ensure phone numbers are consistently formatted without + prefix
-- Check that Supabase RLS policies are correctly applied
-- Verify environment variables are correctly set
-
-### AI Analysis Not Working
-- Confirm OpenAI API key is valid and has vision capabilities
-- Check internet connection
-- Verify image format and size requirements
+The app can be deployed to Vercel with automatic builds on git push.
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a pull request
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- OpenAI for the Vision API
-- Supabase for the excellent backend platform
-- Tailwind CSS for the styling framework
+MIT
