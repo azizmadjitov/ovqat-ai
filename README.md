@@ -17,7 +17,7 @@ Ovqat AI is an innovative nutrition analysis application that leverages artifici
 - **Backend**: Supabase (Database, Authentication, Storage)
 - **AI/ML**: OpenAI Vision API for food recognition
 - **Styling**: Tailwind CSS with custom design system
-- **Deployment**: Netlify (Frontend), Supabase (Backend)
+- **Deployment**: Vercel (Frontend), Supabase (Backend)
 
 ## Getting Started
 
@@ -58,19 +58,10 @@ cp .env.example .env
    ```
 4. Enable Anonymous Sign-ins in Authentication → Settings
 5. Apply database migrations:
-   ```bash
-   # Follow the instructions in apply-migrations.sh
-   cat apply-migrations.sh
-   ```
    Apply these files in order in your Supabase SQL Editor:
    - supabase/migrations/001_initial_schema.sql
    - supabase/migrations/002_security_fixes.sql
    - supabase/migrations/003_fix_function_search_path.sql
-
-6. Verify your setup:
-   ```bash
-   npm run verify-supabase
-   ```
 
 ### Development
 
@@ -142,18 +133,28 @@ Addressed all security concerns reported by Supabase Security Advisor:
 ### Fixed Duplicate Users Issue
 Enhanced phone number checking and user identification to prevent duplicate users from being created when the same phone number is entered multiple times.
 
-## Deployment
+## Deployment to Vercel
 
-### Frontend (Netlify)
-1. Connect your GitHub repository to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist/`
-4. Add environment variables in Netlify dashboard
+### Automatic Deployment
+1. Push your code to GitHub
+2. Connect your GitHub repository to Vercel
+3. Set these environment variables in Vercel:
+   ```
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_OPENAI_API_KEY=your_openai_api_key
+   ```
+4. Vercel will automatically detect the build settings and deploy your app
 
-### Backend (Supabase)
-1. Run all SQL migrations in the `supabase/migrations/` folder
-2. Enable Phone Authentication in Supabase Auth settings
-3. Configure your SMS provider (Twilio recommended)
+### Manual Deployment
+1. Install Vercel CLI:
+   ```bash
+   npm install -g vercel
+   ```
+2. Deploy:
+   ```bash
+   vercel
+   ```
 
 ## Environment Variables
 
