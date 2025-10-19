@@ -96,15 +96,15 @@
                     "green": {
                         "type": "color",
                         "values": {
-                            "Light": "rgba(62, 211, 79, 1.00)",
-                            "Dark": "rgba(62, 211, 79, 1.00)"
+                            "Light": "rgba(122, 222, 84, 1.00)",
+                            "Dark": "rgba(122, 222, 84, 1.00)"
                         }
                     },
                     "orange": {
                         "type": "color",
                         "values": {
-                            "Light": "rgba(255, 167, 1, 1.00)",
-                            "Dark": "rgba(255, 167, 1, 1.00)"
+                            "Light": "rgba(251, 124, 47, 1.00)",
+                            "Dark": "rgba(251, 124, 47, 1.00)"
                         }
                     },
                     "violet": {
@@ -126,6 +126,13 @@
                         "values": {
                             "Light": "rgba(64, 174, 253, 1.00)",
                             "Dark": "rgba(64, 174, 253, 1.00)"
+                        }
+                    },
+                    "yellow": {
+                        "type": "color",
+                        "values": {
+                            "Light": "rgba(255, 182, 37, 1.00)",
+                            "Dark": "rgba(255, 182, 37, 1.00)"
                         }
                     }
                 }

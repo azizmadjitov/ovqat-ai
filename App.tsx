@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Screen, Meal, DailyGoal } from './types';
+import { Screen, Meal, DailyGoal, UserProfile } from './types';
 import { HomeScreen } from './components/HomeScreen';
 import { CameraScreen } from './components/CameraScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { LoginScreen } from './components/LoginScreen';
+import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
+import { questionnaireService } from './src/services/questionnaireService';
+import { supabase } from './src/lib/supabase';
+import { t } from './i18n';
 
-const MOCK_DAILY_GOAL: DailyGoal = {
-    calories: 2200,
-    macros: { protein: 150, fat: 70, carbs: 250 }
-};
-
-const App: React.FC = () => {
+const App = () => {
     const [tokensLoaded, setTokensLoaded] = useState(false);
 
     useEffect(() => {
@@ -18,6 +18,12 @@ const App: React.FC = () => {
             setTokensLoaded(true);
         });
     }, []);
+
+    // Authentication state
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [dailyGoal, setDailyGoal] = useState<DailyGoal | null>(null);
 
     const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
     
@@ -43,6 +49,29 @@ const App: React.FC = () => {
     
     const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
     const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
+
+    // Load user goals on authentication
+    useEffect(() => {
+        const loadUserGoals = async () => {
+            if (isAuthenticated && user) {
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                if (authUser) {
+                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                    if (goals) {
+                        setDailyGoal({
+                            calories: goals.goal_calories,
+                            macros: {
+                                protein: goals.goal_protein_g,
+                                fat: goals.goal_fat_g,
+                                carbs: goals.goal_carbs_g,
+                            },
+                        });
+                    }
+                }
+            }
+        };
+        loadUserGoals();
+    }, [isAuthenticated, user]);
 
     const handleOpenCamera = () => {
         console.log('Navigating to Camera screen');
@@ -89,11 +118,74 @@ const App: React.FC = () => {
         setCurrentScreen(Screen.Home);
     };
 
+    // Handle successful login
+    const handleLoginSuccess = async (userProfile: UserProfile | null, phone: string, needsOnboarding: boolean) => {
+        console.log('Login successful:', { userProfile, phone, needsOnboarding });
+        setIsAuthenticated(true);
+        setUser(userProfile);
+        setPhoneNumber(phone);
+        
+        if (needsOnboarding) {
+            // User needs to complete questionnaire
+            setCurrentScreen(Screen.Questionnaire);
+        } else {
+            // User has completed onboarding - load goals and show home screen
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            if (authUser) {
+                const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                if (goals) {
+                    setDailyGoal({
+                        calories: goals.goal_calories,
+                        macros: {
+                            protein: goals.goal_protein_g,
+                            fat: goals.goal_fat_g,
+                            carbs: goals.goal_carbs_g,
+                        },
+                    });
+                }
+            }
+            setCurrentScreen(Screen.Home);
+        }
+    };
+
+    // Handle questionnaire completion
+    const handleQuestionnaireComplete = async () => {
+        console.log('Questionnaire completed');
+        
+        // Load user goals
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser) {
+            const { goals } = await questionnaireService.getUserGoals(authUser.id);
+            if (goals) {
+                setDailyGoal({
+                    calories: goals.goal_calories,
+                    macros: {
+                        protein: goals.goal_protein_g,
+                        fat: goals.goal_fat_g,
+                        carbs: goals.goal_carbs_g,
+                    },
+                });
+            }
+        }
+        
+        setCurrentScreen(Screen.Home);
+    };
+
     const renderScreen = () => {
         console.log('Rendering screen:', currentScreen);
         switch (currentScreen) {
+            case Screen.Questionnaire:
+                return <QuestionnaireScreen phoneNumber={phoneNumber} onComplete={handleQuestionnaireComplete} />;
             case Screen.Home:
-                return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
+                // Show loading state if dailyGoal is not yet loaded
+                if (!dailyGoal) {
+                    return (
+                        <div className="flex items-center justify-center min-h-screen bg-bg-base">
+                            <div className="text-label-primary">Loading...</div>
+                        </div>
+                    );
+                }
+                return <HomeScreen meals={meals} dailyGoal={dailyGoal} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
             case Screen.Camera:
                 return <CameraScreen onPhotoTaken={handlePhotoTaken} onCancel={handleCancelCamera} />;
             case Screen.Result:
@@ -112,13 +204,22 @@ const App: React.FC = () => {
                 setCurrentScreen(Screen.Home);
                 return null;
             default:
-                return <HomeScreen meals={meals} dailyGoal={MOCK_DAILY_GOAL} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
+                return <HomeScreen meals={meals} dailyGoal={dailyGoal} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
         }
     };
     
     if (!tokensLoaded) {
         // Render nothing or a loading spinner until tokens are loaded to prevent style flashing
         return null;
+    }
+
+    // Show login screen if not authenticated
+    if (!isAuthenticated) {
+        return (
+            <div className="max-w-md mx-auto shadow-2xl min-h-screen">
+                <LoginScreen onLoginSuccess={handleLoginSuccess} />
+            </div>
+        );
     }
 
     return (

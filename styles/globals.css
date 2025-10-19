@@ -40,6 +40,25 @@
 :root {
   --font-family-body: 'Google Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   --font-family-heading: 'YS Text Cond', 'Google Sans', sans-serif;
+
+  /* Color Variables */
+  --label-primary: rgba(38, 38, 51, 1.00);
+  --label-secondary: rgba(51, 62, 77, 0.64);
+  --label-opposite: rgba(255, 255, 255, 1.00);
+  --bg-base: rgba(255, 255, 255, 1.00);
+  --bg-underlayer: rgba(239, 241, 245, 1.00);
+  --bg-fill: rgba(180, 184, 204, 0.14);
+  --bg-elevation: rgba(255, 255, 255, 1.00);
+  --stroke-non-opaque: rgba(180, 184, 204, 0.28);
+  --static-white: rgba(255, 255, 255, 1.00);
+  --static-black: rgba(38, 38, 51, 1.00);
+  --colors-red: rgba(239, 68, 68, 1.00);
+  --colors-green: rgba(122, 222, 84, 1.00);
+  --colors-orange: rgba(251, 124, 47, 1.00);
+  --colors-violet: rgba(144, 100, 245, 1.00);
+  --colors-ocean: rgba(68, 193, 162, 1.00);
+  --colors-blue: rgba(64, 174, 253, 1.00);
+  --colors-yellow: rgba(255, 182, 37, 1.00);
 }
 
 /* === Global Styles === */

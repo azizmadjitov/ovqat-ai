@@ -9,7 +9,7 @@ import { t } from '../i18n';
 
 interface HomeScreenProps {
   meals: Meal[];
-  dailyGoal: DailyGoal;
+  dailyGoal: DailyGoal | null;
   onOpenCamera: () => void;
   onMealClick: (meal: Meal) => void;
 }
@@ -37,6 +37,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
         // Fiber is not displayed in the main UI, but we'll calculate it for completeness
         fiber: (sum.fiber || 0) + (meal.macros.fiber || 0),
     }), { protein: 0, fat: 0, carbs: 0, fiber: 0 });
+
+  // Show loading state if dailyGoal is not yet loaded
+  if (!dailyGoal) {
+    return (
+      <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
+        <Header />
+        <div className="flex items-center justify-center flex-1">
+          <div>Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
