@@ -42,7 +42,7 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
   }
 
   try {
-    console.log('🚀 Using Supabase Edge Function for analysis');
+    console.log('🚀 Using Vercel API for analysis');
     
     // Compress the image to ≤1024 px
     const compressedFile = await compressImage(file);
@@ -52,23 +52,32 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
     const base64Data = await fileToBase64(compressedFile);
     console.log('✅ Image converted to base64');
     
-    // Call Supabase Edge Function
-    const { data, error } = await supabase.functions.invoke('analyze-food', {
-      body: { image: base64Data, model: 'gpt-4o-mini' }
+    // Call Vercel API
+    const response = await fetch('/api/analyze-food', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image: base64Data,
+        model: 'gpt-4o-mini'
+      })
     });
 
-    if (error) {
-      console.error('❌ Supabase Edge Function error:', error);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('❌ Vercel API error:', errorData);
       
       // Check if it's an API key error
-      if (error.message && error.message.includes('invalid_api_key')) {
+      if (errorData.error && errorData.error.includes('invalid_api_key')) {
         throw new Error('OpenAI API key is invalid or expired. Please update your API key at https://platform.openai.com/api-keys');
       }
       
-      throw new Error(`Edge Function error: ${error.message}`);
+      throw new Error(`API error: ${errorData.error || 'Unknown error'}`);
     }
 
-    console.log('✅ Supabase Edge Function response:', data);
+    const data = await response.json();
+    console.log('✅ Vercel API response:', data);
     
     // Return the nutrition data
     return data as NutritionResult;
