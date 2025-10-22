@@ -2,12 +2,24 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+// Get environment variables
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Validate environment variables
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !JWT_SECRET) {
+  console.error('❌ Missing environment variables:', {
+    SUPABASE_URL: !!SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: !!SUPABASE_SERVICE_ROLE_KEY,
+    JWT_SECRET: !!JWT_SECRET,
+  });
+}
+
+const supabase = createClient(
+  SUPABASE_URL || '',
+  SUPABASE_SERVICE_ROLE_KEY || ''
+);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   // Enable CORS
@@ -79,6 +91,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     // Generate JWT token
+    if (!JWT_SECRET) {
+      console.error('❌ JWT_SECRET not set');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+    
     const token = jwt.sign(
       { userId, phoneNumber: cleanPhoneNumber },
       JWT_SECRET,
