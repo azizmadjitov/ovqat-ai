@@ -4,98 +4,23 @@ import { calculateUserGoals } from '../utils/calculations';
 
 export const questionnaireService = {
   // Create or get user by phone
-  async upsertUser(phone: string): Promise<{ user: DBUser | null; error?: string }> {
+  async upsertUser(phone: string, userId: string): Promise<{ user: DBUser | null; error?: string }> {
     try {
       // Clean the phone number by removing all non-digit characters (without + prefix)
       const cleanPhone = phone.replace(/\D/g, '');
       
-      // Try to get the authenticated user
-      const { data: authUser, error: authError } = await supabase.auth.getUser();
-      
-      // If there's an auth error, try to refresh the session
-      if (authError) {
-        console.log('Auth error, trying to refresh session:', authError);
-        // Try to refresh the session
-        const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
-        if (refreshError) {
-          console.error('Failed to refresh session:', refreshError);
-          return { user: null, error: 'Authentication session expired. Please restart the app.' };
-        }
-        
-        // Try to get user again after refresh
-        const { data: refreshedAuthUser, error: refreshedAuthError } = await supabase.auth.getUser();
-        if (refreshedAuthError || !refreshedAuthUser?.user) {
-          return { user: null, error: 'Not authenticated' };
-        }
-        
-        // Check if user already exists and get their onboarding status
-        const { data: existingUsers } = await supabase
-          .from('users')
-          .select('onboarding_completed')
-          .eq('id', refreshedAuthUser.user.id);
-        
-        const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
-        
-        // Use the refreshed user data
-        const { data: userData, error: upsertError } = await supabase
-          .from('users')
-          .upsert({
-            id: refreshedAuthUser.user.id,
-            phone: cleanPhone,
-            onboarding_completed: existingUser?.onboarding_completed || false,
-          }, {
-            onConflict: 'id',
-          })
-          .select();
-
-        if (upsertError) return { user: null, error: upsertError.message };
-        
-        // Handle case where we might have multiple or no results
-        if (!userData || userData.length === 0) {
-          return { user: null, error: 'Failed to create or update user' };
-        }
-        
-        return { user: userData[0] };
-      }
-      
-      if (!authUser?.user) {
-        return { user: null, error: 'Not authenticated' };
-      }
-
-      // First, check if a user with this phone number already exists
-      const { data: existingUsers, error: searchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('phone', cleanPhone);
-
-      if (searchError && searchError.code !== 'PGRST116') {
-        console.error('Search error:', searchError);
-        return { user: null, error: searchError.message };
-      }
-
-      // If user with this phone already exists and it's not the current user, return error
-      if (existingUsers && existingUsers.length > 0) {
-        const existingUser = existingUsers[0];
-        if (existingUser.id !== authUser.user.id) {
-          console.log('User with this phone already exists:', existingUser);
-          return { user: null, error: 'An account with this phone number already exists. Please sign in with that account.' };
-        }
-        // If it's the same user, just return the existing user data
-        return { user: existingUser };
-      }
-
       // Check if user already exists and get their onboarding status
       const { data: userRecords } = await supabase
         .from('users')
         .select('onboarding_completed')
-        .eq('id', authUser.user.id);
+        .eq('id', userId);
       
       const userRecord = userRecords && userRecords.length > 0 ? userRecords[0] : null;
       
       const { data: upsertData, error: upsertError } = await supabase
         .from('users')
         .upsert({
-          id: authUser.user.id,
+          id: userId,
           phone: cleanPhone,
           onboarding_completed: userRecord?.onboarding_completed || false,
         }, {
@@ -186,6 +111,7 @@ export const questionnaireService = {
         return { success: false, error: userError.message };
       }
 
+      console.log('✅ Questionnaire saved successfully');
       return { success: true };
     } catch (error) {
       console.error('Questionnaire save error:', error);

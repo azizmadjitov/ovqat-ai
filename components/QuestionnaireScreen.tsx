@@ -26,22 +26,19 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
   useEffect(() => {
     const initUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setUserId(user.id);
+        // Get userId from localStorage (set by authService)
+        const storedUserId = localStorage.getItem('ovqat-user-id');
+        if (storedUserId) {
+          setUserId(storedUserId);
           // Clean the phone number by removing all non-digit characters and adding the + prefix
           const cleanPhoneNumber = '+' + phoneNumber.replace(/\D/g, '');
           // Upsert user in database
-          await questionnaireService.upsertUser(cleanPhoneNumber);
+          await questionnaireService.upsertUser(cleanPhoneNumber, storedUserId);
         } else {
-          // No authenticated user found, but don't show error yet
-          // The error will be shown when user tries to submit the form
-          console.log('No authenticated user found on mount, will check again during submission');
+          console.log('No userId found in localStorage');
         }
       } catch (error) {
         console.error('Error initializing user:', error);
-        // Don't show error immediately, wait for form submission
-        console.log('Authentication error on mount, will check again during submission');
       }
     };
     initUser();
@@ -59,51 +56,14 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
   const handleSubmit = async () => {
     console.log('handleSubmit called, current userId:', userId);
     
-    // Ensure we have the current user ID
-    let currentUserId = userId;
+    // Get userId from localStorage or state
+    let currentUserId = userId || localStorage.getItem('ovqat-user-id');
     
-    // Always try to fetch the current user from Supabase to ensure session is valid
-    try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      console.log('Fetched user from Supabase:', user, 'Auth error:', authError);
-      
-      // If there's an auth error, try to refresh the session
-      if (authError) {
-        console.log('Auth error, trying to refresh session:', authError);
-        const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
-        if (refreshError) {
-          console.error('Failed to refresh session:', refreshError);
-          setError('Authentication session expired. Please restart the app.');
-          return;
-        }
-        
-        // Try to get user again after refresh
-        const { data: { user: refreshedUser }, error: refreshedAuthError } = await supabase.auth.getUser();
-        if (refreshedAuthError || !refreshedUser) {
-          console.error('Failed to get user after refresh:', refreshedAuthError);
-          setError('User not authenticated. Please restart the app and try again.');
-          return;
-        }
-        
-        currentUserId = refreshedUser.id;
-        setUserId(refreshedUser.id);
-        console.log('Successfully refreshed user:', refreshedUser);
-      } else if (user) {
-        currentUserId = user.id;
-        setUserId(user.id);
-      }
-    } catch (error) {
-      console.error('Error fetching user from Supabase:', error);
-      setError('Authentication error: ' + (error as Error).message);
-      return;
-    }
-
     if (!currentUserId) {
-      console.log('No user ID available, showing authentication error');
-      setError('User not authenticated. Please restart the app and try again.');
+      setError('User ID not found. Please restart the app.');
       return;
     }
-
+    
     console.log('Proceeding with questionnaire submission for user:', currentUserId);
     console.log('Form data:', formData);
 
@@ -111,17 +71,6 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
     setError(null);
 
     try {
-      // First, ensure the user exists in our database
-      // Clean the phone number by removing all non-digit characters and adding the + prefix
-      const cleanPhoneNumber = '+' + phoneNumber.replace(/\D/g, '');
-      const { error: upsertError } = await questionnaireService.upsertUser(cleanPhoneNumber);
-      if (upsertError) {
-        console.error('Error upserting user:', upsertError);
-        setLoading(false);
-        setError('Failed to initialize user profile: ' + upsertError);
-        return;
-      }
-      
       const result = await questionnaireService.saveQuestionnaireData(
         currentUserId,
         formData as QuestionnaireData
@@ -129,12 +78,11 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
 
       setLoading(false);
 
-      if (result.error) {
-        console.error('Error saving questionnaire data:', result.error);
-        setError(result.error);
-      } else {
-        console.log('Questionnaire saved successfully');
+      if (result.success) {
+        console.log('✅ Questionnaire saved successfully');
         onComplete();
+      } else {
+        setError(result.error || 'Failed to save questionnaire data');
       }
     } catch (error) {
       console.error('Unexpected error saving questionnaire:', error);
