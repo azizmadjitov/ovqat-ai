@@ -107,11 +107,11 @@ const App = () => {
                     setPhoneNumber(userProfile.phone_number || '');
                     
                     // Check onboarding status
-                    const { completed } = await questionnaireService.checkOnboardingStatus(authUser.id);
+                    const { completed } = await questionnaireService.checkOnboardingStatus(userProfile.id);
                     
                     if (completed) {
                         // User has completed onboarding - load goals
-                        const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                        const { goals } = await questionnaireService.getUserGoals(userProfile.id);
                         if (goals) {
                             setDailyGoal({
                                 calories: goals.goal_calories,
@@ -145,30 +145,28 @@ const App = () => {
         const loadUserGoals = async () => {
             if (isAuthenticated && user) {
                 try {
-                    const { data: { user: authUser } } = await supabase.auth.getUser();
-                    if (authUser) {
-                        const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                        if (goals) {
-                            setDailyGoal({
-                                calories: goals.goal_calories,
-                                macros: {
-                                    protein: goals.goal_protein_g,
-                                    fat: goals.goal_fat_g,
-                                    carbs: goals.goal_carbs_g,
-                                },
-                            });
-                        } else {
-                            // No goals found, set default
-                            console.log('No goals found, setting defaults');
-                            setDailyGoal({
-                                calories: 2000,
-                                macros: {
-                                    protein: 150,
-                                    fat: 65,
-                                    carbs: 250,
-                                },
-                            });
-                        }
+                    // Use user.id from state (set by authService)
+                    const { goals } = await questionnaireService.getUserGoals(user.id);
+                    if (goals) {
+                        setDailyGoal({
+                            calories: goals.goal_calories,
+                            macros: {
+                                protein: goals.goal_protein_g,
+                                fat: goals.goal_fat_g,
+                                carbs: goals.goal_carbs_g,
+                            },
+                        });
+                    } else {
+                        // No goals found, set default
+                        console.log('No goals found, setting defaults');
+                        setDailyGoal({
+                            calories: 2000,
+                            macros: {
+                                protein: 150,
+                                fat: 65,
+                                carbs: 250,
+                            },
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading user goals:', error);
