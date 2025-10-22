@@ -10,8 +10,11 @@
     "css-build": "mkdir -p dist && npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css",
     "css-watch": "npx @tailwindcss/cli -i ./styles/globals.css -o ./dist/output.css --watch",
     "deploy:supabase": "./deploy-supabase.sh",
+    "deploy:phone-auth": "supabase functions deploy phone-auth",
     "supabase:logs": "supabase functions logs analyze-food",
-    "verify-supabase": "npx tsx setup-supabase.ts"
+    "supabase:logs:phone-auth": "supabase functions logs phone-auth",
+    "verify-supabase": "npx tsx setup-supabase.ts",
+    "test:phone-auth": "npx tsx test-phone-auth.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.0",

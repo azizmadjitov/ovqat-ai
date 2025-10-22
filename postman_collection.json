@@ -1,0 +1,81 @@
+{
+  "info": {
+    "name": "Ovqat AI API",
+    "description": "API для интеграции Ovqat AI мини-приложения с родительским приложением",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Проверка доступности API"
+      },
+      "response": []
+    },
+    {
+      "name": "Authenticate by Phone",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phoneNumber\": \"998997961877\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/phone",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "phone"]
+        },
+        "description": "Получить JWT токен по номеру телефона"
+      },
+      "response": []
+    },
+    {
+      "name": "Verify Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{jwt_token}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/verify",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "verify"]
+        },
+        "description": "Верифицировать JWT токен"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

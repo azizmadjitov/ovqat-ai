@@ -63,6 +63,32 @@ const App = () => {
         try {
             console.log('🔍 Checking for existing authenticated session...');
             
+            // Check for token in URL parameter first
+            const params = new URLSearchParams(window.location.search);
+            const tokenFromUrl = params.get('token');
+            
+            if (tokenFromUrl) {
+                console.log('🔐 Found token in URL, authenticating...');
+                const { user: userData, error } = await authService.authenticateWithToken(tokenFromUrl);
+                
+                if (error) {
+                    console.error('❌ Token auth failed:', error);
+                } else if (userData) {
+                    console.log('✅ Token auth successful');
+                    setIsAuthenticated(true);
+                    setUser(userData);
+                    setPhoneNumber(userData.phone_number || '');
+                    
+                    if (userData.questionnaire_completed) {
+                        setCurrentScreen(Screen.Home);
+                    } else {
+                        setCurrentScreen(Screen.Questionnaire);
+                    }
+                    setAppInitialized(true);
+                    return;
+                }
+            }
+            
             // Check if there's an existing user session
             const { data: { user: authUser } } = await supabase.auth.getUser();
             
@@ -118,19 +144,43 @@ const App = () => {
     useEffect(() => {
         const loadUserGoals = async () => {
             if (isAuthenticated && user) {
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                if (authUser) {
-                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                    if (goals) {
-                        setDailyGoal({
-                            calories: goals.goal_calories,
-                            macros: {
-                                protein: goals.goal_protein_g,
-                                fat: goals.goal_fat_g,
-                                carbs: goals.goal_carbs_g,
-                            },
-                        });
+                try {
+                    const { data: { user: authUser } } = await supabase.auth.getUser();
+                    if (authUser) {
+                        const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                        if (goals) {
+                            setDailyGoal({
+                                calories: goals.goal_calories,
+                                macros: {
+                                    protein: goals.goal_protein_g,
+                                    fat: goals.goal_fat_g,
+                                    carbs: goals.goal_carbs_g,
+                                },
+                            });
+                        } else {
+                            // No goals found, set default
+                            console.log('No goals found, setting defaults');
+                            setDailyGoal({
+                                calories: 2000,
+                                macros: {
+                                    protein: 150,
+                                    fat: 65,
+                                    carbs: 250,
+                                },
+                            });
+                        }
                     }
+                } catch (error) {
+                    console.error('Error loading user goals:', error);
+                    // Set default goals on error
+                    setDailyGoal({
+                        calories: 2000,
+                        macros: {
+                            protein: 150,
+                            fat: 65,
+                            carbs: 250,
+                        },
+                    });
                 }
             }
         };
@@ -194,19 +244,42 @@ const App = () => {
             setCurrentScreen(Screen.Questionnaire);
         } else {
             // User has completed onboarding - load goals and show home screen
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (authUser) {
-                const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                if (goals) {
-                    setDailyGoal({
-                        calories: goals.goal_calories,
-                        macros: {
-                            protein: goals.goal_protein_g,
-                            fat: goals.goal_fat_g,
-                            carbs: goals.goal_carbs_g,
-                        },
-                    });
+            try {
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                if (authUser) {
+                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
+                    if (goals) {
+                        setDailyGoal({
+                            calories: goals.goal_calories,
+                            macros: {
+                                protein: goals.goal_protein_g,
+                                fat: goals.goal_fat_g,
+                                carbs: goals.goal_carbs_g,
+                            },
+                        });
+                    } else {
+                        // No goals found, set default
+                        setDailyGoal({
+                            calories: 2000,
+                            macros: {
+                                protein: 150,
+                                fat: 65,
+                                carbs: 250,
+                            },
+                        });
+                    }
                 }
+            } catch (error) {
+                console.error('Error loading goals on login:', error);
+                // Set default goals on error
+                setDailyGoal({
+                    calories: 2000,
+                    macros: {
+                        protein: 150,
+                        fat: 65,
+                        carbs: 250,
+                    },
+                });
             }
             setCurrentScreen(Screen.Home);
         }

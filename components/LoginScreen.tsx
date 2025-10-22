@@ -54,13 +54,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     }
 
     // Check if user needs to complete onboarding
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    let needsOnboarding = true;
-    
-    if (authUser) {
-      const { completed } = await questionnaireService.checkOnboardingStatus(authUser.id);
-      needsOnboarding = !completed;
-    }
+    // Use the questionnaire_completed flag from the user profile
+    const needsOnboarding = user ? !user.questionnaire_completed : true;
     
     setLoading(false);
     onLoginSuccess(user || null, cleanPhoneNumber, needsOnboarding);
