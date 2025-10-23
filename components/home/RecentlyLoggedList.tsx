@@ -9,9 +9,9 @@ interface RecentlyLoggedListProps {
 }
 
 export const RecentlyLoggedList: React.FC<RecentlyLoggedListProps> = ({ meals, onMealClick }) => (
-    <div className="w-full mt-4 flex-1 pb-24">
+    <div className="w-full mt-4">
         <h2 className="text-title-h3 text-label-primary mb-4">{t('todays_meals')}</h2>
-        <div className="space-y-4 overflow-y-auto">
+        <div className="space-y-4">
             {meals.length > 0 ? (
                  meals.map(meal => <LogItem key={meal.id} meal={meal} onClick={() => onMealClick(meal)} />)
             ) : (
