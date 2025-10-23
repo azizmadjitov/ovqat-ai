@@ -37,8 +37,8 @@ export const Button: React.FC<ButtonProps> = ({
         ${className}
       `.trim().replace(/\s+/g, ' ')}
       style={{
-        backgroundColor: isDisabled ? 'rgba(180, 184, 204, 0.28)' : undefined,
-        color: isDisabled ? undefined : 'rgba(255, 255, 255, 1.00)'
+        backgroundColor: isDisabled ? 'var(--state-disabled-bg)' : undefined,
+        color: isDisabled ? undefined : 'var(--label-opposite)'
       }}
     >
       {loading ? (

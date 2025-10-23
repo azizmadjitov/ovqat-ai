@@ -59,6 +59,10 @@
   --colors-ocean: rgba(68, 193, 162, 1.00);
   --colors-blue: rgba(64, 174, 253, 1.00);
   --colors-yellow: rgba(255, 182, 37, 1.00);
+  
+  /* Interactive States */
+  --state-selected-bg: rgba(62, 211, 79, 0.20);
+  --state-disabled-bg: rgba(180, 184, 204, 0.28);
 }
 
 /* Dark Theme */

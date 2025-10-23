@@ -369,7 +369,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
                     
                     {/* Divider */}
-                    <div className="my-[1.25rem] h-px" style={{ display: 'block', width: '100%', backgroundColor: '#B4B8CC', opacity: 0.28 }}></div>
+                    <div className="my-[1.25rem] h-px" style={{ display: 'block', width: '100%', backgroundColor: 'var(--stroke-non-opaque)' }}></div>
 
                     {/* Bottom Area */}
                     <div className="nutrient-grid grid grid-cols-2 gap-x-[1.25rem] gap-y-[1rem]">
