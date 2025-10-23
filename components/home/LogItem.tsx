@@ -27,9 +27,10 @@ interface LogItemProps {
 export const LogItem: React.FC<LogItemProps> = ({ meal, onClick }) => (
     <button 
         onClick={onClick}
-        className="w-full bg-bg-surface rounded-[1.5rem] p-4 flex items-center space-x-4 border border-stroke-non-opaque text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent-green focus-visible:ring-offset-bg-base transition-transform duration-150 active:scale-[0.98]"
+        className="w-full bg-bg-surface rounded-[1.5rem] p-4 flex items-center space-x-4 border text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent-green focus-visible:ring-offset-bg-base transition-transform duration-150 active:scale-[0.98]"
+        style={{ borderColor: 'var(--stroke-non-opaque)' }}
     >
-        <img src={meal.imageUrl} alt={meal.name} className="w-20 h-20 rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
+        <img src={meal.imageUrl} alt={meal.name} className="w-20 h-20 rounded-full object-cover flex-shrink-0 border" style={{ borderColor: 'var(--stroke-non-opaque)' }} />
         
         <div className="flex-1 overflow-hidden">
             <div className="flex justify-between items-baseline">
