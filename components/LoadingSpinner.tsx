@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { t } from '../i18n';
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -9,22 +10,22 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
   const [textIndex, setTextIndex] = useState(0);
 
   const loadingMessages = [
-    'Определяю еду...',
-    'Анализирую ингредиенты...',
-    'Высчитываю калории...',
-    'Определяю макросы...',
-    'Оцениваю здоровье...',
-    'Готовлю результаты...',
+    t('analyzing_food'),
+    t('analyzing_ingredients'),
+    t('calculating_calories'),
+    t('determining_macros'),
+    t('assessing_health'),
+    t('preparing_results'),
   ];
 
   // Rotate through messages
   useEffect(() => {
     const interval = setInterval(() => {
       setTextIndex((prev) => (prev + 1) % loadingMessages.length);
-    }, 2000); // Change message every 2 seconds
+    }, 2500); // Change message every 2.5 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [loadingMessages]);
 
   // Typing effect for current message
   useEffect(() => {
@@ -41,34 +42,12 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
     }, 50); // Typing speed
 
     return () => clearInterval(typingInterval);
-  }, [textIndex]);
+  }, [textIndex, loadingMessages]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      {/* Circular Spinner */}
-      <div className="relative w-16 h-16">
-        {/* Outer ring */}
-        <div className="absolute inset-0 rounded-full border-4 border-[var(--bg-fill)]"></div>
-
-        {/* Animated gradient ring */}
-        <div
-          className="absolute inset-0 rounded-full border-4 border-transparent border-t-[var(--colors-orange)] border-r-[var(--colors-blue)]"
-          style={{
-            animation: 'spin 2s linear infinite',
-          }}
-        ></div>
-
-        {/* Inner rotating dot */}
-        <div
-          className="absolute inset-2 rounded-full border-2 border-transparent border-b-[var(--colors-green)]"
-          style={{
-            animation: 'spin 3s linear infinite reverse',
-          }}
-        ></div>
-
-        {/* Center dot */}
-        <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-[var(--colors-orange)] rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-      </div>
+      {/* Rolling Rock Spinner */}
+      <span className="loader"></span>
 
       {/* Dynamic Text */}
       <div className="text-center">
@@ -81,15 +60,47 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
 
       {/* Styles */}
       <style>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
+        .loader {
+          position: relative;
+          font-size: 16px;
+          width: 5.5em;
+          height: 5.5em;
+        }
+        .loader:before {
+          content: '';
+          position: absolute;
+          transform: translate(-50%, -50%) rotate(45deg);
+          height: 100%;
+          width: 4px;
+          background: var(--label-primary);
+          left: 50%;
+          top: 50%;
+        }
+        .loader:after {
+          content: '';
+          position: absolute;
+          left: 0.2em;
+          bottom: 0.18em;
+          width: 1em;
+          height: 1em;
+          background: linear-gradient(135deg, #DFF2FF 29.6%, #FFC3EB 79.85%);
+          border-radius: 15%;
+          animation: rollingRock 2.5s cubic-bezier(.79, 0, .47, .97) infinite;
+        }
+        @keyframes rollingRock {
+          0% { transform: translate(0, -1em) rotate(-45deg); }
+          5% { transform: translate(0, -1em) rotate(-50deg); }
+          20% { transform: translate(1em, -2em) rotate(47deg); }
+          25% { transform: translate(1em, -2em) rotate(45deg); }
+          30% { transform: translate(1em, -2em) rotate(40deg); }
+          45% { transform: translate(2em, -3em) rotate(137deg); }
+          50% { transform: translate(2em, -3em) rotate(135deg); }
+          55% { transform: translate(2em, -3em) rotate(130deg); }
+          70% { transform: translate(3em, -4em) rotate(217deg); }
+          75% { transform: translate(3em, -4em) rotate(220deg); }
+          100% { transform: translate(0, -1em) rotate(-225deg); }
         }
       `}</style>
     </div>
   );
-};
+}

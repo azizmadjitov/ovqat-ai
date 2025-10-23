@@ -72,6 +72,13 @@ const translations = {
     'fiber': 'Fiber',
     'meal': 'Meal',
     'loading': 'Loading...',
+    // Loading spinner messages
+    'analyzing_food': 'Analyzing food...',
+    'analyzing_ingredients': 'Analyzing ingredients...',
+    'calculating_calories': 'Calculating calories...',
+    'determining_macros': 'Determining macros...',
+    'assessing_health': 'Assessing health...',
+    'preparing_results': 'Preparing results...',
   },
   ru: {
     'app_name': 'Ovqat AI',
@@ -146,6 +153,13 @@ const translations = {
     'fiber': 'Клетчатка',
     'meal': 'Прием пищи',
     'loading': 'Загрузка...',
+    // Loading spinner messages
+    'analyzing_food': 'Определяю еду...',
+    'analyzing_ingredients': 'Анализирую ингредиенты...',
+    'calculating_calories': 'Высчитываю калории...',
+    'determining_macros': 'Определяю макросы...',
+    'assessing_health': 'Оцениваю здоровье...',
+    'preparing_results': 'Готовлю результаты...',
   },
   uz: {
     'app_name': 'Ovqat AI',
@@ -220,6 +234,13 @@ const translations = {
     'fiber': 'Tolali moddalar',
     'meal': 'Taom',
     'loading': 'Yuklanmoqda...',
+    // Loading spinner messages
+    'analyzing_food': 'Taom tahlil qilinmoqda...',
+    'analyzing_ingredients': 'Ingredientlar tahlil qilinmoqda...',
+    'calculating_calories': 'Kaloriyalar hisoblanmoqda...',
+    'determining_macros': 'Makroslar aniqlanmoqda...',
+    'assessing_health': 'Sog\'liq balanlanmoqda...',
+    'preparing_results': 'Natijalar tayyorlanmoqda...',
   },
 };
 
