@@ -83,6 +83,7 @@ const translations = {
     'fiber': 'Fiber',
     'meal': 'Meal',
     'loading': 'Loading...',
+    'initializing': 'Initializing...',
     // Loading spinner messages
     'analyzing_food': 'Analyzing food...',
     'analyzing_ingredients': 'Analyzing ingredients...',
@@ -175,6 +176,7 @@ const translations = {
     'fiber': 'Клетчатка',
     'meal': 'Прием пищи',
     'loading': 'Загрузка...',
+    'initializing': 'Инициализация...',
     // Loading spinner messages
     'analyzing_food': 'Определяю еду...',
     'analyzing_ingredients': 'Анализирую ингредиенты...',
@@ -267,6 +269,7 @@ const translations = {
     'fiber': 'Tolali moddalar',
     'meal': 'Taom',
     'loading': 'Yuklanmoqda...',
+    'initializing': 'Ishga tushirilmoqda...',
     // Loading spinner messages
     'analyzing_food': 'Taom tahlil qilinmoqda...',
     'analyzing_ingredients': 'Ingredientlar tahlil qilinmoqda...',
