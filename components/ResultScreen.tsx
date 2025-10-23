@@ -94,6 +94,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 fat_g: existingMeal.macros.fat,
                 fiber_g: existingMeal.macros.fiber || 0,
                 healthScore_10: existingMeal.healthScore || 7, // Load health score from stored meal, default to 7 if not available
+                isFood: true, // Existing meals are always food (they were saved)
             });
             setLoading(false);
         }
@@ -374,7 +375,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
                 </section>
                 
-                {!isViewMode && (
+                {!isViewMode && nutritionData.isFood && (
                     <div className="mt-auto pt-5 flex justify-center">
                         <button
                             onClick={handleConfirm}
@@ -382,6 +383,17 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         >
                             <SparklesIcon className="w-6 h-6" />
                             <span className="text-label-lg" style={{ color: 'var(--static-black)' }}>{t('done')}</span>
+                        </button>
+                    </div>
+                )}
+                
+                {!isViewMode && !nutritionData.isFood && (
+                    <div className="mt-auto pt-5 flex justify-center">
+                        <button
+                            onClick={onRetake}
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] transform active:scale-95 transition-all duration-150 focus:outline-none"
+                        >
+                            <span className="text-label-lg text-label-primary">{t('retake')}</span>
                         </button>
                     </div>
                 )}

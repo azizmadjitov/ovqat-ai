@@ -150,6 +150,9 @@ Return your analysis as JSON (title and description must be in ${languageName}):
       }
     }
 
+    // Check if food was detected
+    const isFood = parsed.title !== 'No food detected' && parsed.confidence > 0;
+    
     // Convert to our format
     const nutritionResult = {
       title: parsed.title || 'Unknown Meal',
@@ -161,6 +164,7 @@ Return your analysis as JSON (title and description must be in ${languageName}):
       fat_g: parsed.nutrition?.fat_g || 0,
       fiber_g: parsed.nutrition?.fiber_g || 0,
       healthScore_10: parsed.healthScore || 0,
+      isFood: isFood,
     };
 
     return res.status(200).json(nutritionResult);
@@ -177,6 +181,7 @@ Return your analysis as JSON (title and description must be in ${languageName}):
       fat_g: 0,
       fiber_g: 0,
       healthScore_10: 0,
+      isFood: false,
     });
   }
 }

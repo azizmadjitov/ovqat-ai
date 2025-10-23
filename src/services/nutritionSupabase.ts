@@ -11,6 +11,7 @@ export type NutritionResult = {
   fat_g: number;
   fiber_g: number;
   healthScore_10: number;
+  isFood: boolean; // Whether the image contains food
 };
 
 /**
@@ -36,7 +37,8 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
       carbs_g: 22,
       fat_g: 18,
       fiber_g: 8,
-      healthScore_10: 8
+      healthScore_10: 8,
+      isFood: true
     };
     console.log('✅ Returning mock data:', mockData);
     return mockData;
@@ -99,7 +101,8 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
       carbs_g: 0,
       fat_g: 0,
       fiber_g: 0,
-      healthScore_10: 0
+      healthScore_10: 0,
+      isFood: false // Assume error means no food detected
     };
   }
 }
