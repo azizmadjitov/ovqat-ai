@@ -317,7 +317,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <img src={minusIcon} alt="Decrease serving" style={{ width: '1.5rem', height: '1.5rem', opacity: 0.7, filter: 'invert(var(--label-primary-invert, 0%))' }} />
+                            <img src={minusIcon} alt="Decrease serving" style={{ width: '1.5rem', height: '1.5rem', opacity: 0.7, color: 'var(--label-primary)' }} />
                         </button>
                         <div></div>
                         <div 
@@ -355,7 +355,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <img src={plusIcon} alt="Increase serving" style={{ width: '1.5rem', height: '1.5rem', opacity: 0.7, filter: 'invert(var(--label-primary-invert, 0%))' }} />
+                            <img src={plusIcon} alt="Increase serving" style={{ width: '1.5rem', height: '1.5rem', opacity: 0.7, color: 'var(--label-primary)' }} />
                         </button>
                         <div></div>
                     </div>

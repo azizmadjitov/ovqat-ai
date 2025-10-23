@@ -43,7 +43,6 @@
 
   /* Light Theme (Default) */
   --label-primary: rgba(38, 38, 51, 1.00);
-  --label-primary-invert: 0%;
   --label-secondary: rgba(51, 62, 77, 0.64);
   --label-opposite: rgba(255, 255, 255, 1.00);
   --bg-base: rgba(255, 255, 255, 1.00);
@@ -65,7 +64,6 @@
 /* Dark Theme */
 :root.dark {
   --label-primary: rgba(255, 255, 255, 1.00);
-  --label-primary-invert: 100%;
   --label-secondary: rgba(255, 255, 255, 0.56);
   --label-opposite: rgba(38, 38, 51, 1.00);
   --bg-base: rgba(14, 14, 16, 1.00);
