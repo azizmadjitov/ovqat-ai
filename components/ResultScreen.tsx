@@ -258,7 +258,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0" 
                         style={{ border: '1px solid var(--stroke-non-opaque)' }}
                     />
-                    {nutritionData.description && (
+                    {nutritionData.description && nutritionData.isFood && (
                         <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
                             <p className="description-text text-label-sm text-label-primary line-clamp-3">
                                 {nutritionData.description}
@@ -358,9 +358,9 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     border: '1px solid var(--stroke-non-opaque)'
                 }}>
                     {/* Top Area */}
-                    <div className="grid grid-cols-2 gap-x-[1.25rem]">
+                    <div className={nutritionData.isFood ? "grid grid-cols-2 gap-x-[1.25rem]" : "flex justify-start"}>
                          <TopStat value={String(displayValues.calories)} label={t('calories_label')} icon={caloriesIconUrl} />
-                         <TopStat value={`${nutritionData.healthScore_10}/10`} label={t('benefit')} icon={healthIconUrl} />
+                         {nutritionData.isFood && <TopStat value={`${nutritionData.healthScore_10}/10`} label={t('benefit')} icon={healthIconUrl} />}
                     </div>
                     
                     {/* Divider */}
