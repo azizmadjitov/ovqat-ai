@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircularProgress } from '../CircularProgress';
 import { Meal } from '../../types';
+import { t } from '../../i18n';
 
 type DayData = {
   date: string; // YYYY-MM-DD format
@@ -24,8 +25,8 @@ const generateWeekDays = (meals: Meal[], dailyGoalCalories: number): DayData[] =
     
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
     const dayOfMonth = date.getDate();
-    const weekdayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-    const weekday = weekdayNames[date.getDay()];
+    const weekdayKeys = ['day_sun', 'day_mon', 'day_tue', 'day_wed', 'day_thu', 'day_fri', 'day_sat'];
+    const weekday = t(weekdayKeys[date.getDay()] as any);
     
     // Calculate progress based on meals for this date
     const dayMeals = meals.filter(meal => meal.date === dateStr);
@@ -85,7 +86,7 @@ const DayItem: React.FC<DayItemProps> = ({ dayData, isSelected, onClick }) => {
           {day}
         </span>
       </div>
-      <span className={`text-body-sm ${weekdayColor} capitalize`}>{weekday}</span>
+      <span className={`text-body-sm ${weekdayColor}`}>{weekday}</span>
       <div className="w-[1.75rem] h-[1.75rem]">
         <CircularProgress size={28} strokeWidth={6} progress={progress} />
       </div>

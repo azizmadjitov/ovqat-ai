@@ -28,19 +28,19 @@ export const MacroCard: React.FC<MacroCardProps> = ({
 
     const macros = [
         {
-            label: t('protein'),
+            label: t('protein_left'),
             consumed: consumedMacros.protein,
             goal: goalMacros.protein,
             icon: proteinIcon,
         },
         {
-            label: t('carbs'),
+            label: t('carbs_left'),
             consumed: consumedMacros.carbs,
             goal: goalMacros.carbs,
             icon: carbsIcon,
         },
         {
-            label: t('fat'),
+            label: t('fat_left'),
             consumed: consumedMacros.fat,
             goal: goalMacros.fat,
             icon: fatIcon,

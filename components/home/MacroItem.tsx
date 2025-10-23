@@ -15,7 +15,7 @@ export const MacroItem: React.FC<MacroItemProps> = ({ label, consumed, goal, ico
   return (
     <div className="flex flex-col items-center text-center gap-y-2">
       <p className="text-title-h3 text-label-primary">{Math.max(0, left)}g</p>
-      <p className="text-body-md text-label-primary">{label} left</p>
+      <p className="text-body-md text-label-primary">{label}</p>
       <div className="mt-2">
         <CircleRing 
           size={64} 
