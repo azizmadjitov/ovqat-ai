@@ -6,6 +6,7 @@ import { ResultScreen } from './components/ResultScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
+import { initializeTheme } from './src/lib/theme';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
@@ -16,6 +17,9 @@ const App = () => {
     const [appInitialized, setAppInitialized] = useState(false);
 
     useEffect(() => {
+        // Initialize theme system
+        initializeTheme();
+        
         loadTokens().then(() => {
             setTokensLoaded(true);
         });
