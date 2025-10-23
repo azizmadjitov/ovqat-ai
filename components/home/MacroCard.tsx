@@ -89,7 +89,10 @@ export const MacroCard: React.FC<MacroCardProps> = ({
     }, []);
 
   return (
-    <div className="macro-card w-full bg-bg-surface rounded-[1.5rem] p-4 mt-4 border border-stroke-non-opaque">
+    <div className="macro-card w-full rounded-[1.5rem] p-4 mt-4" style={{
+      backgroundColor: 'var(--bg-elevation)',
+      border: '1px solid var(--stroke-non-opaque)'
+    }}>
         <div className="flex justify-between items-center">
             <div>
                 <p className="text-title-h1 text-label-primary">{Math.round(Math.max(0, caloriesLeft))}</p>
@@ -99,7 +102,7 @@ export const MacroCard: React.FC<MacroCardProps> = ({
                 <img src={caloriesIcon} alt="Calories icon" className="w-5 h-5" />
             </CircleRing>
         </div>
-        <div className="h-px bg-[var(--stroke-non-opaque)] my-4"></div>
+        <div className="h-px my-4" style={{ backgroundColor: 'var(--stroke-non-opaque)' }}></div>
         <div className="grid grid-cols-3 gap-x-4">
             {macros.map((macro) => (
             <MacroItem
