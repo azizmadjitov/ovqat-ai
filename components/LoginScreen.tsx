@@ -128,10 +128,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      {/* Header */}
-      <header className="h-[3rem] flex items-center justify-center flex-shrink-0">
-        <h1 className="text-title-h2 text-label-primary">{t('app_name')}</h1>
-      </header>
+      {/* Header - Hidden, using native navbar instead */}
 
       {/* Main Content - scrollable area */}
       <main className="flex-1 overflow-auto flex flex-col items-center">

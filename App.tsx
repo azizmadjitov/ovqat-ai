@@ -7,6 +7,8 @@ import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
 import { initializeTheme } from './src/lib/theme';
+import { navigationManager } from './src/lib/navigationManager';
+import { initializeNativeEvents } from './src/lib/nativeEvents';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
@@ -19,6 +21,9 @@ const App = () => {
     useEffect(() => {
         // Initialize theme system
         initializeTheme();
+        
+        // Initialize native event listeners
+        initializeNativeEvents();
         
         loadTokens().then(() => {
             setTokensLoaded(true);
@@ -63,6 +68,11 @@ const App = () => {
         }
     }, [tokensLoaded, appInitialized]);
 
+    // Update native navbar when screen changes
+    useEffect(() => {
+        navigationManager.push(currentScreen);
+    }, [currentScreen]);
+
     const checkExistingSession = async () => {
         try {
             console.log('🔍 Checking for existing authenticated session...');
@@ -83,6 +93,11 @@ const App = () => {
                     setUser(userData);
                     setPhoneNumber(userData.phone_number || '');
                     
+                    const handleQuestionnaireComplete = () => {
+                        navigationManager.push(Screen.Home);
+                        setCurrentScreen(Screen.Home);
+                    };
+
                     if (userData.questionnaire_completed) {
                         setCurrentScreen(Screen.Home);
                     } else {
@@ -190,7 +205,7 @@ const App = () => {
     }, [isAuthenticated, user]);
 
     const handleOpenCamera = () => {
-        console.log('Navigating to Camera screen');
+        navigationManager.push(Screen.Camera);
         setCurrentScreen(Screen.Camera);
     };
 
@@ -210,6 +225,7 @@ const App = () => {
     const handleRetake = () => {
         console.log('Retaking photo, navigating to Camera screen');
         setCapturedImage(null);
+        navigationManager.pop();
         setCurrentScreen(Screen.Camera);
     };
 
@@ -224,9 +240,9 @@ const App = () => {
     const handleMealClick = (meal: Meal) => {
         console.log('Meal clicked, opening Result screen for viewing:', meal);
         setViewingMeal(meal);
-        setCurrentScreen(Screen.Result);
+        navigationManager.push(Screen.Result);
     };
-    
+
     const handleBackFromResult = () => {
         console.log('Back from Result screen, navigating to Home screen');
         setCapturedImage(null);
@@ -235,55 +251,33 @@ const App = () => {
     };
 
     // Handle successful login
-    const handleLoginSuccess = async (userProfile: UserProfile | null, phone: string, needsOnboarding: boolean) => {
-        console.log('Login successful:', { userProfile, phone, needsOnboarding });
+    const handleLoginSuccess = (user: UserProfile | null, phoneNumber: string, needsOnboarding: boolean) => {
+        setUser(user);
+        setPhoneNumber(phoneNumber);
         setIsAuthenticated(true);
-        setUser(userProfile);
-        setPhoneNumber(phone);
+        
+        // Reset navigation stack when logging in
+        navigationManager.reset();
         
         if (needsOnboarding) {
-            // User needs to complete questionnaire
+            navigationManager.push(Screen.Questionnaire);
             setCurrentScreen(Screen.Questionnaire);
         } else {
-            // User has completed onboarding - load goals and show home screen
-            try {
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                if (authUser) {
-                    const { goals } = await questionnaireService.getUserGoals(authUser.id);
-                    if (goals) {
-                        setDailyGoal({
-                            calories: goals.goal_calories,
-                            macros: {
-                                protein: goals.goal_protein_g,
-                                fat: goals.goal_fat_g,
-                                carbs: goals.goal_carbs_g,
-                            },
-                        });
-                    } else {
-                        // No goals found, set default
-                        setDailyGoal({
-                            calories: 2000,
-                            macros: {
-                                protein: 150,
-                                fat: 65,
-                                carbs: 250,
-                            },
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading goals on login:', error);
-                // Set default goals on error
-                setDailyGoal({
-                    calories: 2000,
-                    macros: {
-                        protein: 150,
-                        fat: 65,
-                        carbs: 250,
-                    },
-                });
-            }
+            navigationManager.push(Screen.Home);
             setCurrentScreen(Screen.Home);
+        }
+    };
+
+    const handleBackPress = () => {
+        const canGoBack = navigationManager.pop();
+        
+        if (canGoBack) {
+            // Navigate to previous screen based on stack
+            const previousScreen = navigationManager.getCurrentScreen();
+            setCurrentScreen(previousScreen);
+        } else {
+            // No previous screen - WebView will be closed by native app
+            console.log('No previous screen - WebView closing');
         }
     };
 

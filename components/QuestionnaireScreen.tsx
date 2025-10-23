@@ -436,18 +436,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      {/* Header */}
-      <header className="h-[3rem] flex items-center justify-between flex-shrink-0">
-        <button
-          onClick={handleBack}
-          className="p-2 -ml-2"
-          disabled={loading}
-        >
-          <img src="/assets/icons/chevron-left.svg" alt="Back" className="w-6 h-6" />
-        </button>
-        <div className="flex-1"></div>
-        <div className="w-10"></div>
-      </header>
+      {/* Header - Hidden, using native navbar instead */}
 
       {/* Progress bar */}
       <div className="mb-6 flex justify-center">

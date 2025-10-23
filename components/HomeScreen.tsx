@@ -42,7 +42,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
   if (!dailyGoal) {
     return (
       <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-        <Header />
+        {/* Header - Hidden, using native navbar instead */}
         <div className="flex items-center justify-center flex-1">
           <div>{t('loading')}</div>
         </div>
@@ -52,7 +52,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
 
   return (
     <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-      <Header />
+      {/* Header - Hidden, using native navbar instead */}
       <div className="calendar px-4">
           <CalendarStrip 
             meals={meals} 
