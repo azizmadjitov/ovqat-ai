@@ -39,7 +39,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
 
       {/* Dynamic Text */}
       <div className="text-center">
-        <p className="text-label-primary text-body-lg min-h-[1.5rem] transition-opacity duration-500" style={{ opacity: displayText ? 1 : 0 }}>
+        <p className="text-label-primary text-body-lg min-h-[1.5rem] transition-opacity duration-200" style={{ opacity: displayText ? 1 : 0 }}>
           {displayText}
         </p>
         {message && <p className="text-label-secondary text-body-sm mt-2">{message}</p>}
