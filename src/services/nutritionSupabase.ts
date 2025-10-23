@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { lang } from '../../i18n';
 
 export type NutritionResult = {
   title: string;
@@ -60,7 +61,8 @@ export async function analyzeMeal(file: File, servingCount: number = 1): Promise
       },
       body: JSON.stringify({
         image: base64Data,
-        model: 'gpt-4o-mini'
+        model: 'gpt-4o-mini',
+        language: lang // Pass current app language
       })
     });
 

@@ -20,11 +20,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { image, model = 'gpt-4o-mini' } = req.body;
+    const { image, model = 'gpt-4o-mini', language = 'en' } = req.body;
 
     if (!image) {
       return res.status(400).json({ error: 'Missing image data' });
     }
+
+    // Map language codes to full language names
+    const languageNames: Record<string, string> = {
+      'en': 'English',
+      'ru': 'Russian',
+      'uz': 'Uzbek'
+    };
+    const languageName = languageNames[language] || 'English';
 
     // Get OpenAI API key from environment
     const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -34,6 +42,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Prepare the vision prompt for nutritionist analysis
     const visionPrompt = `You are a professional nutritionist and dietitian analyzing a food photograph.
+
+**CRITICAL INSTRUCTION: Respond in ${languageName} language.**
 
 **CRITICAL FIRST STEP: Is this actually food?**
 
@@ -65,8 +75,9 @@ As a professional dietitian, calculate:
 - Keep description brief: maximum 90-100 characters
 - Include only key ingredients and cooking method
 - Be concise and informative
+- Write in ${languageName} language
 
-Return your analysis as JSON:
+Return your analysis as JSON (title and description must be in ${languageName}):
 {
   "title": "Dish name or description",
   "confidence": 0.95,
