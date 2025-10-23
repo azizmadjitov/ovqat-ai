@@ -23,6 +23,11 @@ class NativeEventManager {
       this.handleMessage(event);
     });
 
+    // Expose global bridge for WKWebView and other hosts without window.postMessage plumbing
+    (window as any).OvqatNative = {
+      postMessage: (data: any) => this.receiveFromNative(data),
+    };
+
     this.isInitialized = true;
     console.log('✅ Native events initialized');
   }
@@ -52,6 +57,15 @@ class NativeEventManager {
     }
 
     // Emit custom events
+    this.emit(data.type, data);
+  }
+
+  /**
+   * Public bridge for native apps to push messages into the web app.
+   * Example (iOS WKWebView): webView.evaluateJavaScript("window.OvqatNative.postMessage({type:'THEME_CHANGE', theme:'dark'})")
+   */
+  receiveFromNative(data: any): void {
+    if (!data || !data.type) return;
     this.emit(data.type, data);
   }
 
