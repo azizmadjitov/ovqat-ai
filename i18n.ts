@@ -244,8 +244,23 @@ const translations = {
   },
 };
 
-// A real app would get this from user preferences or browser settings
-const lang: 'en' | 'ru' | 'uz' = 'en';
+// Get language from URL parameter or browser settings
+const getLang = (): 'en' | 'ru' | 'uz' => {
+  // Try to get from URL parameter
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get('lang');
+    
+    if (urlLang === 'ru' || urlLang === 'uz') {
+      return urlLang;
+    }
+  }
+  
+  // Default to English
+  return 'en';
+};
+
+const lang = getLang();
 
 export const t = (key: keyof typeof translations['en']): string => {
   return translations[lang][key] || key;
