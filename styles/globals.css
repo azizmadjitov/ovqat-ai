@@ -175,11 +175,17 @@ input, textarea, select {
 /* === Skeleton Shimmer Animation === */
 @keyframes shimmer {
   0% {
-    backgroundPosition: -200% 0;
+    background-position: -200% 0;
   }
   100% {
-    backgroundPosition: 200% 0;
+    background-position: 200% 0;
   }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--bg-fill) 25%, var(--bg-elevation) 37%, var(--bg-fill) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s linear infinite;
 }
 
 /* === FAB Animation === */

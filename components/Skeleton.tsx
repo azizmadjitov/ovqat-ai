@@ -14,12 +14,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   borderRadius = 'rounded'
 }) => (
   <div 
-    className={`bg-gradient-to-r from-bg-fill via-bg-elevation to-bg-fill animate-pulse ${borderRadius} ${className}`}
-    style={{ 
-      width, 
-      height,
-      backgroundSize: '200% 100%',
-      animation: 'shimmer 2s infinite'
-    }}
+    className={`skeleton-shimmer ${borderRadius} ${className}`}
+    style={{ width, height }}
   />
 );

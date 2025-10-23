@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Skeleton } from './Skeleton';
 
 interface Props {
@@ -19,10 +19,19 @@ export const ImageWithSkeleton: React.FC<Props> = ({
   rounded = 'rounded'
 }) => {
   const [loaded, setLoaded] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(true);
+
+  // Guarantee skeleton is visible for at least 200ms to avoid instant flash
+  useEffect(() => {
+    if (loaded) {
+      const timer = setTimeout(() => setShowSkeleton(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [loaded]);
 
   return (
     <div className={`relative inline-block ${className}`} style={{ width, height }}>
-      {!loaded && (
+      {showSkeleton && (
         <Skeleton width={`${width}px`} height={`${height}px`} borderRadius={typeof rounded === 'string' ? rounded : 'rounded'} />
       )}
       <img
