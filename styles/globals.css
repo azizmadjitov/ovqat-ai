@@ -161,6 +161,16 @@ input, textarea, select {
   height: 5rem;
 }
 
+/* === Skeleton Shimmer Animation === */
+@keyframes shimmer {
+  0% {
+    backgroundPosition: -200% 0;
+  }
+  100% {
+    backgroundPosition: 200% 0;
+  }
+}
+
 /* === FAB Animation === */
 @keyframes fadeIn {
   from {
