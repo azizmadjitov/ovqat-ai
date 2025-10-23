@@ -11,7 +11,7 @@ export const FabCamera: React.FC<FabCameraProps> = ({ onClick }) => (
             onClick={onClick}
             className="bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] rounded-full p-5 shadow-1 transform active:scale-95 transition-transform duration-150 focus:outline-none focus:ring-4 focus:ring-[#FFC3EB]/50"
             aria-label="Add new meal">
-          <CameraSparklesIcon className="w-8 h-8" style={{ color: 'var(--static-black)' }} />
+          <CameraSparklesIcon className="w-8 h-8" />
         </button>
     </div>
 );
