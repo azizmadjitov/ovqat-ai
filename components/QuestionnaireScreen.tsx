@@ -155,7 +155,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
               style={
                 formData.gender === 'male'
                   ? {
-                      backgroundColor: 'var(--state-selected-bg)',
+                      backgroundColor: 'rgba(62, 211, 79, 0.20)',
                       border: '2px solid var(--colors-green)',
                       padding: '0 1rem',
                     }
@@ -206,7 +206,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
             min="1924"
             max="2014"
             className="w-full h-[56px] px-4 text-body-lg text-label-primary rounded-[16px] focus:outline-none"
-            style={{ backgroundColor: 'var(--bg-fill)' }}
+            style={{ backgroundColor: 'rgba(180, 184, 204, 0.14)' }}
             autoFocus
           />
         );
