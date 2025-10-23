@@ -317,7 +317,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <img src={minusIcon} alt="Decrease serving" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--label-primary)' }} />
+                            <img src={minusIcon} alt="Decrease serving" style={{ width: '1.5rem', height: '1.5rem', opacity: 0.7, filter: 'brightness(0) saturate(100%)' }} />
                         </button>
                         <div></div>
                         <div 
@@ -355,13 +355,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <img src={plusIcon} alt="Increase serving" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--label-primary)' }} />
+                            <img src={plusIcon} alt="Increase serving" style={{ width: '1.5rem', height: '1.5rem', opacity: 0.7, filter: 'brightness(0) saturate(100%)' }} />
                         </button>
                         <div></div>
                     </div>
                 </section>
                 
-                <section className="nutrients-card bg-bg-elevation border border-stroke-non-opaque rounded-[1.5rem] p-[1.25rem]">
+                <section className="nutrients-card rounded-[1.5rem] p-[1.25rem]" style={{
+                    backgroundColor: 'var(--bg-elevation)',
+                    border: '1px solid var(--stroke-non-opaque)'
+                }}>
                     {/* Top Area */}
                     <div className="grid grid-cols-2 gap-x-[1.25rem]">
                          <TopStat value={String(displayValues.calories)} label="Calories" icon={caloriesIconUrl} />
@@ -369,7 +372,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
                     
                     {/* Divider */}
-                    <div className="my-[1.25rem] h-px" style={{ display: 'block', width: '100%', backgroundColor: '#B4B8CC', opacity: 0.28 }}></div>
+                    <div className="my-[1.25rem] h-px" style={{ display: 'block', width: '100%', backgroundColor: 'var(--stroke-non-opaque)' }}></div>
 
                     {/* Bottom Area */}
                     <div className="nutrient-grid grid grid-cols-2 gap-x-[1.25rem] gap-y-[1rem]">
@@ -386,8 +389,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onClick={handleConfirm}
                             className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
                         >
-                            <SparklesIcon className="w-6 h-6 text-label-opposite" />
-                            <span className="text-label-lg text-label-opposite">Done</span>
+                            <SparklesIcon className="w-6 h-6" style={{ color: 'var(--static-black)' }} />
+                            <span className="text-label-lg" style={{ color: 'var(--static-black)' }}>Done</span>
                         </button>
                     </div>
                 )}
