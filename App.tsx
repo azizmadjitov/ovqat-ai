@@ -5,6 +5,7 @@ import { CameraScreen } from './components/CameraScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
+import { SplashScreen } from './components/SplashScreen';
 import { loadTokens } from './lib/tokens';
 import { initializeTheme, applyTheme } from './src/lib/theme';
 import { navigationManager } from './src/lib/navigationManager';
@@ -91,6 +92,8 @@ const App = () => {
     }, [currentScreen]);
 
     const checkExistingSession = async () => {
+        const startTime = performance.now();
+        console.log('⏱️ [PERF] App initialization started');
         try {
             console.log('🔍 Checking for existing authenticated session...');
             
@@ -174,6 +177,9 @@ const App = () => {
         } catch (error) {
             console.error('Error checking existing session:', error);
         } finally {
+            const endTime = performance.now();
+            const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+            console.log(`⏱️ [PERF] App initialization completed in ${totalTime}s`);
             setAppInitialized(true);
         }
     };
@@ -182,7 +188,20 @@ const App = () => {
     useEffect(() => {
         const loadUserData = async () => {
             if (isAuthenticated && user) {
-                console.log('🔍 Loading user data for user.id:', user.id);
+                // Try to load cached goals immediately for faster initial render
+                try {
+                    const cachedGoalsStr = localStorage.getItem('cachedDailyGoal');
+                    if (cachedGoalsStr) {
+                        const cachedGoals = JSON.parse(cachedGoalsStr);
+                        console.log('⚡ Using cached goals for instant display');
+                        setDailyGoal(cachedGoals);
+                    }
+                } catch (e) {
+                    console.warn('Failed to load cached goals:', e);
+                }
+
+                const dataLoadStart = performance.now();
+                console.log('⏱️ [PERF] Starting data load for user.id:', user.id);
                 try {
                     // Load goals and meals in parallel
                     const [goalsResult, mealsResult] = await Promise.all([
@@ -190,19 +209,29 @@ const App = () => {
                         mealsService.loadMeals(user.id)
                     ]);
 
+                    const dataLoadEnd = performance.now();
+                    const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
+                    console.log(`⏱️ [PERF] Data loaded in ${dataLoadTime}s`);
                     console.log('🔍 goalsResult:', goalsResult);
 
                     // Set goals
                     if (goalsResult.goals) {
                         console.log('✅ Goals loaded from database:', goalsResult.goals);
-                        setDailyGoal({
+                        const goals = {
                             calories: goalsResult.goals.goal_calories,
                             macros: {
                                 protein: goalsResult.goals.goal_protein_g,
                                 fat: goalsResult.goals.goal_fat_g,
                                 carbs: goalsResult.goals.goal_carbs_g,
                             },
-                        });
+                        };
+                        setDailyGoal(goals);
+                        // Cache goals in localStorage for faster subsequent loads
+                        try {
+                            localStorage.setItem('cachedDailyGoal', JSON.stringify(goals));
+                        } catch (e) {
+                            console.warn('Failed to cache goals:', e);
+                        }
                     } else {
                         console.warn('⚠️ No goals found in database, setting defaults');
                         setDailyGoal({
@@ -353,17 +382,19 @@ const App = () => {
 
     const renderScreen = () => {
         console.log('Rendering screen:', currentScreen);
+        
+        // Show splash screen during initial app load
+        if (!appInitialized) {
+            return <SplashScreen />;
+        }
+        
         switch (currentScreen) {
             case Screen.Questionnaire:
                 return <QuestionnaireScreen phoneNumber={phoneNumber} onComplete={handleQuestionnaireComplete} />;
             case Screen.Home:
-                // Show loading state if dailyGoal is not yet loaded
+                // Show splash screen if dailyGoal is not yet loaded
                 if (!dailyGoal) {
-                    return (
-                        <div className="flex items-center justify-center min-h-screen bg-bg-base">
-                            <div className="text-label-primary">{t('loading')}</div>
-                        </div>
-                    );
+                    return <SplashScreen />;
                 }
                 return <HomeScreen meals={meals} dailyGoal={dailyGoal} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
             case Screen.Camera:
