@@ -9,13 +9,13 @@ const THEME_QUERY_PARAM = 'theme';
 // Dark theme colors
 const DARK_THEME = {
   '--label-primary': 'rgba(255, 255, 255, 1.00)',
-  '--label-secondary': 'rgba(200, 200, 200, 0.64)',
+  '--label-secondary': 'rgba(255, 255, 255, 0.56)',
   '--label-opposite': 'rgba(38, 38, 51, 1.00)',
-  '--bg-base': 'rgba(20, 20, 30, 1.00)',
-  '--bg-underlayer': 'rgba(30, 30, 45, 1.00)',
-  '--bg-fill': 'rgba(100, 100, 120, 0.14)',
-  '--bg-elevation': 'rgba(30, 30, 45, 1.00)',
-  '--stroke-non-opaque': 'rgba(100, 100, 120, 0.28)',
+  '--bg-base': 'rgba(14, 14, 16, 1.00)',
+  '--bg-underlayer': 'rgba(0, 0, 0, 1.00)',
+  '--bg-fill': 'rgba(39, 39, 43, 1.00)',
+  '--bg-elevation': 'rgba(24, 24, 26, 1.00)',
+  '--stroke-non-opaque': 'rgba(250, 250, 255, 0.08)',
   '--static-white': 'rgba(255, 255, 255, 1.00)',
   '--static-black': 'rgba(38, 38, 51, 1.00)',
 };
