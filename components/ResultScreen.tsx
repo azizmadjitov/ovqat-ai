@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Meal } from '../types';
 import { t } from '../i18n';
 import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
+import { LoadingSpinner } from './LoadingSpinner';
 
 // --- Asset Imports ---
 const chevronLeftIcon = '/assets/icons/chevron-left.svg';
@@ -163,11 +164,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     // Show loading state
     if (loading) {
         return (
-            <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-green mx-auto"></div>
-                    <p className="mt-4 text-label-primary">{t('analyzing_meal')}</p>
-                </div>
+            <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center px-6">
+                <LoadingSpinner />
             </div>
         );
     }
