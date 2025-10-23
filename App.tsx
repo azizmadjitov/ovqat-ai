@@ -10,6 +10,7 @@ import { loadTokens } from './lib/tokens';
 import { initializeTheme, applyTheme } from './src/lib/theme';
 import { navigationManager } from './src/lib/navigationManager';
 import { initializeNativeEvents, nativeEventManager } from './src/lib/nativeEvents';
+import { registerServiceWorker } from './src/lib/serviceWorker';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { mealsService } from './src/services/mealsService';
@@ -41,8 +42,11 @@ const App = () => {
         
         loadTokens().then(() => {
             setTokensLoaded(true);
+            console.log('✅ Tokens loaded');
         });
         
+        // Register service worker for caching static assets
+        registerServiceWorker();
         return () => {
             unsubscribeTheme();
         };
