@@ -10,7 +10,6 @@ import { loadTokens } from './lib/tokens';
 import { initializeTheme, applyTheme } from './src/lib/theme';
 import { navigationManager } from './src/lib/navigationManager';
 import { initializeNativeEvents, nativeEventManager } from './src/lib/nativeEvents';
-import { registerServiceWorker } from './src/lib/serviceWorker';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { mealsService } from './src/services/mealsService';
@@ -42,11 +41,8 @@ const App = () => {
         
         loadTokens().then(() => {
             setTokensLoaded(true);
-            console.log('✅ Tokens loaded');
         });
         
-        // Register service worker for caching static assets
-        registerServiceWorker();
         return () => {
             unsubscribeTheme();
         };
@@ -303,17 +299,24 @@ const App = () => {
         // Add to local state first for immediate UI update
         setMeals(prevMeals => [...prevMeals, newMeal]);
         
-        // Save to Supabase if user is authenticated
-        if (user?.id) {
-            const result = await mealsService.saveMeal(user.id, newMeal);
-            if (!result.success) {
-                console.error('Failed to save meal to database:', result.error);
-            }
-        }
-        
+        // Navigate immediately for instant feedback
         setCapturedImage(null);
         setViewingMeal(null);
         setCurrentScreen(Screen.Home);
+        
+        // Save to Supabase in background (non-blocking)
+        if (user?.id) {
+            mealsService.saveMeal(user.id, newMeal).then(result => {
+                if (result.success) {
+                    console.log('✅ Meal saved to database');
+                } else {
+                    console.error('❌ Failed to save meal to database:', result.error);
+                    // TODO: Show error toast to user
+                }
+            }).catch(error => {
+                console.error('❌ Unexpected error saving meal:', error);
+            });
+        }
     };
     
     const handleMealClick = (meal: Meal) => {
