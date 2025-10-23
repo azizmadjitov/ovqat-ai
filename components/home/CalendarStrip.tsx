@@ -110,15 +110,18 @@ export const CalendarStrip: React.FC<CalendarStripProps> = ({
   const days = generateWeekDays(meals, dailyGoalCalories);
 
   return (
-    <div className="w-full h-full grid grid-cols-7">
-      {days.map((day) => (
-        <DayItem
-          key={day.date}
-          dayData={day}
-          isSelected={day.date === selectedDate}
-          onClick={() => onDateSelect(day.date)}
-        />
-      ))}
+    <div className="w-full overflow-x-auto overflow-y-hidden -mx-4 px-4">
+      <div className="flex gap-2 min-w-max py-2">
+        {days.map((day) => (
+          <div key={day.date} className="flex-shrink-0 w-16">
+            <DayItem
+              dayData={day}
+              isSelected={day.date === selectedDate}
+              onClick={() => onDateSelect(day.date)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
