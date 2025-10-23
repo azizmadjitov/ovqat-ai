@@ -15,55 +15,78 @@ interface HomeScreenProps {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpenCamera, onMealClick }) => {
-    // Get today's date in YYYY-MM-DD format
-    const getTodayDate = () => new Date().toISOString().split('T')[0];
-    
-    const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
-    
-    // Check if selected date is today or in the future
-    const todayDate = getTodayDate();
-    const isSelectedDateTodayOrFuture = selectedDate >= todayDate;
-    
-    // Filter meals for the selected date and sort by creation time (newest first)
-    const mealsForSelectedDate = meals
-        .filter(meal => meal.date === selectedDate)
-        .sort((a, b) => b.id.localeCompare(a.id)); // Sort descending by ISO timestamp (id)
-    
-    const consumedCalories = mealsForSelectedDate.reduce((sum, meal) => sum + meal.calories, 0);
-    const consumedMacros = mealsForSelectedDate.reduce((sum, meal) => ({
-        protein: sum.protein + meal.macros.protein,
-        fat: sum.fat + meal.macros.fat,
-        carbs: sum.carbs + meal.macros.carbs,
-        // Fiber is not displayed in the main UI, but we'll calculate it for completeness
-        fiber: (sum.fiber || 0) + (meal.macros.fiber || 0),
-    }), { protein: 0, fat: 0, carbs: 0, fiber: 0 });
+  // ============================================================================
+  // State & Date Management
+  // ============================================================================
+  
+  const getTodayDate = () => new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
+  
+  const todayDate = getTodayDate();
+  const isSelectedDateTodayOrFuture = selectedDate >= todayDate;
+  
+  // ============================================================================
+  // Data Filtering & Calculations
+  // ============================================================================
+  
+  // Filter and sort meals for selected date (newest first)
+  const mealsForSelectedDate = meals
+    .filter(meal => meal.date === selectedDate)
+    .sort((a, b) => b.id.localeCompare(a.id));
+  
+  // Calculate consumed calories and macros
+  const consumedCalories = mealsForSelectedDate.reduce(
+    (sum, meal) => sum + meal.calories, 
+    0
+  );
+  
+  const consumedMacros = mealsForSelectedDate.reduce(
+    (sum, meal) => ({
+      protein: sum.protein + meal.macros.protein,
+      fat: sum.fat + meal.macros.fat,
+      carbs: sum.carbs + meal.macros.carbs,
+      fiber: (sum.fiber || 0) + (meal.macros.fiber || 0),
+    }), 
+    { protein: 0, fat: 0, carbs: 0, fiber: 0 }
+  );
 
-  // Show loading state if dailyGoal is not yet loaded
+  // ============================================================================
+  // Loading State
+  // ============================================================================
+  
   if (!dailyGoal) {
     return (
-      <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-        {/* Header - Hidden, using native navbar instead */}
-        <div className="flex items-center justify-center flex-1">
-          <div>{t('loading')}</div>
-        </div>
+      <div className="min-h-screen bg-bg-base text-label-primary flex items-center justify-center">
+        <div className="text-body-lg">{t('loading')}</div>
       </div>
     );
   }
 
+  // ============================================================================
+  // Render
+  // ============================================================================
+  
   return (
-    <div className="min-h-screen bg-bg-base text-label-primary">
-      {/* Calendar Strip - scrolls with page */}
-      <div className="px-4 pt-4">
+    <div 
+      className="min-h-screen bg-bg-base text-label-primary"
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+      }}
+    >
+      {/* Calendar Strip */}
+      <section className="px-4 pt-4">
         <CalendarStrip 
           meals={meals} 
           dailyGoalCalories={dailyGoal.calories}
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
         />
-      </div>
+      </section>
       
-      {/* Content - scrolls with page */}
-      <main className="px-6 pt-4 pb-24">
+      {/* Main Content Area */}
+      <main className="px-6 pt-4 pb-32">
+        {/* Macro Summary Card */}
         <MacroCard
           consumedCalories={consumedCalories}
           goalCalories={dailyGoal.calories}
@@ -71,9 +94,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
           goalMacros={dailyGoal.macros} 
         />
 
-        <RecentlyLoggedList meals={mealsForSelectedDate} onMealClick={onMealClick} />
+        {/* Meal History List */}
+        <RecentlyLoggedList 
+          meals={mealsForSelectedDate} 
+          onMealClick={onMealClick} 
+        />
       </main>
       
+      {/* Floating Action Button (Camera) */}
       {isSelectedDateTodayOrFuture && <FabCamera onClick={onOpenCamera} />}
     </div>
   );
