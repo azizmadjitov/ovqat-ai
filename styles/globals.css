@@ -3,29 +3,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === Mobile Viewport Fix === */
-html, body, #root {
+/* === Mobile Viewport Setup === */
+html, body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
-  position: fixed;
-}
-
-body {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  margin: 0;
+  padding: 0;
+  /* Allow natural scrolling */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #root {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
+  min-height: 100%;
+  width: 100%;
+  /* Allow natural scrolling */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* === Disable Text Selection for Native Feel === */
