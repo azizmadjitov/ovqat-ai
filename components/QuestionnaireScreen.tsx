@@ -4,6 +4,7 @@ import { Button } from './Button';
 import { t } from '../i18n';
 import { questionnaireService } from '../src/services/questionnaireService';
 import { supabase } from '../src/lib/supabase';
+import { ImageWithSkeleton } from './ImageWithSkeleton';
 
 interface QuestionnaireScreenProps {
   phoneNumber: string;
@@ -166,7 +167,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                     }
               }
             >
-              <img src="assets/img/male.png" alt="Male" className="w-[40px] h-[40px]" />
+              <ImageWithSkeleton src="/assets/img/male.png" alt="Male" width={40} height={40} rounded="rounded" />
               {t('q_gender_male')}
             </button>
             <button
@@ -186,7 +187,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                     }
               }
             >
-              <img src="assets/img/female.png" alt="Female" className="w-[40px] h-[40px]" />
+              <ImageWithSkeleton src="/assets/img/female.png" alt="Female" width={40} height={40} rounded="rounded" />
               {t('q_gender_female')}
             </button>
           </div>
@@ -243,7 +244,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                       }
                 }
               >
-                <img src={`assets/img/${option.icon}`} alt={option.label} className="w-[40px] h-[40px]" />
+                <ImageWithSkeleton src={`/assets/img/${option.icon}`} alt={option.label} width={40} height={40} rounded="rounded" />
                 <div className="flex flex-col text-left" style={{ gap: '2px' }}>
                   <span className="text-label-lg text-label-primary">{option.label}</span>
                   <span className="text-body-sm text-label-secondary">{option.caption}</span>
