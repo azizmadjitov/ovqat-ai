@@ -379,7 +379,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <div className="mt-auto pt-5 flex justify-center">
                         <button
                             onClick={handleConfirm}
-                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-all duration-150 ease-out focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
                         >
                             <SparklesIcon className="w-6 h-6" />
                             <span className="text-label-lg" style={{ color: 'var(--static-black)' }}>{t('done')}</span>
@@ -391,7 +391,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <div className="mt-auto pt-5 flex justify-center">
                         <button
                             onClick={onRetake}
-                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] transform active:scale-95 transition-all duration-150 focus:outline-none"
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] transform active:scale-95 transition-all duration-150 ease-out focus:outline-none"
                         >
                             <span className="text-label-lg text-label-primary">{t('retake')}</span>
                         </button>

@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
         w-auto h-[56px] px-8
         text-label-lg
         rounded-full
-        transition-all duration-200
+        transition-all duration-200 ease-out
         ${
           isDisabled
             ? 'bg-stroke-non-opaque text-label-secondary cursor-not-allowed'
