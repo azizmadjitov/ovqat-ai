@@ -59,7 +59,7 @@ interface DayItemProps {
 const DayItem: React.FC<DayItemProps> = ({ dayData, isSelected, onClick }) => {
   const { day, weekday, isFuture, progress, isToday } = dayData;
 
-  const textColor = isSelected ? 'text-label-on-accent' : isFuture ? 'text-label-secondary' : 'text-label-primary';
+  const textColor = isSelected ? 'text-label-opposite' : isFuture ? 'text-label-secondary' : 'text-label-primary';
   const weekdayColor = isFuture ? 'text-label-secondary' : 'text-label-primary';
 
   return (
@@ -73,7 +73,7 @@ const DayItem: React.FC<DayItemProps> = ({ dayData, isSelected, onClick }) => {
     >
       <div
         className={`w-[1.75rem] h-[1.75rem] flex items-center justify-center rounded-full transition-colors ${
-          isSelected ? 'bg-label-primary' : ''
+          isSelected ? 'bg-label-opposite' : ''
         }`}
       >
         <span className={`text-label-md ${textColor}`}>{day}</span>
