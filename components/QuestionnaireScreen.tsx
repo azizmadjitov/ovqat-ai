@@ -148,7 +148,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 1: Gender
       case 1:
         return (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-4">
             <button
               onClick={() => setFormData({ ...formData, gender: 'male' })}
               className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-150 text-label-primary flex items-center gap-3 active:scale-[0.98]"
@@ -214,7 +214,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 3: Workout frequency
       case 3:
         return (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-4">
             {[
               { value: 'rarely', label: t('q_workout_rarely'), caption: t('q_workout_rarely_desc'), icon: 'football-ball.png' },
               { value: 'regularly', label: t('q_workout_regularly'), caption: t('q_workout_regularly_desc'), icon: 'fitness.png' },
@@ -256,7 +256,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 4: Weight
       case 4:
         return (
-          <div className="mt-6">
+          <div>
             <input
               id="weight"
               type="number"
@@ -280,7 +280,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 5: Height
       case 5:
         return (
-          <div className="mt-6">
+          <div>
             <input
               id="height"
               type="number"
@@ -304,7 +304,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 6: Primary goal
       case 6:
         return (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-4">
             {[
               { value: 'lose', label: t('q_goal_lose'), icon: 'weights.png' },
               { value: 'maintain', label: t('q_goal_maintain'), icon: 'fitness-1.png' },
@@ -343,7 +343,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 7: Activity level
       case 7:
         return (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-4">
             {[
               { value: 'sedentary', label: t('q_activity_sedentary'), caption: t('q_activity_sedentary_desc'), icon: 'level-1.png' },
               { value: 'light', label: t('q_activity_light'), caption: t('q_activity_light_desc'), icon: 'level-2.png' },
@@ -386,7 +386,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       // Step 8: Diet type
       case 8:
         return (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-4">
             {[
               { value: 'balanced', label: t('q_diet_balanced'), icon: 'balance.png' },
               { value: 'pescetarian', label: t('q_diet_pescetarian'), icon: 'fish.png' },
@@ -437,9 +437,9 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       }}
     >
       {/* Fixed Header */}
-      <div className="flex-shrink-0 px-6 pt-6 pb-4">
+      <div className="flex-shrink-0 px-6 pt-4 pb-2">
         {/* Progress bar */}
-        <div className="mb-6 flex justify-center">
+        <div className="mb-4 flex justify-center">
           <div 
             className="h-[12px] w-[120px] rounded-full overflow-hidden"
             style={{ backgroundColor: 'var(--bg-fill)' }}
@@ -460,7 +460,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto px-6">
-        <div className="flex flex-col items-center py-6">
+        <div className="flex flex-col items-center py-3">
           <div className="w-full max-w-sm">
             {renderStep()}
           </div>
@@ -468,7 +468,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
       </main>
 
       {/* Fixed Footer */}
-      <div className="flex-shrink-0 px-6 py-4 flex justify-center">
+      <div className="flex-shrink-0 px-6 py-3 flex justify-center">
         {error && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-accent-error text-body-sm">
             {error}
