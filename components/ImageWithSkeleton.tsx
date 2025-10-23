@@ -32,14 +32,16 @@ export const ImageWithSkeleton: React.FC<Props> = ({
   return (
     <div className={`relative inline-block ${className}`} style={{ width, height }}>
       {showSkeleton && (
-        <Skeleton width={`${width}px`} height={`${height}px`} borderRadius={typeof rounded === 'string' ? rounded : 'rounded'} />
+        <div className={`absolute inset-0 ${typeof rounded === 'string' ? rounded : 'rounded'}`}>
+          <Skeleton width="100%" height="100%" borderRadius={typeof rounded === 'string' ? rounded : 'rounded'} />
+        </div>
       )}
       <img
         src={src}
         alt={alt}
         width={width}
         height={height}
-        className={`object-cover ${rounded} ${loaded ? 'opacity-100' : 'opacity-0 absolute top-0 left-0'} transition-opacity duration-300`}
+        className={`absolute inset-0 object-cover ${rounded} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
       />
     </div>
