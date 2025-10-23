@@ -251,13 +251,13 @@ const getLang = (): 'en' | 'ru' | 'uz' => {
     const params = new URLSearchParams(window.location.search);
     const urlLang = params.get('lang');
     
-    if (urlLang === 'ru' || urlLang === 'uz') {
+    if (urlLang === 'en' || urlLang === 'ru' || urlLang === 'uz') {
       return urlLang;
     }
   }
   
-  // Default to English
-  return 'en';
+  // Default to Russian
+  return 'ru';
 };
 
 const lang = getLang();
