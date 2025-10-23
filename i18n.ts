@@ -13,7 +13,7 @@ const translations = {
     'fat': 'Fat',
     'fat_left': 'Fat left',
     'todays_meals': "Today's Meals",
-    // Days of week
+    // Days of week (short)
     'day_mon': 'Mon',
     'day_tue': 'Tue',
     'day_wed': 'Wed',
@@ -21,6 +21,14 @@ const translations = {
     'day_fri': 'Fri',
     'day_sat': 'Sat',
     'day_sun': 'Sun',
+    // Days of week (full)
+    'day_full_mon': 'Monday',
+    'day_full_tue': 'Tuesday',
+    'day_full_wed': 'Wednesday',
+    'day_full_thu': 'Thursday',
+    'day_full_fri': 'Friday',
+    'day_full_sat': 'Saturday',
+    'day_full_sun': 'Sunday',
     'no_meals_yet': 'No meals logged yet.',
     'add_first_meal_prompt': 'Tap the camera to add your first meal!',
     'meal_details': 'Meal Details',
@@ -114,7 +122,7 @@ const translations = {
     'fat': 'Жиры',
     'fat_left': 'Жиры',
     'todays_meals': 'Последние действия',
-    // Days of week
+    // Days of week (short)
     'day_mon': 'пн',
     'day_tue': 'вт',
     'day_wed': 'ср',
@@ -122,6 +130,14 @@ const translations = {
     'day_fri': 'пт',
     'day_sat': 'сб',
     'day_sun': 'вс',
+    // Days of week (full)
+    'day_full_mon': 'Понедельник',
+    'day_full_tue': 'Вторник',
+    'day_full_wed': 'Среда',
+    'day_full_thu': 'Четверг',
+    'day_full_fri': 'Пятница',
+    'day_full_sat': 'Суббота',
+    'day_full_sun': 'Воскресенье',
     'no_meals_yet': 'Еще нет приемов пищи.',
     'add_first_meal_prompt': 'Нажмите на камеру, чтобы добавить первую еду!',
     'meal_details': 'Детали приема пищи',
@@ -215,7 +231,7 @@ const translations = {
     'fat': 'Yog\'lar',
     'fat_left': 'Yog\'lar qoldi',
     'todays_meals': 'Bugungi ovqatlar',
-    // Days of week
+    // Days of week (short)
     'day_mon': 'Dush',
     'day_tue': 'Sesh',
     'day_wed': 'Chorshanba',
@@ -223,6 +239,14 @@ const translations = {
     'day_fri': 'Juma',
     'day_sat': 'Shanba',
     'day_sun': 'Yakshanba',
+    // Days of week (full)
+    'day_full_mon': 'Dushanba',
+    'day_full_tue': 'Seshanba',
+    'day_full_wed': 'Chorshanba',
+    'day_full_thu': 'Payshanba',
+    'day_full_fri': 'Juma',
+    'day_full_sat': 'Shanba',
+    'day_full_sun': 'Yakshanba',
     'no_meals_yet': 'Hali ovqatlar qayd etilmagan.',
     'add_first_meal_prompt': 'Birinchi taomni qo\'shish uchun kamerani bosing!',
     'meal_details': 'Taom tafsilotlari',

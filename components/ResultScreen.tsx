@@ -74,7 +74,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [timestamp] = useState(() => {
         const date = existingMeal ? new Date(existingMeal.id) : new Date();
-        const weekdayKeys = ['day_sun', 'day_mon', 'day_tue', 'day_wed', 'day_thu', 'day_fri', 'day_sat'];
+        // Use full day names for ResultScreen
+        const weekdayKeys = ['day_full_sun', 'day_full_mon', 'day_full_tue', 'day_full_wed', 'day_full_thu', 'day_full_fri', 'day_full_sat'];
         const weekday = t(weekdayKeys[date.getDay()] as any);
         const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
         return `${weekday} ${time}`;
