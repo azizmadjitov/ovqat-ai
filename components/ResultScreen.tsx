@@ -253,15 +253,13 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
     return (
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-            <header className="h-[3rem] px-4 flex items-center justify-between flex-shrink-0">
-                <button onClick={isViewMode ? onBack : onRetake} className="p-2 -ml-2">
-                    <img src={chevronLeftIcon} alt="Back" className="w-6 h-6" />
-                </button>
-                <h1 className="text-title-h3 text-label-primary">{t('app_name')}</h1>
-                <button className="p-2 -mr-2">
-                    <img src={uploadIcon} alt="Share" className="w-6 h-6" />
-                </button>
-            </header>
+            {/* Back button - positioned absolutely */}
+            <button 
+                onClick={isViewMode ? onBack : onRetake} 
+                className="absolute top-4 left-4 p-2 z-10"
+            >
+                <img src={chevronLeftIcon} alt="Back" className="w-6 h-6" />
+            </button>
 
             <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
