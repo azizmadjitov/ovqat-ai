@@ -360,10 +360,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
                     {/* Bottom Area */}
                     <div className="nutrient-grid grid grid-cols-2 gap-x-[1.25rem] gap-y-[1rem]">
-                        <NutrientStat value={`${displayValues.protein}g`} label={t('protein_label')} icon={proteinIconUrl} />
-                        <NutrientStat value={`${displayValues.carbs}g`} label={t('carbs_label')} icon={carbsIconUrl} />
-                        <NutrientStat value={`${displayValues.fat}g`} label={t('fat_label')} icon={fatIconUrl} />
-                        <NutrientStat value={`${displayValues.fiber}g`} label={t('fiber')} icon={fiberIconUrl} />
+                        <NutrientStat value={`${displayValues.protein}${t('gram')}`} label={t('protein_label')} icon={proteinIconUrl} />
+                        <NutrientStat value={`${displayValues.carbs}${t('gram')}`} label={t('carbs_label')} icon={carbsIconUrl} />
+                        <NutrientStat value={`${displayValues.fat}${t('gram')}`} label={t('fat_label')} icon={fatIconUrl} />
+                        <NutrientStat value={`${displayValues.fiber}${t('gram')}`} label={t('fiber')} icon={fiberIconUrl} />
                     </div>
                 </section>
                 
