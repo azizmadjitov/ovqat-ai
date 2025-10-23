@@ -170,24 +170,28 @@ const App = () => {
         }
     };
 
-    // Load user goals on authentication
+    // Load user goals and meals on authentication
     useEffect(() => {
-        const loadUserGoals = async () => {
+        const loadUserData = async () => {
             if (isAuthenticated && user) {
                 try {
-                    // Use user.id from state (set by authService)
-                    const { goals } = await questionnaireService.getUserGoals(user.id);
-                    if (goals) {
+                    // Load goals and meals in parallel
+                    const [goalsResult, mealsResult] = await Promise.all([
+                        questionnaireService.getUserGoals(user.id),
+                        mealsService.loadMeals(user.id)
+                    ]);
+
+                    // Set goals
+                    if (goalsResult.goals) {
                         setDailyGoal({
-                            calories: goals.goal_calories,
+                            calories: goalsResult.goals.goal_calories,
                             macros: {
-                                protein: goals.goal_protein_g,
-                                fat: goals.goal_fat_g,
-                                carbs: goals.goal_carbs_g,
+                                protein: goalsResult.goals.goal_protein_g,
+                                fat: goalsResult.goals.goal_fat_g,
+                                carbs: goalsResult.goals.goal_carbs_g,
                             },
                         });
                     } else {
-                        // No goals found, set default
                         console.log('No goals found, setting defaults');
                         setDailyGoal({
                             calories: 2000,
@@ -198,8 +202,16 @@ const App = () => {
                             },
                         });
                     }
+
+                    // Set meals
+                    if (mealsResult.success && mealsResult.meals) {
+                        setMeals(mealsResult.meals);
+                        console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
+                    } else {
+                        console.error('Failed to load meals:', mealsResult.error);
+                    }
                 } catch (error) {
-                    console.error('Error loading user goals:', error);
+                    console.error('Error loading user data:', error);
                     // Set default goals on error
                     setDailyGoal({
                         calories: 2000,
@@ -210,18 +222,9 @@ const App = () => {
                         },
                     });
                 }
-                
-                // Load meals from Supabase
-                const mealsResult = await mealsService.loadMeals(user.id);
-                if (mealsResult.success && mealsResult.meals) {
-                    setMeals(mealsResult.meals);
-                    console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
-                } else {
-                    console.error('Failed to load meals:', mealsResult.error);
-                }
             }
         };
-        loadUserGoals();
+        loadUserData();
     }, [isAuthenticated, user]);
 
     const handleOpenCamera = () => {
