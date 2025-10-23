@@ -52,26 +52,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
 
   return (
     <div className="h-screen bg-bg-base text-label-primary flex flex-col overflow-hidden">
-      {/* Header - Hidden, using native navbar instead */}
-      <div className="calendar px-4 flex-shrink-0">
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Calendar */}
+        <div className="calendar px-4">
           <CalendarStrip 
             meals={meals} 
             dailyGoalCalories={dailyGoal.calories}
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
           />
-      </div>
-      
-      <main className="flex-1 flex flex-col items-center px-6 pt-4 overflow-y-auto overflow-x-hidden">
-        <MacroCard
-          consumedCalories={consumedCalories}
-          goalCalories={dailyGoal.calories}
-          consumedMacros={consumedMacros} 
-          goalMacros={dailyGoal.macros} 
-        />
+        </div>
+        
+        {/* Main content */}
+        <main className="flex flex-col items-center px-6 pt-4 pb-24">
+          <MacroCard
+            consumedCalories={consumedCalories}
+            goalCalories={dailyGoal.calories}
+            consumedMacros={consumedMacros} 
+            goalMacros={dailyGoal.macros} 
+          />
 
-        <RecentlyLoggedList meals={mealsForSelectedDate} onMealClick={onMealClick} />
-      </main>
+          <RecentlyLoggedList meals={mealsForSelectedDate} onMealClick={onMealClick} />
+        </main>
+      </div>
       
       {isSelectedDateTodayOrFuture && <FabCamera onClick={onOpenCamera} />}
     </div>
