@@ -3,12 +3,13 @@ import { Meal } from '../types';
 import { t, lang } from '../i18n';
 import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
 import { LoadingSpinner } from './LoadingSpinner';
-import { MinusIcon } from './icons/MinusIcon';
-import { PlusIcon } from './icons/PlusIcon';
+import { SvgIcon } from './SvgIcon';
 
 // --- Asset Imports ---
 const chevronLeftIcon = '/assets/icons/chevron-left.svg';
 const uploadIcon = '/assets/icons/upload-line.svg';
+const minusIcon = '/assets/icons/minus.svg';
+const plusIcon = '/assets/icons/plus.svg';
 const caloriesIconUrl = '/assets/img/calories.png';
 const healthIconUrl = '/assets/img/health-score.png';
 const proteinIconUrl = '/assets/img/protein.png';
@@ -300,7 +301,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <MinusIcon style={{ width: '1.5rem', height: '1.5rem', color: 'var(--label-primary)' }} />
+                            <SvgIcon src={minusIcon} width="1.5rem" height="1.5rem" style={{ color: 'var(--label-primary)' }} />
                         </button>
                         <div></div>
                         <div 
@@ -338,7 +339,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <PlusIcon style={{ width: '1.5rem', height: '1.5rem', color: 'var(--label-primary)' }} />
+                            <SvgIcon src={plusIcon} width="1.5rem" height="1.5rem" style={{ color: 'var(--label-primary)' }} />
                         </button>
                         <div></div>
                     </div>
