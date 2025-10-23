@@ -269,8 +269,27 @@ const App = () => {
     }, [isAuthenticated, user]);
 
     const handleOpenCamera = () => {
-        navigationManager.push(Screen.Camera);
-        setCurrentScreen(Screen.Camera);
+        // Create hidden file input to trigger system camera/gallery
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment'; // Prefer camera on mobile
+        
+        input.onchange = (event: Event) => {
+            const file = (event.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target?.result as string;
+                    if (dataUrl) {
+                        handlePhotoTaken(dataUrl, file);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        
+        input.click();
     };
 
     const handlePhotoTaken = (imageDataUrl: string, imageFile?: File) => {
