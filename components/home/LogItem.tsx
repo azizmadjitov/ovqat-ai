@@ -1,5 +1,6 @@
 import React from 'react';
 import { Meal } from '../../types';
+import { t } from '../../i18n';
 
 // Using absolute paths as per project convention. Assumes these assets exist.
 const imgProtein = '/assets/img/protein.png';
@@ -38,7 +39,7 @@ export const LogItem: React.FC<LogItemProps> = ({ meal, onClick }) => (
                 <p className="text-body-md text-label-secondary flex-shrink-0">{meal.time}</p>
             </div>
 
-            <p className="text-title-h4 text-label-primary">{meal.calories} calories</p>
+            <p className="text-title-h4 text-label-primary">{meal.calories} {t('calories')}</p>
             
             <div className="flex justify-start items-center gap-x-4 mt-[0.875rem]">
                 <MacroInfo icon={imgProtein} value={meal.macros.protein} altText="Protein icon" />
