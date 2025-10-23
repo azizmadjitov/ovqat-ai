@@ -38,7 +38,8 @@ export const Button: React.FC<ButtonProps> = ({
       `.trim().replace(/\s+/g, ' ')}
       style={{
         backgroundColor: isDisabled ? 'rgba(180, 184, 204, 0.28)' : undefined,
-        color: isDisabled ? undefined : 'rgba(255, 255, 255, 1.00)'
+        // In active (enabled) state, text color should be label/opposite for proper contrast in both themes
+        color: isDisabled ? undefined : 'var(--label-opposite)'
       }}
     >
       {loading ? (
