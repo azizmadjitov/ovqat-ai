@@ -334,7 +334,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                       }
                 }
               >
-                <img src={`assets/img/${option.icon}`} alt={option.label} className="w-[40px] h-[40px]" />
+                <ImageWithSkeleton src={`/assets/img/${option.icon}`} alt={option.label} width={40} height={40} rounded="rounded" />
                 {option.label}
               </button>
             ))}
@@ -374,7 +374,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                       }
                 }
               >
-                <img src={`assets/img/${option.icon}`} alt={option.label} className="w-[40px] h-[40px]" />
+                <ImageWithSkeleton src={`/assets/img/${option.icon}`} alt={option.label} width={40} height={40} rounded="rounded" />
                 <div className="flex flex-col text-left" style={{ gap: '2px' }}>
                   <span className="text-label-lg text-label-primary">{option.label}</span>
                   <span className="text-body-sm text-label-secondary">{option.caption}</span>
@@ -417,7 +417,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                       }
                 }
               >
-                <img src={`assets/img/${option.icon}`} alt={option.label} className="w-[40px] h-[40px]" />
+                <ImageWithSkeleton src={`/assets/img/${option.icon}`} alt={option.label} width={40} height={40} rounded="rounded" />
                 {option.label}
               </button>
             ))}
