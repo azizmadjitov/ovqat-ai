@@ -287,6 +287,7 @@ const App = () => {
         console.log('Meal clicked, opening Result screen for viewing:', meal);
         setViewingMeal(meal);
         navigationManager.push(Screen.Result);
+        setCurrentScreen(Screen.Result);
     };
 
     const handleBackFromResult = () => {
