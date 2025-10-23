@@ -23,14 +23,14 @@ const App = () => {
 
     // Authentication state
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState<UserProfile | null>(null);
+    const [user, setUser] = useState<any>(null);
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [dailyGoal, setDailyGoal] = useState<DailyGoal | null>(null);
+    const [dailyGoal, setDailyGoal] = useState<any>(null);
 
-    const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
+    const [currentScreen, setCurrentScreen] = useState(Screen.Home);
     
     // Load meals from localStorage on mount
-    const [meals, setMeals] = useState<Meal[]>(() => {
+    const [meals, setMeals] = useState(() => {
         try {
             const savedMeals = localStorage.getItem('ovqat-meals');
             return savedMeals ? JSON.parse(savedMeals) : [];
@@ -49,7 +49,7 @@ const App = () => {
         }
     }, [meals]);
     
-    const [capturedImage, setCapturedImage] = useState<{dataUrl: string, file?: File} | null>(null);
+    const [capturedImage, setCapturedImage] = useState<{ dataUrl: string; file?: File } | null>(null);
     const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
 
     // Check for existing authenticated user on app load
