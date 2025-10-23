@@ -430,58 +430,54 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
 
   return (
     <div 
-      className="flex flex-col min-h-[100svh] min-h-[100dvh] min-h-screen px-6 bg-bg-base text-label-primary"
+      className="flex flex-col min-h-[100svh] min-h-[100dvh] min-h-screen bg-bg-base text-label-primary"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      {/* Header - Hidden, using native navbar instead */}
-
-      {/* Progress bar */}
-      <div className="mb-6 flex justify-center">
-        <div 
-          className="h-[12px] w-[120px] rounded-full overflow-hidden"
-          style={{ backgroundColor: 'var(--bg-fill)' }}
-        >
-          <div
-            className="h-full transition-all duration-300 rounded-r-full"
-            style={{ 
-              width: `${(step / totalSteps) * 100}%`,
-              backgroundColor: 'var(--colors-orange)'
-            }}
-          />
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 px-6 pt-6 pb-4">
+        {/* Progress bar */}
+        <div className="mb-6 flex justify-center">
+          <div 
+            className="h-[12px] w-[120px] rounded-full overflow-hidden"
+            style={{ backgroundColor: 'var(--bg-fill)' }}
+          >
+            <div
+              className="h-full transition-all duration-300 rounded-r-full"
+              style={{ 
+                width: `${(step / totalSteps) * 100}%`,
+                backgroundColor: 'var(--colors-orange)'
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Title */}
-      <div className="mb-4">
+        {/* Title */}
         <h2 className="text-title-h3 text-label-primary text-center">{getStepTitle()}</h2>
       </div>
 
-      {/* Main Content - scrollable area */}
-      <main className="flex-1 overflow-auto flex flex-col items-center">
-        <div className="w-full max-w-sm flex-1 flex flex-col">
-          <div className="flex flex-col flex-1">
-            <div className="flex-1 flex items-center">
-              <div className="w-full">{renderStep()}</div>
-            </div>
-
-            {error && (
-              <div className="text-center mb-4 text-accent-error text-body-sm">
-                {error}
-              </div>
-            )}
-
-            {/* Footer Button - stays at bottom */}
-            <div className="flex justify-center pb-6 pt-4">
-              <Button onClick={handleNext} disabled={!isStepValid() || loading} loading={loading}>
-                {step === totalSteps ? t('complete') : t('continue')}
-              </Button>
-            </div>
+      {/* Scrollable Content */}
+      <main className="flex-1 overflow-y-auto px-6">
+        <div className="flex flex-col items-center py-6">
+          <div className="w-full max-w-sm">
+            {renderStep()}
           </div>
         </div>
       </main>
+
+      {/* Fixed Footer */}
+      <div className="flex-shrink-0 px-6 py-4 flex justify-center">
+        {error && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-accent-error text-body-sm">
+            {error}
+          </div>
+        )}
+        <Button onClick={handleNext} disabled={!isStepValid() || loading} loading={loading}>
+          {step === totalSteps ? t('complete') : t('continue')}
+        </Button>
+      </div>
     </div>
   );
 };
