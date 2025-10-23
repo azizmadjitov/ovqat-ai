@@ -89,6 +89,7 @@ const translations = {
     'carbs_label': 'Carbs',
     'fat_label': 'Fat',
     'done': 'Done',
+    'benefit': 'Benefit',
     'loading': 'Loading...',
     'initializing': 'Initializing...',
     // Loading spinner messages
@@ -189,6 +190,7 @@ const translations = {
     'carbs_label': 'Углеводы',
     'fat_label': 'Жиры',
     'done': 'Готово',
+    'benefit': 'Польза',
     'loading': 'Загрузка...',
     'initializing': 'Инициализация...',
     // Loading spinner messages
@@ -289,7 +291,7 @@ const translations = {
     'carbs_label': 'Uglevodlar',
     'fat_label': 'Yog\'lar',
     'done': 'Tayyor',
-    'loading': 'Yuklanmoqda...',
+    'benefit': 'Foyda',
     'initializing': 'Ishga tushirilmoqda...',
     // Loading spinner messages
     'analyzing_food': 'Taom tahlil qilinmoqda...',
@@ -317,7 +319,7 @@ const getLang = (): 'en' | 'ru' | 'uz' => {
   return 'ru';
 };
 
-const lang = getLang();
+export const lang = getLang();
 
 export const t = (key: keyof typeof translations['en']): string => {
   return translations[lang][key] || key;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Meal } from '../types';
-import { t } from '../i18n';
+import { t, lang } from '../i18n';
 import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -71,21 +71,13 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     const [nutritionData, setNutritionData] = useState<NutritionResult | null>(null);
     const [loading, setLoading] = useState(!isViewMode); // Don't load if viewing existing meal
     const [error, setError] = useState<string | null>(null);
-    const [timestamp] = useState(
-        existingMeal 
-            ? new Date(existingMeal.id).toLocaleString('en-US', { 
-                weekday: 'long', 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
-              })
-            : new Date().toLocaleString('en-US', { 
-                weekday: 'long', 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
-              })
-    );
+    const [timestamp] = useState(() => {
+        const date = existingMeal ? new Date(existingMeal.id) : new Date();
+        const weekdayKeys = ['day_sun', 'day_mon', 'day_tue', 'day_wed', 'day_thu', 'day_fri', 'day_sat'];
+        const weekday = t(weekdayKeys[date.getDay()] as any);
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        return `${weekday} ${time}`;
+    });
     
     // Initialize nutrition data from existing meal if in view mode
     useEffect(() => {
@@ -240,6 +232,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             name: nutritionData.title,
             description: nutritionData.description, // Save description
             healthScore: nutritionData.healthScore_10, // Save health score
+            language: lang, // Save current language
             calories: displayValues.calories,
             macros: {
                 protein: displayValues.protein,
@@ -358,7 +351,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     {/* Top Area */}
                     <div className="grid grid-cols-2 gap-x-[1.25rem]">
                          <TopStat value={String(displayValues.calories)} label={t('calories_label')} icon={caloriesIconUrl} />
-                         <TopStat value={`${nutritionData.healthScore_10}/10`} label={t('health_score')} icon={healthIconUrl} />
+                         <TopStat value={`${nutritionData.healthScore_10}/10`} label={t('benefit')} icon={healthIconUrl} />
                     </div>
                     
                     {/* Divider */}

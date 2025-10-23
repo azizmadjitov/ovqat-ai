@@ -23,6 +23,7 @@ export const mealsService = {
           fat_g: meal.macros.fat,
           fiber_g: meal.macros.fiber,
           health_score: meal.healthScore,
+          language: meal.language || 'en',
         });
 
       if (error) {
@@ -80,6 +81,7 @@ export const mealsService = {
           fiber: record.fiber_g,
         },
         healthScore: record.health_score,
+        language: record.language || 'en',
       }));
 
       return { success: true, meals };
