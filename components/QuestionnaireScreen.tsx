@@ -8,7 +8,7 @@ import { ImageWithSkeleton } from './ImageWithSkeleton';
 
 interface QuestionnaireScreenProps {
   phoneNumber: string;
-  onComplete: () => void;
+  onComplete: () => Promise<void>;
 }
 
 export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
@@ -81,7 +81,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
 
       if (result.success) {
         console.log('✅ Questionnaire saved successfully');
-        onComplete();
+        await onComplete();
       } else {
         setError(result.error || 'Failed to save questionnaire data');
       }

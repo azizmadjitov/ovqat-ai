@@ -405,22 +405,30 @@ const App = () => {
 
     // Handle questionnaire completion
     const handleQuestionnaireComplete = async () => {
-        console.log('Questionnaire completed');
+        console.log('Questionnaire completed, loading user goals...');
         
-        // Load user goals
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser) {
-            const { goals } = await questionnaireService.getUserGoals(authUser.id);
-            if (goals) {
-                setDailyGoal({
-                    calories: goals.goal_calories,
-                    macros: {
-                        protein: goals.goal_protein_g,
-                        fat: goals.goal_fat_g,
-                        carbs: goals.goal_carbs_g,
-                    },
-                });
+        // Load user goals using current user from state
+        if (user?.id) {
+            try {
+                const { goals } = await questionnaireService.getUserGoals(user.id);
+                if (goals) {
+                    console.log('✅ Goals loaded:', goals);
+                    setDailyGoal({
+                        calories: goals.goal_calories,
+                        macros: {
+                            protein: goals.goal_protein_g,
+                            fat: goals.goal_fat_g,
+                            carbs: goals.goal_carbs_g,
+                        },
+                    });
+                } else {
+                    console.error('❌ No goals found after questionnaire');
+                }
+            } catch (error) {
+                console.error('❌ Error loading goals:', error);
             }
+        } else {
+            console.error('❌ No user found in state');
         }
         
         setCurrentScreen(Screen.Home);
