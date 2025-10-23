@@ -113,7 +113,7 @@ const translations = {
     'carbs_left': 'Углеводы',
     'fat': 'Жиры',
     'fat_left': 'Жиры',
-    'todays_meals': 'Приемы пищи за сегодня',
+    'todays_meals': 'Последние действия',
     // Days of week
     'day_mon': 'пн',
     'day_tue': 'вт',
