@@ -306,10 +306,30 @@ const App = () => {
     };
     
     const handleRetake = () => {
-        console.log('Retaking photo, navigating to Camera screen');
-        setCapturedImage(null);
-        navigationManager.pop();
-        setCurrentScreen(Screen.Camera);
+        console.log('Retaking photo, opening system camera');
+        
+        // Create hidden file input to trigger system camera
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        
+        input.onchange = (event: Event) => {
+            const file = (event.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const dataUrl = e.target?.result as string;
+                    if (dataUrl) {
+                        // Update with new photo
+                        handlePhotoTaken(dataUrl, file);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        
+        input.click();
     };
 
     const handleConfirmMeal = async (newMeal: Meal) => {
