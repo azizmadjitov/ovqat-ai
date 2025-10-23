@@ -63,6 +63,15 @@ const translations = {
     'q_diet_vegetarian': 'Vegetarian',
     'q_diet_vegan': 'Vegan',
     'complete': 'Complete',
+    // Result Screen
+    'analyzing_meal': 'Analyzing your meal...',
+    'try_again': 'Try Again',
+    'unable_analyze': 'Unable to analyze meal data.',
+    'serving_amount': 'Serving amount',
+    'health_score': 'Health score',
+    'fiber': 'Fiber',
+    'meal': 'Meal',
+    'loading': 'Loading...',
   },
   ru: {
     'app_name': 'Ovqat AI',
@@ -128,6 +137,15 @@ const translations = {
     'q_diet_vegetarian': 'Вегетарианская',
     'q_diet_vegan': 'Веганская',
     'complete': 'Завершить',
+    // Result Screen
+    'analyzing_meal': 'Анализирую ваш прием пищи...',
+    'try_again': 'Попробовать снова',
+    'unable_analyze': 'Не удалось проанализировать данные приема пищи.',
+    'serving_amount': 'Количество порций',
+    'health_score': 'Оценка здоровья',
+    'fiber': 'Клетчатка',
+    'meal': 'Прием пищи',
+    'loading': 'Загрузка...',
   },
   uz: {
     'app_name': 'Ovqat AI',
@@ -193,6 +211,15 @@ const translations = {
     'q_diet_vegetarian': 'Vegetarian',
     'q_diet_vegan': 'Vegan',
     'complete': 'Tugatish',
+    // Result Screen
+    'analyzing_meal': 'Taomingiz tahlil qilinmoqda...',
+    'try_again': 'Qayta urinish',
+    'unable_analyze': 'Taom ma\'lumotlarini tahlil qilib bo\'lmadi.',
+    'serving_amount': 'Porsiya miqdori',
+    'health_score': 'Sog\'liq bali',
+    'fiber': 'Tolali moddalar',
+    'meal': 'Taom',
+    'loading': 'Yuklanmoqda...',
   },
 };
 

@@ -166,7 +166,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-green mx-auto"></div>
-                    <p className="mt-4 text-label-primary">Analyzing your meal...</p>
+                    <p className="mt-4 text-label-primary">{t('analyzing_meal')}</p>
                 </div>
             </div>
         );
@@ -182,7 +182,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         onClick={onRetake}
                         className="mt-4 px-4 py-2 bg-accent-green text-label-opposite rounded-lg"
                     >
-                        Try Again
+                        {t('try_again')}
                     </button>
                 </div>
             </div>
@@ -194,12 +194,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         return (
             <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
                 <div className="text-center">
-                    <p className="text-label-primary">Unable to analyze meal data.</p>
+                    <p className="text-label-primary">{t('unable_analyze')}</p>
                     <button 
                         onClick={onRetake}
                         className="mt-4 px-4 py-2 bg-accent-green text-label-opposite rounded-lg"
                     >
-                        Try Again
+                        {t('try_again')}
                     </button>
                 </div>
             </div>

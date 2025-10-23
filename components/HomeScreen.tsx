@@ -44,7 +44,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
       <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
         <Header />
         <div className="flex items-center justify-center flex-1">
-          <div>Loading...</div>
+          <div>{t('loading')}</div>
         </div>
       </div>
     );
