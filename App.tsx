@@ -11,6 +11,7 @@ import { navigationManager } from './src/lib/navigationManager';
 import { initializeNativeEvents, nativeEventManager } from './src/lib/nativeEvents';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
+import { mealsService } from './src/services/mealsService';
 import { supabase } from './src/lib/supabase';
 import { t } from './i18n';
 
@@ -209,6 +210,15 @@ const App = () => {
                         },
                     });
                 }
+                
+                // Load meals from Supabase
+                const mealsResult = await mealsService.loadMeals(user.id);
+                if (mealsResult.success && mealsResult.meals) {
+                    setMeals(mealsResult.meals);
+                    console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
+                } else {
+                    console.error('Failed to load meals:', mealsResult.error);
+                }
             }
         };
         loadUserGoals();
@@ -239,9 +249,20 @@ const App = () => {
         setCurrentScreen(Screen.Camera);
     };
 
-    const handleConfirmMeal = (newMeal: Meal) => {
-        console.log('Meal confirmed, navigating to Home screen');
+    const handleConfirmMeal = async (newMeal: Meal) => {
+        console.log('Meal confirmed, saving to database');
+        
+        // Add to local state first for immediate UI update
         setMeals(prevMeals => [...prevMeals, newMeal]);
+        
+        // Save to Supabase if user is authenticated
+        if (user?.id) {
+            const result = await mealsService.saveMeal(user.id, newMeal);
+            if (!result.success) {
+                console.error('Failed to save meal to database:', result.error);
+            }
+        }
+        
         setCapturedImage(null);
         setViewingMeal(null);
         setCurrentScreen(Screen.Home);
