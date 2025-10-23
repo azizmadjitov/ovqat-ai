@@ -51,9 +51,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
   }
 
   return (
-    <div className="h-screen bg-bg-base text-label-primary flex flex-col overflow-hidden">
-      {/* Calendar Strip - Fixed at top */}
-      <div className="flex-shrink-0 px-4">
+    <div className="min-h-screen bg-bg-base text-label-primary">
+      {/* Calendar Strip - scrolls with page */}
+      <div className="px-4 pt-4">
         <CalendarStrip 
           meals={meals} 
           dailyGoalCalories={dailyGoal.calories}
@@ -62,8 +62,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
         />
       </div>
       
-      {/* Scrollable Content */}
-      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-24">
+      {/* Content - scrolls with page */}
+      <main className="px-6 pt-4 pb-24">
         <MacroCard
           consumedCalories={consumedCalories}
           goalCalories={dailyGoal.calories}
