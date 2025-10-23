@@ -28,6 +28,24 @@ body {
   overflow: hidden;
 }
 
+/* === Disable Text Selection for Native Feel === */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Allow text selection only in inputs and textareas */
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 /* === Local Fonts === */
 @font-face {
   font-family: 'YS Text Cond';
