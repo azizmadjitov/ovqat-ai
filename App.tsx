@@ -94,9 +94,11 @@ const App = () => {
         try {
             console.log('🔍 Checking for existing authenticated session...');
             
-            // Check for token in URL parameter first
-            const params = new URLSearchParams(window.location.search);
-            const tokenFromUrl = params.get('token');
+            // Check URL for token parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenFromUrl = urlParams.get('token');
+            console.log('🔍 URL params:', window.location.search);
+            console.log('🔍 Token from URL:', tokenFromUrl);
             
             if (tokenFromUrl) {
                 console.log('🔐 Found token in URL, authenticating...');
@@ -180,6 +182,7 @@ const App = () => {
     useEffect(() => {
         const loadUserData = async () => {
             if (isAuthenticated && user) {
+                console.log('🔍 Loading user data for user.id:', user.id);
                 try {
                     // Load goals and meals in parallel
                     const [goalsResult, mealsResult] = await Promise.all([
@@ -187,8 +190,11 @@ const App = () => {
                         mealsService.loadMeals(user.id)
                     ]);
 
+                    console.log('🔍 goalsResult:', goalsResult);
+
                     // Set goals
                     if (goalsResult.goals) {
+                        console.log('✅ Goals loaded from database:', goalsResult.goals);
                         setDailyGoal({
                             calories: goalsResult.goals.goal_calories,
                             macros: {
@@ -198,7 +204,7 @@ const App = () => {
                             },
                         });
                     } else {
-                        console.log('No goals found, setting defaults');
+                        console.warn('⚠️ No goals found in database, setting defaults');
                         setDailyGoal({
                             calories: 2000,
                             macros: {
