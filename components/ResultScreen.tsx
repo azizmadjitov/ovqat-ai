@@ -250,7 +250,13 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
             <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
-                    <img id="food-image" src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} alt={nutritionData.title} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
+                    <img 
+                        id="food-image" 
+                        src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} 
+                        alt={nutritionData.title} 
+                        className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0" 
+                        style={{ border: '1px solid var(--stroke-non-opaque)' }}
+                    />
                     {nutritionData.description && (
                         <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
                             <p className="description-text text-label-sm text-label-primary line-clamp-3">
