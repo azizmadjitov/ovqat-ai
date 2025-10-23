@@ -32,8 +32,11 @@ export const LogItem: React.FC<LogItemProps> = ({ meal, onClick }) => {
   return (
     <button 
         onClick={onClick}
-        className="w-full bg-bg-surface rounded-[1.5rem] p-4 flex items-center space-x-4 border text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent-green focus-visible:ring-offset-bg-base transition-transform duration-150 ease-out active:scale-[0.98]"
-        style={{ borderColor: 'var(--stroke-non-opaque)' }}
+        className="w-full bg-bg-surface rounded-[1.5rem] p-4 flex items-center space-x-4 border text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent-green focus-visible:ring-offset-bg-base active:scale-[0.98]"
+        style={{ 
+          borderColor: 'var(--stroke-non-opaque)',
+          transition: 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
     >
         {!imageLoaded && (
           <Skeleton width="80px" height="80px" borderRadius="rounded-full" className="flex-shrink-0" />
