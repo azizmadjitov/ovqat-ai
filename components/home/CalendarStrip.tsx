@@ -76,7 +76,14 @@ const DayItem: React.FC<DayItemProps> = ({ dayData, isSelected, onClick }) => {
           isSelected ? 'bg-label-primary' : ''
         }`}
       >
-        <span className={`text-label-md ${textColor}`}>{day}</span>
+        <span 
+          className="text-label-md"
+          style={{
+            color: isSelected ? 'var(--label-opposite)' : undefined
+          }}
+        >
+          {day}
+        </span>
       </div>
       <span className={`text-body-sm ${weekdayColor} capitalize`}>{weekday}</span>
       <div className="w-[1.75rem] h-[1.75rem]">
