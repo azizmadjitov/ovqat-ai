@@ -253,14 +253,6 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
     return (
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-            {/* Back button - positioned absolutely */}
-            <button 
-                onClick={isViewMode ? onBack : onRetake} 
-                className="absolute top-4 left-4 p-2 z-10"
-            >
-                <img src={chevronLeftIcon} alt="Back" className="w-6 h-6" />
-            </button>
-
             <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
                     <img id="food-image" src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} alt={nutritionData.title} className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0 border border-stroke-non-opaque" />
@@ -279,7 +271,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 </section>
                 
                 <section className="flex justify-between items-center mb-5">
-                    <span className="text-label-lg text-label-primary">Serving amount</span>
+                    <span className="text-label-lg text-label-primary">{t('serving_amount')}</span>
                     <div 
                         className="serving-picker"
                         style={{
@@ -365,8 +357,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 }}>
                     {/* Top Area */}
                     <div className="grid grid-cols-2 gap-x-[1.25rem]">
-                         <TopStat value={String(displayValues.calories)} label="Calories" icon={caloriesIconUrl} />
-                         <TopStat value={`${nutritionData.healthScore_10}/10`} label="Health score" icon={healthIconUrl} />
+                         <TopStat value={String(displayValues.calories)} label={t('calories_label')} icon={caloriesIconUrl} />
+                         <TopStat value={`${nutritionData.healthScore_10}/10`} label={t('health_score')} icon={healthIconUrl} />
                     </div>
                     
                     {/* Divider */}
@@ -374,10 +366,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
                     {/* Bottom Area */}
                     <div className="nutrient-grid grid grid-cols-2 gap-x-[1.25rem] gap-y-[1rem]">
-                        <NutrientStat value={`${displayValues.protein}g`} label="Protein" icon={proteinIconUrl} />
-                        <NutrientStat value={`${displayValues.carbs}g`} label="Carbs" icon={carbsIconUrl} />
-                        <NutrientStat value={`${displayValues.fat}g`} label="Fat" icon={fatIconUrl} />
-                        <NutrientStat value={`${displayValues.fiber}g`} label="Fiber" icon={fiberIconUrl} />
+                        <NutrientStat value={`${displayValues.protein}g`} label={t('protein_label')} icon={proteinIconUrl} />
+                        <NutrientStat value={`${displayValues.carbs}g`} label={t('carbs_label')} icon={carbsIconUrl} />
+                        <NutrientStat value={`${displayValues.fat}g`} label={t('fat_label')} icon={fatIconUrl} />
+                        <NutrientStat value={`${displayValues.fiber}g`} label={t('fiber')} icon={fiberIconUrl} />
                     </div>
                 </section>
                 
@@ -388,7 +380,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[linear-gradient(135deg,#DFF2FF_29.6%,#FFC3EB_79.85%)] transform active:scale-95 transition-transform focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFC3EB]/50"
                         >
                             <SparklesIcon className="w-6 h-6" />
-                            <span className="text-label-lg" style={{ color: 'var(--static-black)' }}>Done</span>
+                            <span className="text-label-lg" style={{ color: 'var(--static-black)' }}>{t('done')}</span>
                         </button>
                     </div>
                 )}
