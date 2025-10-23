@@ -13,6 +13,7 @@ import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
 import { t } from './i18n';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 const App = () => {
     const [tokensLoaded, setTokensLoaded] = useState(false);
@@ -324,7 +325,7 @@ const App = () => {
                 if (!dailyGoal) {
                     return (
                         <div className="flex items-center justify-center min-h-screen bg-bg-base">
-                            <div className="text-label-primary">Loading...</div>
+                            <LoadingSpinner />
                         </div>
                     );
                 }
@@ -355,7 +356,7 @@ const App = () => {
     if (!tokensLoaded || !appInitialized) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-bg-base">
-                <div className="text-label-primary">Initializing...</div>
+                <LoadingSpinner />
             </div>
         );
     }
