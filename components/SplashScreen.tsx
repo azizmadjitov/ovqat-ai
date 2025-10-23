@@ -9,26 +9,52 @@ export const SplashScreen: React.FC = () => {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      {/* Logo or App Name */}
-      <div className="mb-8">
-        <h1 className="text-title-h1 text-label-primary font-bold">Ovqat AI</h1>
-      </div>
+      {/* Rolling Rock Spinner (same as ResultScreen) */}
+      <span className="loader"></span>
 
-      {/* Loading Spinner */}
-      <div className="relative w-16 h-16">
-        <div 
-          className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin"
-          style={{ 
-            borderColor: 'var(--colors-green)',
-            borderTopColor: 'transparent'
-          }}
-        />
-      </div>
-
-      {/* Loading Text */}
-      <p className="mt-6 text-body-lg text-label-secondary">
-        Загрузка...
-      </p>
+      {/* Styles */}
+      <style>{`
+        .loader {
+          position: relative;
+          font-size: 16px;
+          width: 5.5em;
+          height: 5.5em;
+        }
+        .loader:before {
+          content: '';
+          position: absolute;
+          transform: translate(-50%, -50%) rotate(45deg);
+          height: 100%;
+          width: 4px;
+          background: var(--label-primary);
+          left: 50%;
+          top: 50%;
+        }
+        .loader:after {
+          content: '';
+          position: absolute;
+          left: 0.2em;
+          bottom: 0.18em;
+          width: 1em;
+          height: 1em;
+          background: linear-gradient(135deg, #DFF2FF 29.6%, #FFC3EB 79.85%);
+          border-radius: 15%;
+          animation: rollingRock 2.5s cubic-bezier(.79, 0, .47, .97) infinite;
+        }
+        @keyframes rollingRock {
+          0% { transform: translate(0, -1em) rotate(-45deg); }
+          5% { transform: translate(0, -1em) rotate(-50deg); }
+          20% { transform: translate(1em, -2em) rotate(47deg); }
+          25% { transform: translate(1em, -2em) rotate(45deg); }
+          30% { transform: translate(1em, -2em) rotate(40deg); }
+          45% { transform: translate(2em, -3em) rotate(137deg); }
+          50% { transform: translate(2em, -3em) rotate(135deg); }
+          55% { transform: translate(2em, -3em) rotate(130deg); }
+          70% { transform: translate(3em, -4em) rotate(217deg); }
+          75% { transform: translate(3em, -4em) rotate(220deg); }
+          100% { transform: translate(0, -1em) rotate(-225deg); }
+        }
+      `}</style>
     </div>
   );
 };
