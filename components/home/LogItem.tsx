@@ -32,10 +32,10 @@ export const LogItem: React.FC<LogItemProps> = ({ meal, onClick }) => {
   return (
     <button 
         onClick={onClick}
-        className="w-full bg-bg-surface rounded-[1.5rem] p-4 flex items-center space-x-4 border text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent-green focus-visible:ring-offset-bg-base active:scale-[0.98]"
+        className="w-full bg-bg-surface rounded-[1.5rem] p-4 flex items-center space-x-4 border text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent-green focus-visible:ring-offset-bg-base active:scale-95"
         style={{ 
           borderColor: 'var(--stroke-non-opaque)',
-          transition: 'transform 250ms cubic-bezier(0.16, 1, 0.3, 1)'
+          transition: 'transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)'
         }}
     >
         {!imageLoaded && (
