@@ -51,18 +51,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
   }
 
   return (
-    <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-      {/* Header - Hidden, using native navbar instead */}
-      <div className="calendar px-4">
-          <CalendarStrip 
-            meals={meals} 
-            dailyGoalCalories={dailyGoal.calories}
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-          />
+    <div className="h-screen bg-bg-base text-label-primary flex flex-col overflow-hidden">
+      {/* Calendar Strip - Fixed at top */}
+      <div className="flex-shrink-0 px-4">
+        <CalendarStrip 
+          meals={meals} 
+          dailyGoalCalories={dailyGoal.calories}
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+        />
       </div>
       
-      <main className="flex-1 flex flex-col items-center px-6 pt-4">
+      {/* Scrollable Content */}
+      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-24">
         <MacroCard
           consumedCalories={consumedCalories}
           goalCalories={dailyGoal.calories}
