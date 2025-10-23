@@ -131,7 +131,8 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onPhotoTaken, onCanc
         <div className="flex flex-col space-y-4 w-full max-w-xs">
           <button
             onClick={triggerFileUpload}
-            className="px-6 py-4 bg-white text-black rounded-full font-bold text-lg"
+            className="px-6 py-4 rounded-full font-bold text-lg"
+            style={{ backgroundColor: 'var(--static-white)', color: 'var(--static-black)' }}
           >
             Upload from Library
           </button>
@@ -179,7 +180,8 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onPhotoTaken, onCanc
       <div className="absolute bottom-8 flex items-center justify-center">
         <button
           onClick={handleCapture}
-          className="w-20 h-20 rounded-full border-4 border-white bg-white/30 flex items-center justify-center"
+          className="w-20 h-20 rounded-full border-4 flex items-center justify-center"
+          style={{ borderColor: 'var(--static-white)', backgroundColor: 'rgba(255,255,255,0.3)' }}
           aria-label="Take picture"
         >
           {/* Camera icon removed as requested */}

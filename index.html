@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <!-- Advertise both color schemes so iOS/WebView can render UI controls appropriately -->
+  <meta name="color-scheme" content="light dark" />
+  <!-- Use a neutral theme-color; some browsers pick this for status bar -->
+  <meta name="theme-color" content="#0E0E10" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
   <title>Ovqat AI</title>
   <!-- Preload custom fonts to reduce FOUT -->
   <link rel="preload" href="/assets/fonts/GoogleSans-Regular.ttf" as="font" type="font/ttf" crossorigin>

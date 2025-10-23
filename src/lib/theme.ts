@@ -2,9 +2,18 @@
 // Supports system preferences and parent app theme settings
 
 export type Theme = 'light' | 'dark';
+type ThemeSource = 'system' | 'native' | 'user';
 
 const THEME_STORAGE_KEY = 'ovqat-theme';
 const THEME_QUERY_PARAM = 'theme';
+
+// Current theme source (who controls theme updates)
+let currentThemeSource: ThemeSource = 'system';
+
+export const setThemeSource = (source: ThemeSource) => {
+  currentThemeSource = source;
+  document.documentElement.setAttribute('data-theme-source', source);
+};
 
 // Dark theme colors
 const DARK_THEME = {
@@ -100,7 +109,11 @@ export const watchSystemTheme = (callback: (theme: Theme) => void): (() => void)
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   
   const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-    const theme = e.matches ? 'dark' : 'light';
+    if (currentThemeSource === 'native') {
+      // Native app controls theme; ignore system changes
+      return;
+    }
+    const theme = (('matches' in e ? e.matches : (e as MediaQueryList).matches)) ? 'dark' : 'light';
     callback(theme);
   };
 
@@ -141,20 +154,15 @@ export const listenForParentTheme = (callback: (theme: Theme) => void): (() => v
 export const initializeTheme = (): void => {
   const theme = getCurrentTheme();
   applyTheme(theme);
-
-  // Watch for system theme changes (only if no URL param or localStorage)
-  const urlParams = new URLSearchParams(window.location.search);
-  const hasThemeParam = urlParams.has(THEME_QUERY_PARAM);
-  const hasStoredTheme = localStorage.getItem(THEME_STORAGE_KEY);
-
-  if (!hasThemeParam && !hasStoredTheme) {
-    watchSystemTheme((newTheme) => {
-      applyTheme(newTheme);
-    });
-  }
+  // Always watch system theme; internal guard will ignore if native controls
+  watchSystemTheme((newTheme) => {
+    setThemeSource('system');
+    applyTheme(newTheme);
+  });
 
   // Listen for parent app theme changes
   listenForParentTheme((newTheme) => {
+    setThemeSource('native');
     applyTheme(newTheme);
   });
 
