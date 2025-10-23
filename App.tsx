@@ -20,11 +20,17 @@ const App = () => {
     const [appInitialized, setAppInitialized] = useState(false);
 
     useEffect(() => {
-        // Initialize theme system
-        initializeTheme();
-        
-        // Initialize native event listeners
+        // Initialize native event listeners first so we can receive theme immediately
         initializeNativeEvents();
+        // Ask parent app to send current theme right away (native should respond with THEME_CHANGE)
+        try {
+            nativeEventManager.sendToNative({ type: 'REQUEST_THEME' });
+        } catch (e) {
+            console.warn('Could not request theme from native immediately:', e);
+        }
+        
+        // Initialize theme system (will also subscribe to parent theme changes)
+        initializeTheme();
         
         // Listen for theme changes from native app
         const unsubscribeTheme = nativeEventManager.on('THEME_CHANGE', (data) => {
