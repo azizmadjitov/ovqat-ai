@@ -6,9 +6,9 @@ import { ResultScreen } from './components/ResultScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { loadTokens } from './lib/tokens';
-import { initializeTheme } from './src/lib/theme';
+import { initializeTheme, applyTheme } from './src/lib/theme';
 import { navigationManager } from './src/lib/navigationManager';
-import { initializeNativeEvents } from './src/lib/nativeEvents';
+import { initializeNativeEvents, nativeEventManager } from './src/lib/nativeEvents';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { supabase } from './src/lib/supabase';
@@ -25,9 +25,19 @@ const App = () => {
         // Initialize native event listeners
         initializeNativeEvents();
         
+        // Listen for theme changes from native app
+        const unsubscribeTheme = nativeEventManager.on('THEME_CHANGE', (data) => {
+            console.log('🎨 Theme changed from native app:', data.theme);
+            applyTheme(data.theme);
+        });
+        
         loadTokens().then(() => {
             setTokensLoaded(true);
         });
+        
+        return () => {
+            unsubscribeTheme();
+        };
     }, []);
 
     // Authentication state
