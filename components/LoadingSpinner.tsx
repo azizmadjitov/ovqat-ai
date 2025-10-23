@@ -27,21 +27,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
     return () => clearInterval(interval);
   }, [loadingMessages]);
 
-  // Typing effect for current message
+  // Set text immediately without typing effect
   useEffect(() => {
-    const currentMessage = loadingMessages[textIndex];
-    let charIndex = 0;
-
-    const typingInterval = setInterval(() => {
-      if (charIndex <= currentMessage.length) {
-        setDisplayText(currentMessage.slice(0, charIndex));
-        charIndex++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 50); // Typing speed
-
-    return () => clearInterval(typingInterval);
+    setDisplayText(loadingMessages[textIndex]);
   }, [textIndex, loadingMessages]);
 
   return (
@@ -51,9 +39,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message }) => {
 
       {/* Dynamic Text */}
       <div className="text-center">
-        <p className="text-label-primary text-body-lg min-h-[1.5rem]">
+        <p className="text-label-primary text-body-lg min-h-[1.5rem] transition-opacity duration-500" style={{ opacity: displayText ? 1 : 0 }}>
           {displayText}
-          <span className="animate-pulse">|</span>
         </p>
         {message && <p className="text-label-secondary text-body-sm mt-2">{message}</p>}
       </div>
