@@ -5,6 +5,7 @@ Ovqat AI WebView uses browser history for navigation. The native app only needs 
 1. Listen for `canGoBack` status
 2. Show Back or Close button accordingly
 3. Call `history.back()` when Back is pressed
+4. (Optional) Handle haptic feedback requests
 
 ## Implementation (Super Simple)
 
@@ -168,6 +169,77 @@ No complex routing, no message passing for back navigation. The WebView handles 
 3. **System Back Button (Android)**
    - Should work the same as navbar Back button
    - Calls `history.back()` in WebView
+
+## Haptic Feedback (Optional)
+
+The WebView may request haptic feedback for better UX:
+
+```json
+{
+  "type": "HAPTIC_FEEDBACK",
+  "style": "selection"  // light, medium, heavy, selection, success, warning, error
+}
+```
+
+### iOS Implementation
+
+```swift
+func handleWebViewMessage(_ message: [String: Any]) {
+    if message["type"] as? String == "HAPTIC_FEEDBACK" {
+        let style = message["style"] as? String ?? "light"
+        
+        switch style {
+        case "light":
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
+        case "medium":
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+        case "heavy":
+            let generator = UIImpactFeedbackGenerator(style: .heavy)
+            generator.impactOccurred()
+        case "selection":
+            let generator = UISelectionFeedbackGenerator()
+            generator.selectionChanged()
+        case "success":
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+        case "warning":
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+        case "error":
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
+        default:
+            break
+        }
+    }
+}
+```
+
+### Android Implementation
+
+```kotlin
+fun handleWebViewMessage(json: String) {
+    val data = JSONObject(json)
+    if (data.getString("type") == "HAPTIC_FEEDBACK") {
+        val style = data.optString("style", "light")
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        
+        when (style) {
+            "light" -> vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+            "medium" -> vibrator.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+            "heavy" -> vibrator.vibrate(VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE))
+            "selection" -> vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+            "success" -> vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 10, 50, 10), -1))
+            "warning" -> vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 10, 100, 10), -1))
+            "error" -> vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 10, 50, 10, 50, 10), -1))
+        }
+    }
+}
+```
+
+**Note:** Haptic feedback also works via browser Vibration API on supported devices, so native implementation is optional.
 
 ## Debug
 
