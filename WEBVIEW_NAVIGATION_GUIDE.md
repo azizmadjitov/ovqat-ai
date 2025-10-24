@@ -150,7 +150,7 @@ export class NavigationManager {
     const canGoBack = this.canGoBack();
     const currentScreen = this.getCurrentScreen();
 
-    console.log(`🔔 Notifying native: canGoBack=${canGoBack}, screen=${currentScreen}`);
+    console.log(`🔔 Notifying native app: canGoBack=${canGoBack}, screen=${currentScreen}`);
 
     // Отправляем сообщение нативному приложению
     window.postMessage(
@@ -158,10 +158,54 @@ export class NavigationManager {
         type: 'NAVIGATION_CHANGED',
         currentScreen,
         canGoBack,
-        stackSize: this.stack.length
+        stack: this.stack  // Отправляем весь стек, а не только размер
       },
       '*'
     );
+
+    // Уведомляем локальных слушателей
+    this.listeners.forEach((listener) => listener(canGoBack));
+  }
+
+  /**
+   * Запрос на закрытие WebView (когда canGoBack === false)
+   */
+  private closeWebView(): void {
+    console.log('🔔 Requesting native app to close WebView');
+    window.postMessage(
+      {
+        type: 'CLOSE_WEBVIEW'
+      },
+      '*'
+    );
+  }
+
+  /**
+   * Pop к предыдущему экрану
+   * Возвращает true если есть предыдущий экран, false если WebView должен закрыться
+   */
+  pop(): boolean {
+    if (this.stack.length > 1) {
+      const previousScreen = this.stack[this.stack.length - 2];
+      console.log(`📍 Navigation: ${this.getCurrentScreen()} ← ${previousScreen}`);
+      this.stack.pop();
+      this.notifyNative();
+      return true; // Успешно вернулись назад
+    } else {
+      console.log('📍 Navigation: No previous screen - closing WebView');
+      this.closeWebView();
+      return false; // Должен закрыть WebView
+    }
+  }
+
+  /**
+   * Подписка на изменения навигации (для локальных компонентов)
+   */
+  subscribe(callback: (canGoBack: boolean) => void): () => void {
+    this.listeners.push(callback);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== callback);
+    };
   }
 
   /**
@@ -298,7 +342,11 @@ class WebViewController: UIViewController {
                 window.webkit.messageHandlers.navigationHandler.postMessage({
                     canGoBack: event.data.canGoBack,
                     currentScreen: event.data.currentScreen,
-                    stackSize: event.data.stackSize
+                    stack: event.data.stack
+                });
+            } else if (event.data.type === 'CLOSE_WEBVIEW') {
+                window.webkit.messageHandlers.navigationHandler.postMessage({
+                    action: 'close'
                 });
             }
         });
@@ -348,15 +396,28 @@ extension WebViewController: WKScriptMessageHandler {
         didReceive message: WKScriptMessage
     ) {
         guard message.name == "navigationHandler",
-              let body = message.body as? [String: Any],
-              let canGoBack = body["canGoBack"] as? Bool else {
+              let body = message.body as? [String: Any] else {
+            return
+        }
+        
+        // Обработка запроса на закрытие WebView
+        if let action = body["action"] as? String, action == "close" {
+            print("✕ WebView requested close")
+            DispatchQueue.main.async {
+                self.dismiss(animated: true)
+            }
+            return
+        }
+        
+        // Обработка изменения навигации
+        guard let canGoBack = body["canGoBack"] as? Bool else {
             return
         }
         
         let currentScreen = body["currentScreen"] as? String ?? "unknown"
-        let stackSize = body["stackSize"] as? Int ?? 0
+        let stack = body["stack"] as? [String] ?? []
         
-        print("📱 Navigation changed: canGoBack=\(canGoBack), screen=\(currentScreen), stack=\(stackSize)")
+        print("📱 Navigation changed: canGoBack=\(canGoBack), screen=\(currentScreen), stack=\(stack)")
         
         // Обновляем кнопку в navbar
         DispatchQueue.main.async {
@@ -417,8 +478,10 @@ class WebViewActivity : AppCompatActivity() {
                     AndroidBridge.onNavigationChanged(
                         event.data.canGoBack,
                         event.data.currentScreen,
-                        event.data.stackSize
+                        JSON.stringify(event.data.stack)
                     );
+                } else if (event.data.type === 'CLOSE_WEBVIEW') {
+                    AndroidBridge.onCloseRequested();
                 }
             });
         """.trimIndent(), null)
@@ -470,9 +533,17 @@ class WebViewActivity : AppCompatActivity() {
      */
     inner class NavigationBridge {
         @JavascriptInterface
-        fun onNavigationChanged(canGoBack: Boolean, currentScreen: String, stackSize: Int) {
-            println("📱 Navigation changed: canGoBack=$canGoBack, screen=$currentScreen, stack=$stackSize")
+        fun onNavigationChanged(canGoBack: Boolean, currentScreen: String, stackJson: String) {
+            println("📱 Navigation changed: canGoBack=$canGoBack, screen=$currentScreen, stack=$stackJson")
             updateNavigationButton(canGoBack)
+        }
+        
+        @JavascriptInterface
+        fun onCloseRequested() {
+            println("✕ WebView requested close")
+            runOnUiThread {
+                finish()
+            }
         }
     }
 }
@@ -494,11 +565,17 @@ window.history.back();
 
 ### 2. postMessage - коммуникация с нативным приложением
 ```typescript
+// При изменении навигации
 window.postMessage({
   type: 'NAVIGATION_CHANGED',
   canGoBack: true,  // ← КЛЮЧЕВОЕ ПОЛЕ
   currentScreen: 'Result',
-  stackSize: 2
+  stack: ['Home', 'Result']  // Весь стек навигации
+}, '*');
+
+// При запросе закрытия (когда canGoBack === false)
+window.postMessage({
+  type: 'CLOSE_WEBVIEW'
 }, '*');
 ```
 
