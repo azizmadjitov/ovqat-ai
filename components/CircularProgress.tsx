@@ -34,22 +34,20 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           cx={size / 2}
           cy={size / 2}
         />
-        {clampedProgress > 0.01 && (
-            <circle
-                className={fgColorClass}
-                strokeWidth={strokeWidth}
-                strokeDasharray={circumference}
-                strokeDashoffset={offset}
-                strokeLinecap="round"
-                fill="transparent"
-                r={radius}
-                cx={size / 2}
-                cy={size / 2}
-                style={{
-                  transition: 'stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-            />
-        )}
+        <circle
+            className={fgColorClass}
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            fill="transparent"
+            r={radius}
+            cx={size / 2}
+            cy={size / 2}
+            style={{
+              transition: 'stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+        />
       </svg>
       {children && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
