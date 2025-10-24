@@ -242,7 +242,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
             <main 
                 className="flex-1 flex flex-col px-4 pb-24 overflow-y-auto"
-                style={{ paddingTop: 'max(env(safe-area-inset-top, 0px) + 1.25rem, 4.5rem)' }}
+                style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}
             >
                 <section className="flex items-center gap-x-4 mb-5">
                     <img 

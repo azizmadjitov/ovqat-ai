@@ -10,12 +10,20 @@ export type HapticStyle = 'light' | 'medium' | 'heavy' | 'selection' | 'success'
  * Works on iOS (via Haptic Engine) and Android (via Vibration API)
  */
 export const triggerHaptic = (style: HapticStyle = 'light'): void => {
-  // Check if running in browser with Haptic API support (iOS Safari, Chrome on Android)
   if (typeof window === 'undefined') return;
 
   try {
-    // iOS Haptic Engine (Safari on iOS 13+)
-    // @ts-ignore - Haptic API not in TypeScript definitions yet
+    // Always send to native app first (most reliable in WebView)
+    window.postMessage(
+      {
+        type: 'HAPTIC_FEEDBACK',
+        style,
+      },
+      '*'
+    );
+
+    // Also try browser Vibration API as fallback
+    // @ts-ignore - Vibration API not in all TypeScript definitions
     if (window.navigator?.vibrate) {
       const patterns: Record<HapticStyle, number | number[]> = {
         light: 10,
@@ -28,17 +36,7 @@ export const triggerHaptic = (style: HapticStyle = 'light'): void => {
       };
 
       window.navigator.vibrate(patterns[style]);
-      return;
     }
-
-    // Fallback: Request haptic via postMessage to native app
-    window.postMessage(
-      {
-        type: 'HAPTIC_FEEDBACK',
-        style,
-      },
-      '*'
-    );
   } catch (error) {
     // Haptic not supported, silently fail
     console.debug('Haptic feedback not supported:', error);
