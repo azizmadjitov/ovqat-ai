@@ -4,6 +4,7 @@ import { Meal } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
 import { SvgIcon } from './SvgIcon';
+import { ImageWithSkeleton } from './ImageWithSkeleton';
 
 // --- Asset Imports ---
 const chevronLeftIcon = '/assets/icons/chevron-left.svg';
@@ -23,7 +24,7 @@ const TopStat: React.FC<{ value: string; label: string; icon: string }> = ({ val
     <div className="flex flex-col items-start gap-y-2">
         <span className="text-title-h1 text-label-primary">{value}</span>
         <div className="flex items-center gap-x-1">
-            <img src={icon} alt="" className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
+            <ImageWithSkeleton src={icon} alt="" width={20} height={20} rounded="rounded" />
             <span className="text-label-md text-label-primary">{label}</span>
         </div>
     </div>
@@ -33,7 +34,7 @@ const NutrientStat: React.FC<{ value: string; label: string; icon: string }> = (
     <div className="flex flex-col items-start gap-y-2">
         <span className="text-title-h3 text-label-primary">{value}</span>
         <div className="flex items-center gap-x-1">
-            <img src={icon} alt={`${label} icon`} className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
+            <ImageWithSkeleton src={icon} alt={`${label} icon`} width={20} height={20} rounded="rounded" />
             <span className="text-label-md text-label-primary">{label}</span>
         </div>
     </div>
