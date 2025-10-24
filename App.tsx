@@ -87,10 +87,15 @@ const App = () => {
         }
     }, [tokensLoaded, appInitialized]);
 
-    // Update native navbar when screen changes
+    // Sync screen changes from browser history (back/forward)
     useEffect(() => {
-        navigationManager.push(currentScreen);
-    }, [currentScreen]);
+        const unsubscribe = navigationManager.onScreenChange((screen) => {
+            console.log(`🔄 Screen changed from history: ${screen}`);
+            setCurrentScreen(screen);
+        });
+        
+        return unsubscribe;
+    }, []);
 
     const checkExistingSession = async () => {
         const startTime = performance.now();
@@ -375,9 +380,10 @@ const App = () => {
             console.warn('Failed to update meals cache:', e);
         }
         
-        // Navigate immediately for instant feedback
+        // Navigate immediately for instant feedback (use replace so back doesn't return to Result)
         setCapturedImage(null);
         setViewingMeal(null);
+        navigationManager.replace(Screen.Home);
         setCurrentScreen(Screen.Home);
         
         // Save to Supabase in background (non-blocking)
