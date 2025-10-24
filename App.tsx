@@ -188,16 +188,24 @@ const App = () => {
     useEffect(() => {
         const loadUserData = async () => {
             if (isAuthenticated && user) {
-                // Try to load cached goals immediately for faster initial render
+                // Try to load cached data immediately for faster initial render
                 try {
                     const cachedGoalsStr = localStorage.getItem('cachedDailyGoal');
+                    const cachedMealsStr = localStorage.getItem('cachedMeals');
+                    
                     if (cachedGoalsStr) {
                         const cachedGoals = JSON.parse(cachedGoalsStr);
                         console.log('⚡ Using cached goals for instant display');
                         setDailyGoal(cachedGoals);
                     }
+                    
+                    if (cachedMealsStr) {
+                        const cachedMeals = JSON.parse(cachedMealsStr);
+                        console.log('⚡ Using cached meals for instant display:', cachedMeals.length, 'meals');
+                        setMeals(cachedMeals);
+                    }
                 } catch (e) {
-                    console.warn('Failed to load cached goals:', e);
+                    console.warn('Failed to load cached data:', e);
                 }
 
                 const dataLoadStart = performance.now();
@@ -244,10 +252,17 @@ const App = () => {
                         });
                     }
 
-                    // Set meals
+                    // Set meals and cache them
                     if (mealsResult.success && mealsResult.meals) {
                         setMeals(mealsResult.meals);
                         console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
+                        
+                        // Cache meals in localStorage for faster subsequent loads
+                        try {
+                            localStorage.setItem('cachedMeals', JSON.stringify(mealsResult.meals));
+                        } catch (e) {
+                            console.warn('Failed to cache meals:', e);
+                        }
                     } else {
                         console.error('Failed to load meals:', mealsResult.error);
                     }
@@ -336,7 +351,16 @@ const App = () => {
         console.log('Meal confirmed, saving to database');
         
         // Add to local state first for immediate UI update
-        setMeals(prevMeals => [...prevMeals, newMeal]);
+        const updatedMeals = [...meals, newMeal];
+        setMeals(updatedMeals);
+        
+        // Update cache immediately for instant display on next load
+        try {
+            localStorage.setItem('cachedMeals', JSON.stringify(updatedMeals));
+            console.log('⚡ Updated meals cache');
+        } catch (e) {
+            console.warn('Failed to update meals cache:', e);
+        }
         
         // Navigate immediately for instant feedback
         setCapturedImage(null);
