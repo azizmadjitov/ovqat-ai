@@ -156,8 +156,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         setServingAmount(prev => Math.max(1, prev + delta));
     };
 
-    // Show loading state
-    if (loading) {
+    // Show loading state (or if nutritionData not yet loaded)
+    if (loading || !nutritionData) {
         return (
             <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center px-6">
                 <LoadingSpinner />
@@ -165,29 +165,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         );
     }
 
-    // Show error state
+    // Show error state (only for new meals that failed to analyze)
     if (error) {
         return (
             <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
                 <div className="text-center">
                     <p className="text-label-primary">Error: {error}</p>
-                    <button 
-                        onClick={onRetake}
-                        className="mt-4 px-4 py-2 bg-accent-green text-label-opposite rounded-lg"
-                    >
-                        {t('try_again')}
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    // Ensure we have nutrition data before rendering
-    if (!nutritionData) {
-        return (
-            <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center">
-                <div className="text-center">
-                    <p className="text-label-primary">{t('unable_analyze')}</p>
                     <button 
                         onClick={onRetake}
                         className="mt-4 px-4 py-2 bg-accent-green text-label-opposite rounded-lg"
