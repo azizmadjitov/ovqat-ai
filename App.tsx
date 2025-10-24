@@ -287,10 +287,7 @@ const App = () => {
         console.log('Image data URL length:', imageDataUrl.length);
         console.log('Image data URL starts with:', imageDataUrl.substring(0, 50));
         
-        // Clear any viewing meal state before setting new captured image
-        setViewingMeal(null);
         setCapturedImage({dataUrl: imageDataUrl, file: imageFile});
-        
         navigationManager.push(Screen.Result);
         setCurrentScreen(Screen.Result);
     };
