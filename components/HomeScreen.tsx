@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Meal, DailyGoal } from '../types';
 import { Header } from './home/Header';
 import { MacroCard } from './home/MacroCard';
@@ -21,18 +21,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, mealsL
   // State & Date Management
   // ============================================================================
   
-  // Use local date to avoid timezone issues
-  const getTodayDate = () => {
+  // Use local date to avoid timezone issues - memoized to prevent recalculation
+  const todayDate = useMemo(() => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  };
+  }, []); // Empty deps - calculate once on mount
   
-  const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
-  
-  const todayDate = getTodayDate();
+  const [selectedDate, setSelectedDate] = useState<string>(todayDate);
   const isSelectedDateTodayOrFuture = selectedDate >= todayDate;
   
   // ============================================================================
