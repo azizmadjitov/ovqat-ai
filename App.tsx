@@ -444,7 +444,7 @@ const App = () => {
                 if (!dailyGoal) {
                     return <SplashScreen />;
                 }
-                return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
+                return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} appReady={!mealsLoading && !!user} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
             case Screen.Camera:
                 return <CameraScreen onPhotoTaken={handlePhotoTaken} onCancel={handleCancelCamera} />;
             case Screen.Result:
@@ -463,7 +463,7 @@ const App = () => {
                 setCurrentScreen(Screen.Home);
                 return null;
             default:
-                return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
+                return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} appReady={!mealsLoading && !!user} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
         }
     };
     

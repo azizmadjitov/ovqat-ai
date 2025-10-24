@@ -215,16 +215,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     };
 
     const handleConfirm = () => {
-        // Don't allow confirm if still loading
-        if (loading) {
-            console.warn('⚠️ Cannot confirm while nutrition data is loading');
-            return;
-        }
-        
-        if (!nutritionData) {
-            console.warn('⚠️ Cannot confirm without nutrition data');
-            return;
-        }
+        if (!nutritionData) return;
         
         // In view mode, just go back
         if (isViewMode) {
@@ -233,10 +224,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         }
         
         // In add mode, create new meal
-        if (!onConfirm || !imageDataUrl) {
-            console.warn('⚠️ Cannot confirm without onConfirm callback or image');
-            return;
-        }
+        if (!onConfirm || !imageDataUrl) return;
         
         const now = new Date();
         const newMeal: Meal = {
@@ -391,15 +379,14 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <div className="mt-auto pt-5 flex justify-center">
                         <button
                             onClick={handleConfirm}
-                            disabled={loading}
-                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50"
                             style={{ 
                                 background: 'linear-gradient(103deg, #DFF2FF -23.02%, #FFC3FC 16.83%, #FF7F6E 61.18%, #FF6921 85.92%)',
                                 transition: 'transform 150ms ease-out' 
                             }}
                         >
                             <SparklesIcon className="w-6 h-6 text-[var(--static-white)]" />
-                            <span className="text-label-lg text-[var(--static-white)]">{loading ? t('loading') : t('done')}</span>
+                            <span className="text-label-lg text-[var(--static-white)]">{t('done')}</span>
                         </button>
                     </div>
                 )}

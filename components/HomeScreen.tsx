@@ -11,11 +11,12 @@ interface HomeScreenProps {
   meals: Meal[];
   dailyGoal: DailyGoal | null;
   mealsLoading: boolean;
+  appReady: boolean; // New prop to indicate app is fully initialized
   onOpenCamera: () => void;
   onMealClick: (meal: Meal) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, mealsLoading, onOpenCamera, onMealClick }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, mealsLoading, appReady, onOpenCamera, onMealClick }) => {
   // ============================================================================
   // State & Date Management
   // ============================================================================
@@ -103,8 +104,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, mealsL
         />
       </main>
       
-      {/* Floating Action Button (Camera) */}
-      {isSelectedDateTodayOrFuture && <FabCamera onClick={onOpenCamera} />}
+      {/* Floating Action Button (Camera) - only show when app is fully ready */}
+      {isSelectedDateTodayOrFuture && appReady && <FabCamera onClick={onOpenCamera} />}
     </div>
   );
 };
