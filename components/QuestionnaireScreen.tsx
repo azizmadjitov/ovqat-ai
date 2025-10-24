@@ -152,7 +152,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
           <div className="space-y-4">
             <button
               onClick={() => setFormData({ ...formData, gender: 'male' })}
-              className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-150 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
+              className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-300 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
               style={
                 formData.gender === 'male'
                   ? {
@@ -172,7 +172,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
             </button>
             <button
               onClick={() => setFormData({ ...formData, gender: 'female' })}
-              className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-150 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
+              className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-300 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
               style={
                 formData.gender === 'female'
                   ? {
@@ -229,7 +229,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                     workout_freq: option.value as QuestionnaireData['workout_freq'],
                   })
                 }
-                className="w-full min-h-[72px] rounded-[24px] transition-all duration-150 ease-out flex items-center gap-3 active:scale-[0.98]"
+                className="w-full min-h-[72px] rounded-[24px] transition-all duration-300 ease-out flex items-center gap-3 active:scale-[0.98]"
                 style={
                   formData.workout_freq === option.value
                     ? {
@@ -319,7 +319,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                     primary_goal: option.value as QuestionnaireData['primary_goal'],
                   })
                 }
-                className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-150 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
+                className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-300 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
                 style={
                   formData.primary_goal === option.value
                     ? {
@@ -359,7 +359,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                     activity_level: option.value as QuestionnaireData['activity_level'],
                   })
                 }
-                className="w-full min-h-[72px] rounded-[24px] transition-all duration-150 ease-out flex items-center gap-3 active:scale-[0.98]"
+                className="w-full min-h-[72px] rounded-[24px] transition-all duration-300 ease-out flex items-center gap-3 active:scale-[0.98]"
                 style={
                   formData.activity_level === option.value
                     ? {
@@ -402,7 +402,7 @@ export const QuestionnaireScreen: React.FC<QuestionnaireScreenProps> = ({
                     diet_type: option.value as QuestionnaireData['diet_type'],
                   })
                 }
-                className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-150 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
+                className="w-full min-h-[72px] text-label-lg rounded-[24px] transition-all duration-300 ease-out text-label-primary flex items-center gap-3 active:scale-[0.98]"
                 style={
                   formData.diet_type === option.value
                     ? {

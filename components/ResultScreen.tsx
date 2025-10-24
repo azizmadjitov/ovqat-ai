@@ -385,7 +385,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 shadow-1 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50"
                         style={{ 
                             background: 'linear-gradient(103deg, #DFF2FF -23.02%, #FFC3FC 16.83%, #FF7F6E 61.18%, #FF6921 85.92%)',
-                            transition: 'transform 150ms ease-out' 
+                            transition: 'transform 300ms ease-out' 
                         }}
                     >
                         <SparklesIcon className="w-6 h-6 text-[var(--static-white)]" />
@@ -399,7 +399,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <button
                         onClick={onRetake}
                         className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] shadow-1 transform active:scale-95 focus:outline-none"
-                        style={{ transition: 'transform 150ms ease-out' }}
+                        style={{ transition: 'transform 300ms ease-out' }}
                     >
                         <span className="text-label-lg text-label-primary">{t('retake')}</span>
                     </button>
@@ -412,7 +412,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     <button
                         onClick={() => onDelete(existingMeal.id)}
                         className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] shadow-1 transform active:scale-95 focus:outline-none"
-                        style={{ transition: 'transform 150ms ease-out' }}
+                        style={{ transition: 'transform 300ms ease-out' }}
                     >
                         <span className="text-label-lg text-label-primary">{t('remove')}</span>
                     </button>
