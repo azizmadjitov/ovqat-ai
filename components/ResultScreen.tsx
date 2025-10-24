@@ -3,7 +3,6 @@ import { t, lang } from '../i18n';
 import { Meal } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
-import { hapticSelection } from '../src/utils/haptics';
 import { SvgIcon } from './SvgIcon';
 
 // --- Asset Imports ---
@@ -154,8 +153,6 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     }, [imageDataUrl, imageFile]); // Remove servingAmount from dependencies
     
     const handleServingChange = (delta: number) => {
-        // Trigger haptic feedback for tactile response
-        hapticSelection();
         setServingAmount(prev => Math.max(1, prev + delta));
     };
 
