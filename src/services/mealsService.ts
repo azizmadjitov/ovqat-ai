@@ -39,18 +39,20 @@ export const mealsService = {
   },
 
   /**
-   * Load meals for the last 2 days (today and yesterday)
-   * Optimized to reduce load time from 10s to <1s
+   * Load meals for the last 4 days (today and 3 days back)
+   * Optimized with proper indexing and minimal data transfer
    */
   async loadMeals(userId: string): Promise<{ success: boolean; meals?: Meal[]; error?: string }> {
     try {
-      // Calculate date range: today and yesterday only
+      // Calculate date range: today and 3 days back (for calendar strip -3 to 0)
       const today = new Date();
-      const twoDaysAgo = new Date(today);
-      twoDaysAgo.setDate(today.getDate() - 1);
+      const fourDaysAgo = new Date(today);
+      fourDaysAgo.setDate(today.getDate() - 3);
 
-      const startDate = twoDaysAgo.toISOString().split('T')[0];
+      const startDate = fourDaysAgo.toISOString().split('T')[0];
       const endDate = today.toISOString().split('T')[0];
+
+      console.log(`📅 Loading meals from ${startDate} to ${endDate}`);
 
       const { data, error } = await supabase
         .from('user_meals')
@@ -58,8 +60,8 @@ export const mealsService = {
         .eq('user_id', userId)
         .gte('date', startDate)
         .lte('date', endDate)
-        .order('date', { ascending: false })
-        .order('time', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(80); // Max 20 meals per day * 4 days
 
       if (error) {
         console.error('Error loading meals:', error);

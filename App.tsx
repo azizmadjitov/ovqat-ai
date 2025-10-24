@@ -233,12 +233,11 @@ const App = () => {
                     console.warn('Failed to load cached data:', e);
                 }
 
+                // Load meals in background (non-blocking)
                 const dataLoadStart = performance.now();
                 console.log('⏱️ [PERF] Starting meals load for user.id:', user.id);
-                try {
-                    // Load only meals (goals already loaded during initialization)
-                    const mealsResult = await mealsService.loadMeals(user.id);
-
+                
+                mealsService.loadMeals(user.id).then(mealsResult => {
                     const dataLoadEnd = performance.now();
                     const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
                     console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
@@ -259,18 +258,10 @@ const App = () => {
                         console.error('Failed to load meals:', mealsResult.error);
                         setMealsLoading(false);
                     }
-                } catch (error) {
-                    console.error('Error loading user data:', error);
-                    // Set default goals on error
-                    setDailyGoal({
-                        calories: 2000,
-                        macros: {
-                            protein: 150,
-                            fat: 65,
-                            carbs: 250,
-                        },
-                    });
-                }
+                }).catch(error => {
+                    console.error('Error loading meals:', error);
+                    setMealsLoading(false);
+                });
             }
         };
         loadUserData();
