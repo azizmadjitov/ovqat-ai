@@ -99,7 +99,7 @@ const translations = {
     'carbs_label': 'Carbs',
     'fat_label': 'Fat',
     'done': 'Done',
-    'benefit': 'Benefit',
+    'benefit': 'Health score',
     'loading': 'Loading...',
     'initializing': 'Initializing...',
     // Loading spinner messages
