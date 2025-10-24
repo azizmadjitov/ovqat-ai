@@ -348,6 +348,42 @@ const App = () => {
         window.history.back();
     };
 
+    const handleDeleteMeal = async (mealId: string) => {
+        console.log('Deleting meal:', mealId);
+        
+        if (!user?.id) {
+            console.error('No user ID for deleting meal');
+            return;
+        }
+
+        // Remove from local state immediately for instant UI update
+        const updatedMeals = meals.filter(m => m.id !== mealId);
+        setMeals(updatedMeals);
+        
+        // Update cache
+        try {
+            localStorage.setItem('cachedMeals', JSON.stringify(updatedMeals));
+            console.log('⚡ Updated meals cache after deletion');
+        } catch (e) {
+            console.warn('Failed to update meals cache:', e);
+        }
+        
+        // Navigate back to home
+        window.history.back();
+        
+        // Delete from Supabase in background
+        mealsService.deleteMeal(user.id, mealId).then(result => {
+            if (result.success) {
+                console.log('✅ Meal deleted from database');
+            } else {
+                console.error('❌ Failed to delete meal from database:', result.error);
+                // TODO: Show error toast and restore meal
+            }
+        }).catch(error => {
+            console.error('❌ Unexpected error deleting meal:', error);
+        });
+    };
+
     // Handle successful login
     const handleLoginSuccess = (user: UserProfile | null, phoneNumber: string, needsOnboarding: boolean) => {
         setUser(user);
@@ -418,7 +454,7 @@ const App = () => {
                 // If viewing an existing meal, show it in view-only mode
                 if (viewingMeal) {
                     console.log('Rendering Result screen for viewing meal:', viewingMeal);
-                    return <ResultScreen existingMeal={viewingMeal} onBack={handleBackFromResult} />;
+                    return <ResultScreen existingMeal={viewingMeal} onBack={handleBackFromResult} onDelete={handleDeleteMeal} />;
                 }
                 // If adding a new meal, show the normal flow
                 if (capturedImage) {

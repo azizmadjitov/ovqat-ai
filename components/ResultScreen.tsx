@@ -51,6 +51,7 @@ interface ResultScreenProps {
   // For viewing existing meal
   existingMeal?: Meal;
   onBack?: () => void;
+  onDelete?: (mealId: string) => void;
   // For adding new meal
   imageDataUrl?: string;
   imageFile?: File;
@@ -61,6 +62,7 @@ interface ResultScreenProps {
 export const ResultScreen: React.FC<ResultScreenProps> = ({ 
     existingMeal,
     onBack,
+    onDelete,
     imageDataUrl, 
     imageFile, 
     onConfirm, 
@@ -393,6 +395,19 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         style={{ transition: 'transform 150ms ease-out' }}
                     >
                         <span className="text-label-lg text-label-primary">{t('retake')}</span>
+                    </button>
+                </div>
+            )}
+            
+            {/* Remove button - only in view mode */}
+            {isViewMode && onDelete && existingMeal && (
+                <div className="fab-container">
+                    <button
+                        onClick={() => onDelete(existingMeal.id)}
+                        className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] shadow-1 transform active:scale-95 focus:outline-none"
+                        style={{ transition: 'transform 150ms ease-out' }}
+                    >
+                        <span className="text-label-lg text-label-primary">{t('remove')}</span>
                     </button>
                 </div>
             )}

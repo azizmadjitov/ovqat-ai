@@ -34,6 +34,7 @@ const translations = {
     'loading_history': 'Loading history...',
     'meal_details': 'Meal Details',
     'retake': 'Retake',
+    'remove': 'Remove',
     'add_meal': 'Add Meal',
     // Auth
     'welcome_back': 'Welcome back',
@@ -144,6 +145,7 @@ const translations = {
     'loading_history': 'Загружаю историю...',
     'meal_details': 'Детали приема пищи',
     'retake': 'Переснять',
+    'remove': 'Удалить',
     'add_meal': 'Добавить',
     // Auth
     'welcome_back': 'С возвращением',
@@ -254,6 +256,7 @@ const translations = {
     'loading_history': 'Tarixni yuklamoqda...',
     'meal_details': 'Taom tafsilotlari',
     'retake': 'Qayta olish',
+    'remove': 'O\'chirish',
     'add_meal': 'Taom qo\'shish',
     // Auth
     'welcome_back': 'Xush kelibsiz',
