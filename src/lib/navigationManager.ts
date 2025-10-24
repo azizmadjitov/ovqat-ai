@@ -81,6 +81,9 @@ export class NavigationManager {
       window.history.replaceState({ screen }, '', path);
     }
     
+    // Notify screen change listeners (replaceState doesn't trigger popstate)
+    this.screenChangeListeners.forEach(listener => listener(screen));
+    
     this.notifyNative();
   }
 
@@ -91,7 +94,6 @@ export class NavigationManager {
     const paths: Record<Screen, string> = {
       [Screen.Login]: '#/login',
       [Screen.Home]: '#/home',
-      [Screen.Camera]: '#/camera',
       [Screen.Result]: '#/result',
       [Screen.Questionnaire]: '#/questionnaire',
       [Screen.Settings]: '#/settings',
