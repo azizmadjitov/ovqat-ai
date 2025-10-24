@@ -53,6 +53,7 @@ const App = () => {
     const [user, setUser] = useState<any>(null);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [dailyGoal, setDailyGoal] = useState<any>(null);
+    const [mealsLoading, setMealsLoading] = useState(true);
 
     const [currentScreen, setCurrentScreen] = useState(Screen.Home);
     
@@ -203,6 +204,7 @@ const App = () => {
                         const cachedMeals = JSON.parse(cachedMealsStr);
                         console.log('⚡ Using cached meals for instant display:', cachedMeals.length, 'meals');
                         setMeals(cachedMeals);
+                        setMealsLoading(false); // Show cached meals immediately
                     }
                 } catch (e) {
                     console.warn('Failed to load cached data:', e);
@@ -255,6 +257,7 @@ const App = () => {
                     // Set meals and cache them
                     if (mealsResult.success && mealsResult.meals) {
                         setMeals(mealsResult.meals);
+                        setMealsLoading(false);
                         console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
                         
                         // Cache meals in localStorage for faster subsequent loads
@@ -265,6 +268,7 @@ const App = () => {
                         }
                     } else {
                         console.error('Failed to load meals:', mealsResult.error);
+                        setMealsLoading(false);
                     }
                 } catch (error) {
                     console.error('Error loading user data:', error);
@@ -474,7 +478,7 @@ const App = () => {
                 if (!dailyGoal) {
                     return <SplashScreen />;
                 }
-                return <HomeScreen meals={meals} dailyGoal={dailyGoal} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
+                return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
             case Screen.Camera:
                 return <CameraScreen onPhotoTaken={handlePhotoTaken} onCancel={handleCancelCamera} />;
             case Screen.Result:
@@ -493,7 +497,7 @@ const App = () => {
                 setCurrentScreen(Screen.Home);
                 return null;
             default:
-                return <HomeScreen meals={meals} dailyGoal={dailyGoal} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
+                return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
         }
     };
     

@@ -10,11 +10,12 @@ import { t } from '../i18n';
 interface HomeScreenProps {
   meals: Meal[];
   dailyGoal: DailyGoal | null;
+  mealsLoading: boolean;
   onOpenCamera: () => void;
   onMealClick: (meal: Meal) => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpenCamera, onMealClick }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, mealsLoading, onOpenCamera, onMealClick }) => {
   // ============================================================================
   // State & Date Management
   // ============================================================================
@@ -96,7 +97,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ meals, dailyGoal, onOpen
 
         {/* Meal History List */}
         <RecentlyLoggedList 
-          meals={mealsForSelectedDate} 
+          meals={mealsForSelectedDate}
+          mealsLoading={mealsLoading}
           onMealClick={onMealClick} 
         />
       </main>
