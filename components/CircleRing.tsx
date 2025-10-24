@@ -45,6 +45,9 @@ export const CircleRing: React.FC<CircleRingProps> = ({
                 r={radius}
                 cx={size / 2}
                 cy={size / 2}
+                style={{
+                  transition: 'stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
             />
         )}
       </svg>
