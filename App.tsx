@@ -39,26 +39,7 @@ const App = () => {
     const [mealsLoading, setMealsLoading] = useState(true);
 
     const [currentScreen, setCurrentScreen] = useState(Screen.Home);
-    
-    // Load meals from localStorage on mount
-    const [meals, setMeals] = useState(() => {
-        try {
-            const savedMeals = localStorage.getItem('ovqat-meals');
-            return savedMeals ? JSON.parse(savedMeals) : [];
-        } catch (error) {
-            console.error('Failed to load meals from localStorage:', error);
-            return [];
-        }
-    });
-    
-    // Save meals to localStorage whenever they change
-    useEffect(() => {
-        try {
-            localStorage.setItem('ovqat-meals', JSON.stringify(meals));
-        } catch (error) {
-            console.error('Failed to save meals to localStorage:', error);
-        }
-    }, [meals]);
+    const [meals, setMeals] = useState<Meal[]>([]);
     
     const [capturedImage, setCapturedImage] = useState<{ dataUrl: string; file?: File } | null>(null);
     const [viewingMeal, setViewingMeal] = useState<Meal | null>(null);
@@ -335,8 +316,7 @@ const App = () => {
         }
         
         // Navigate immediately for instant feedback (use replace so back doesn't return to Result)
-        setCapturedImage(null);
-        setViewingMeal(null);
+        // State will be cleared automatically by onScreenChange listener
         navigationManager.replace(Screen.Home);
         setCurrentScreen(Screen.Home);
         
@@ -364,9 +344,8 @@ const App = () => {
 
     const handleBackFromResult = () => {
         console.log('Back from Result screen, navigating to Home screen');
-        setCapturedImage(null);
-        setViewingMeal(null);
-        setCurrentScreen(Screen.Home);
+        // Use browser back to maintain navigation stack consistency
+        window.history.back();
     };
 
     // Handle successful login
