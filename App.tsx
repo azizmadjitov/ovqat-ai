@@ -76,6 +76,13 @@ const App = () => {
         const unsubscribe = navigationManager.onScreenChange((screen) => {
             console.log(`🔄 Screen changed from history: ${screen}`);
             setCurrentScreen(screen);
+            
+            // Clear viewing state when navigating to Home
+            if (screen === Screen.Home) {
+                console.log('🧹 Clearing viewing state on Home navigation');
+                setViewingMeal(null);
+                setCapturedImage(null);
+            }
         });
         
         return unsubscribe;
@@ -279,7 +286,11 @@ const App = () => {
         console.log('Photo taken, navigating to Result screen');
         console.log('Image data URL length:', imageDataUrl.length);
         console.log('Image data URL starts with:', imageDataUrl.substring(0, 50));
+        
+        // Clear any viewing meal state before setting new captured image
+        setViewingMeal(null);
         setCapturedImage({dataUrl: imageDataUrl, file: imageFile});
+        
         navigationManager.push(Screen.Result);
         setCurrentScreen(Screen.Result);
     };
