@@ -1,221 +1,296 @@
-# Ovqat AI - AI-Powered Nutrition Analysis App
+# Ovqat AI - AI-Powered Nutrition Tracker
 
-Ovqat AI is an innovative nutrition analysis application that leverages artificial intelligence to help users track their meals and achieve their health goals. Simply take a photo of your food, and Ovqat AI will analyze its nutritional content, providing detailed information about calories and macronutrients.
+> **Smart food tracking powered by AI vision**  
+> Take a photo → Get instant nutrition analysis → Track your goals
 
-## Features
+Ovqat AI is a mobile-first web application that uses AI to analyze food photos and provide detailed nutritional information. Built for integration with native mobile apps (iOS/Android) via WebView.
 
-- 📸 **AI-Powered Food Recognition**: Advanced computer vision identifies food items in photos
-- 📊 **Nutritional Analysis**: Detailed breakdown of calories, proteins, carbs, and fats
-- 🎯 **Personalized Goals**: Custom nutrition targets based on user profile and objectives
-- 📱 **Mobile-First Design**: Optimized for smartphones with intuitive interface
-- 🌍 **Multilingual Support**: Available in Russian and Uzbek languages
-- 🔐 **Secure Authentication**: Phone-based authentication without complex OTP flows
+## ✨ Key Features
 
-## Technology Stack
+- 📸 **AI Food Recognition** - OpenAI Vision API analyzes photos instantly
+- 📊 **Nutrition Breakdown** - Calories, protein, carbs, fat, fiber, health score
+- 🎯 **Personalized Goals** - Custom targets based on age, weight, activity level
+- 📅 **Meal History** - 4-day calendar strip with daily progress tracking
+- 🌍 **Multilingual** - English, Russian (Русский), Uzbek (O'zbek)
+- 🎨 **Auto Theme** - Follows system dark/light mode automatically
+- 📱 **Native Integration** - Seamless WebView navigation with native navbar
 
-- **Frontend**: React with TypeScript, Vite build tool
-- **Backend**: Supabase (Database, Authentication, Storage)
-- **AI/ML**: OpenAI Vision API for food recognition
-- **Styling**: Tailwind CSS with custom design system
-- **Deployment**: Vercel (Frontend), Supabase (Backend)
+## 🏗️ Architecture
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Supabase account
-- OpenAI API key (for AI features)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone git@github.com:azizmadjitov/ovqat-ai.git
-cd ovqat-ai
+```
+┌─────────────────────────────────────────────────────────┐
+│  Native App (iOS/Android)                               │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  WebView                                          │  │
+│  │  ┌─────────────────────────────────────────────┐ │  │
+│  │  │  Ovqat AI (React SPA)                       │ │  │
+│  │  │  • Browser History API for navigation       │ │  │
+│  │  │  • postMessage for native communication     │ │  │
+│  │  └─────────────────────────────────────────────┘ │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+           ↓                           ↓
+    Backend API                  Vercel AI API
+    (JWT Auth)              (Food Analysis)
+           ↓
+      Supabase DB
 ```
 
-2. Install dependencies:
+## 🚀 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18 + TypeScript + Vite |
+| **Styling** | Tailwind CSS (custom design tokens) |
+| **State** | React Hooks + localStorage cache |
+| **Navigation** | Browser History API + NavigationManager |
+| **Auth** | Custom JWT (Node.js backend) |
+| **Database** | Supabase PostgreSQL |
+| **AI** | OpenAI Vision API (via Vercel) |
+| **Deployment** | Vercel (static SPA) |
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
+### 2. Environment Setup
 ```bash
 cp .env.example .env
-# Edit .env with your Supabase and OpenAI credentials
 ```
 
-### Supabase Setup
+Edit `.env`:
+```env
+# Backend API (JWT Auth)
+VITE_BACKEND_URL=http://localhost:3001
 
-1. Create a new Supabase project at https://app.supabase.com/
-2. Get your project credentials from Settings → API
-3. Update your `.env` file with the new credentials:
-   ```
-   VITE_SUPABASE_URL=your_new_project_url
-   VITE_SUPABASE_ANON_KEY=your_new_anon_key
-   ```
-4. Enable Anonymous Sign-ins in Authentication → Settings
-5. Apply database migrations:
-   Apply these files in order in your Supabase SQL Editor:
-   - supabase/migrations/001_initial_schema.sql
-   - supabase/migrations/002_security_fixes.sql
-   - supabase/migrations/003_fix_function_search_path.sql
-   - supabase/migrations/004_fix_user_account_linking.sql
+# Supabase (Database only)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-### Development
+# AI Analysis (Vercel)
+VITE_AI_API_URL=https://ovqat-ai-backend.vercel.app
+```
 
+### 3. Database Setup
+
+**Option A: Use existing Supabase project**
+- Tables: `users`, `user_profiles`, `user_goals`, `user_meals`
+- No migrations needed if already set up
+
+**Option B: Create new Supabase project**
+```sql
+-- Run in Supabase SQL Editor
+-- See supabase/schema.sql for full schema
+```
+
+### 4. Start Backend (JWT Auth)
 ```bash
-npm run dev
+cd server
+npm install
+npm run dev  # Runs on :3001
 ```
 
-The app will be available at http://localhost:3000
-
-### Building for Production
-
+### 5. Start Frontend
 ```bash
-npm run build
+npm run dev  # Runs on :3000
 ```
 
-## Project Structure
+### 6. Test Authentication
+```bash
+# Get JWT token
+curl -X POST http://localhost:3001/api/auth/phone \
+  -H "Content-Type: application/json" \
+  -d '{"phoneNumber": "998997961877"}'
+
+# Open app with token
+open "http://localhost:3000/?token=YOUR_TOKEN"
+```
+
+## 📁 Project Structure
 
 ```
 ovqat-ai/
-├── components/          # React components
+├── App.tsx                    # Main app component
+├── components/                # React components
+│   ├── HomeScreen.tsx        # Main screen with meal history
+│   ├── ResultScreen.tsx      # Nutrition analysis results
+│   ├── QuestionnaireScreen/  # Onboarding questionnaire
+│   └── home/                 # Home screen subcomponents
 ├── src/
-│   ├── lib/            # Supabase client configuration
-│   ├── services/       # Business logic and API services
-│   └── utils/          # Utility functions
-├── supabase/
-│   └── migrations/     # Database schema migrations
-├── assets/             # Static assets
-├── styles/             # Global styles
-└── types.ts           # TypeScript type definitions
+│   ├── lib/
+│   │   ├── navigationManager.ts  # Browser history navigation
+│   │   ├── nativeEvents.ts       # Native app communication
+│   │   ├── theme.ts              # Auto theme system
+│   │   └── supabase.ts           # Supabase client
+│   ├── services/
+│   │   ├── authService.ts        # JWT authentication
+│   │   ├── mealsService.ts       # Meal CRUD operations
+│   │   ├── questionnaireService.ts  # User profile & goals
+│   │   └── nutritionSupabase.ts  # AI food analysis
+│   └── utils/
+│       └── calculations.ts       # BMI, calorie calculations
+├── server/                    # JWT auth backend
+│   ├── index.js              # Express API
+│   └── .env.example          # Backend config
+├── i18n.ts                   # Translations (en, ru, uz)
+├── types.ts                  # TypeScript definitions
+└── NATIVE_INTEGRATION.md     # WebView integration guide
 ```
 
-## Authentication Flow
-
-1. User enters phone number on LoginScreen
-2. App checks if user exists using secure `check_phone_exists` function
-3. If user exists, creates anonymous session and links to existing data
-4. If new user, creates anonymous session and new user record
-5. User completes questionnaire if onboarding not completed
-6. App loads personalized nutrition goals
-
-## Database Schema
-
-The application uses three main tables:
-
-1. `users` - Core user information and authentication
-2. `user_profiles` - Detailed user profile from questionnaire
-3. `user_goals` - Calculated nutrition goals
-
-All tables have Row Level Security (RLS) policies for data protection.
-
-## Recent Fixes
-
-### Critical Fix: User Account Linking and Phone Number Issues
-Resolved all critical issues with user authentication and phone number handling:
-
-**Issue 1: "User not found" error when logging in from different devices**
-- Fixed by properly linking new anonymous sessions to existing user data
-- Enhanced the authentication service to correctly identify existing users by phone number
-
-**Issue 2: Duplicate users being created with different UIDs**
-- Fixed by implementing proper account linking mechanism
-- Ensured each phone number uniquely identifies one user account
-
-**Issue 3: Empty phone field in user records**
-- Fixed phone number storage format to ensure consistent data
-- Phone numbers are now properly stored and retrieved
-
-### Fixed User Account Linking Issue
-Resolved the issue where users logging in with existing phone numbers were creating duplicate accounts instead of linking to the existing account. The updated implementation:
-- Uses an enhanced `check_phone_exists` database function that returns both existence status and user ID
-- Properly links new anonymous sessions to existing user data
-- Prevents duplicate user creation for the same phone number
-- Enables consistent cross-device authentication
-
-### Fixed Phone Number Format
-Updated phone number storage format to store numbers without the "+" sign (e.g., 998997961877 instead of +998997961877) for consistency and to fix empty phone number issues in the database.
-
-### Fixed Authentication Session Expiration
-Enhanced the questionnaire submission flow with automatic session refresh capabilities to prevent "Authentication session expired" errors.
-
-### Fixed User Identification by Phone Number
-Enhanced the createUserByPhone function to properly identify users by their phone number as the primary identifier, ensuring cross-device authentication works correctly and maintaining all user data integrity.
-
-### Fixed Database Query Errors
-Resolved "cannot coerce the result to a single json object" errors by removing problematic .single() calls and adding proper error handling for database operations.
-
-### Fixed Supabase Security Warnings
-Addressed all security concerns reported by Supabase Security Advisor:
-- Removed custom RLS policies on auth.users
-- Restricted all table access to authenticated users only
-- Scoped all RLS policies to auth.uid()
-- Implemented secure phone number checking via function
-
-### Fixed Duplicate Users Issue
-Enhanced phone number checking and user identification to prevent duplicate users from being created when the same phone number is entered multiple times.
-
-## Deployment to Vercel
-
-### Automatic Deployment
-1. Push your code to GitHub
-2. Connect your GitHub repository to Vercel
-3. Set these environment variables in Vercel:
-   ```
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_OPENAI_API_KEY=your_openai_api_key
-   ```
-4. Vercel will automatically detect the build settings and deploy your app
-
-### Manual Deployment
-1. Install Vercel CLI:
-   ```bash
-   npm install -g vercel
-   ```
-2. Deploy:
-   ```bash
-   vercel
-   ```
-
-## Environment Variables
+## 🔐 Authentication Flow
 
 ```
-VITE_OPENAI_API_KEY=your_openai_api_key
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+1. Native app opens WebView with URL: ?token=JWT_TOKEN
+2. Frontend verifies token with backend API
+3. Backend returns userId
+4. Frontend loads user data from Supabase
+5. If new user → Questionnaire
+6. If existing user → Home screen
 ```
 
-## Troubleshooting
+**Key Points:**
+- ✅ No Supabase Auth (custom JWT)
+- ✅ One userId across all devices
+- ✅ Phone number is primary identifier
+- ✅ Token passed via URL parameter
 
-### Authentication Issues
-- Ensure phone numbers are consistently formatted without + prefix
-- Check that Supabase RLS policies are correctly applied
-- Verify environment variables are correctly set
+## 🗄️ Database Schema
 
-### AI Analysis Not Working
-- Confirm OpenAI API key is valid and has vision capabilities
-- Check internet connection
-- Verify image format and size requirements
+**Tables:**
+```sql
+users
+├── id (uuid, primary key)
+├── phone (text, unique)
+└── onboarding_completed (boolean)
 
-## Contributing
+user_profiles
+├── user_id (uuid, foreign key)
+├── gender, birth_year, weight_kg, height_cm
+├── activity_level, primary_goal, diet_type
+└── bmi (calculated)
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a pull request
+user_goals
+├── user_id (uuid, foreign key)
+├── goal_calories, goal_protein_g
+├── goal_carbs_g, goal_fat_g
+└── bmr, tdee (calculated)
 
-## License
+user_meals
+├── user_id (uuid, foreign key)
+├── meal_id (text, unique per user)
+├── date, time, name, description
+├── calories, protein_g, carbs_g, fat_g, fiber_g
+├── health_score, language, image_url
+└── created_at
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+**Indexes:**
+- `idx_user_meals_user_id_date` on (user_id, date)
+- Optimized for 4-day history queries
 
-## Acknowledgments
+## 🎨 Key Implementation Details
 
-- OpenAI for the Vision API
-- Supabase for the excellent backend platform
-- Tailwind CSS for the styling framework
+### Navigation System
+- **Browser History API** - Native back/forward support
+- **NavigationManager** - Singleton managing screen stack
+- **postMessage** - Communication with native navbar
+- **Zero config** - Native app just needs to listen for `NAVIGATION_CHANGED`
+
+### Theme System
+- **Auto-sync** - Follows system `prefers-color-scheme`
+- **No caching** - Always reads current system theme
+- **CSS variables** - Dynamic theme tokens
+- **Zero flash** - Theme applied before first render
+
+### Performance Optimizations
+- **localStorage cache** - Instant display of goals & meals
+- **Parallel loading** - Goals and meals load simultaneously
+- **Non-blocking saves** - Meals save in background
+- **4-day limit** - Only loads recent history (80 meals max)
+
+### AI Analysis
+- **Image compression** - Resizes to ≤1024px before upload
+- **Vercel Edge** - Fast serverless processing
+- **OpenAI Vision** - GPT-4 Vision API
+- **Multilingual** - Analysis in user's language
+
+## 📱 Native Integration
+
+See `NATIVE_INTEGRATION.md` for detailed WebView setup guide.
+
+**Quick summary:**
+```swift
+// iOS - Listen for navigation changes
+webView.evaluateJavaScript("window.addEventListener('message', (e) => { ... })")
+
+// Show Back or Close button based on canGoBack
+if (canGoBack) { showBackButton() } else { showCloseButton() }
+
+// Handle back press
+webView.evaluateJavaScript("window.history.back()")
+```
+
+## 🚀 Deployment
+
+### Frontend (Vercel)
+```bash
+npm run build
+vercel --prod
+```
+
+**Environment variables:**
+- `VITE_BACKEND_URL` - JWT auth API
+- `VITE_SUPABASE_URL` - Database URL
+- `VITE_SUPABASE_SERVICE_ROLE_KEY` - DB access key
+- `VITE_AI_API_URL` - AI analysis endpoint
+
+### Backend (Railway/Render)
+```bash
+cd server
+# Deploy to Railway or Render
+# Set PORT, JWT_SECRET, DATABASE_URL
+```
+
+## 🐛 Common Issues
+
+**Issue: "User not found"**
+- Check JWT token is valid
+- Verify userId exists in `users` table
+
+**Issue: Theme not updating**
+- System theme changes are auto-detected
+- Check browser supports `prefers-color-scheme`
+
+**Issue: Navigation broken**
+- Ensure native app calls `window.history.back()`
+- Check `NAVIGATION_CHANGED` messages are received
+
+**Issue: AI analysis fails**
+- Verify Vercel API is deployed
+- Check image size < 5MB
+- Ensure OpenAI API key is valid
+
+## 📚 Documentation
+
+- `NATIVE_INTEGRATION.md` - WebView integration guide
+- `server/README.md` - Backend API documentation
+- `types.ts` - TypeScript type definitions
+
+## 🤝 Contributing
+
+This is a production app. For major changes:
+1. Open an issue first
+2. Fork and create feature branch
+3. Test thoroughly
+4. Submit PR with clear description
+
+## 📄 License
+
+MIT License - see LICENSE file
+
+---
+
+**Built with ❤️ for smart nutrition tracking**
