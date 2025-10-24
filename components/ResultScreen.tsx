@@ -4,12 +4,24 @@ import { Meal } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { analyzeMeal, NutritionResult } from '../src/services/nutritionSupabase';
 import { SvgIcon } from './SvgIcon';
+import { ImageWithSkeleton } from './ImageWithSkeleton';
+
+// --- Inline SVG Icons ---
+const MinusIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
+const PlusIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
 
 // --- Asset Imports ---
 const chevronLeftIcon = '/assets/icons/chevron-left.svg';
 const uploadIcon = '/assets/icons/upload-line.svg';
-const minusIcon = '/assets/icons/minus.svg';
-const plusIcon = '/assets/icons/plus.svg';
 const caloriesIconUrl = '/assets/img/calories.png';
 const healthIconUrl = '/assets/img/health-score.png';
 const proteinIconUrl = '/assets/img/protein.png';
@@ -23,7 +35,7 @@ const TopStat: React.FC<{ value: string; label: string; icon: string }> = ({ val
     <div className="flex flex-col items-start gap-y-2">
         <span className="text-title-h1 text-label-primary">{value}</span>
         <div className="flex items-center gap-x-1">
-            <img src={icon} alt="" className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
+            <ImageWithSkeleton src={icon} alt="" width={20} height={20} rounded="rounded" />
             <span className="text-label-md text-label-primary">{label}</span>
         </div>
     </div>
@@ -33,7 +45,7 @@ const NutrientStat: React.FC<{ value: string; label: string; icon: string }> = (
     <div className="flex flex-col items-start gap-y-2">
         <span className="text-title-h3 text-label-primary">{value}</span>
         <div className="flex items-center gap-x-1">
-            <img src={icon} alt={`${label} icon`} className="w-5 h-5" onError={(e) => console.log(`Failed to load icon: ${icon}`)} /> {/* 1.25rem */}
+            <ImageWithSkeleton src={icon} alt={`${label} icon`} width={20} height={20} rounded="rounded" />
             <span className="text-label-md text-label-primary">{label}</span>
         </div>
     </div>
@@ -244,13 +256,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}
             >
                 <section className="flex items-center gap-x-4 mb-5">
-                    <img 
-                        id="food-image" 
-                        src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} 
-                        alt={nutritionData.title} 
-                        className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0" 
-                        style={{ border: '1px solid var(--stroke-non-opaque)' }}
-                    />
+                    <div className="flex-shrink-0" style={{ border: '1px solid var(--stroke-non-opaque)', borderRadius: '50%' }}>
+                        <ImageWithSkeleton 
+                            src={isViewMode ? existingMeal?.imageUrl || '' : imageDataUrl || ''} 
+                            alt={nutritionData.title} 
+                            width={130} 
+                            height={130} 
+                            rounded="rounded-full"
+                            className="object-cover"
+                        />
+                    </div>
                     {nutritionData.description && nutritionData.isFood && (
                         <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
                             <p className="description-text text-label-sm text-label-primary line-clamp-3">
@@ -302,7 +317,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <SvgIcon src={minusIcon} width="1.5rem" height="1.5rem" style={{ color: 'var(--label-primary)' }} />
+                            <MinusIcon className="w-6 h-6 text-label-primary" />
                         </button>
                         <div></div>
                         <div 
@@ -340,7 +355,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         >
-                            <SvgIcon src={plusIcon} width="1.5rem" height="1.5rem" style={{ color: 'var(--label-primary)' }} />
+                            <PlusIcon className="w-6 h-6 text-label-primary" />
                         </button>
                         <div></div>
                     </div>
