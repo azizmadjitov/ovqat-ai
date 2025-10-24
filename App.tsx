@@ -189,6 +189,15 @@ const App = () => {
     useEffect(() => {
         const loadUserData = async () => {
             if (isAuthenticated && user) {
+                // Clear old cache format (for migration)
+                const cacheVersion = localStorage.getItem('cacheVersion');
+                if (cacheVersion !== '2') {
+                    localStorage.removeItem('cachedDailyGoal');
+                    localStorage.removeItem('cachedMeals');
+                    localStorage.setItem('cacheVersion', '2');
+                    console.log('🔄 Cache cleared for version update');
+                }
+                
                 // Try to load cached data immediately for faster initial render
                 try {
                     const cachedGoalsStr = localStorage.getItem('cachedDailyGoal');
