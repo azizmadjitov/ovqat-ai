@@ -153,21 +153,30 @@ const App = () => {
                     setUser(userProfile);
                     setPhoneNumber(userProfile.phone_number || '');
                     
-                    // Check onboarding status
-                    const { completed } = await questionnaireService.checkOnboardingStatus(userProfile.id);
+                    // Load onboarding status and goals in parallel
+                    const [onboardingResult, goalsResult] = await Promise.all([
+                        questionnaireService.checkOnboardingStatus(userProfile.id),
+                        questionnaireService.getUserGoals(userProfile.id)
+                    ]);
                     
-                    if (completed) {
-                        // User has completed onboarding - load goals
-                        const { goals } = await questionnaireService.getUserGoals(userProfile.id);
-                        if (goals) {
-                            setDailyGoal({
-                                calories: goals.goal_calories,
+                    if (onboardingResult.completed) {
+                        // User has completed onboarding
+                        if (goalsResult.goals) {
+                            const goals = {
+                                calories: goalsResult.goals.goal_calories,
                                 macros: {
-                                    protein: goals.goal_protein_g,
-                                    fat: goals.goal_fat_g,
-                                    carbs: goals.goal_carbs_g,
+                                    protein: goalsResult.goals.goal_protein_g,
+                                    fat: goalsResult.goals.goal_fat_g,
+                                    carbs: goalsResult.goals.goal_carbs_g,
                                 },
-                            });
+                            };
+                            setDailyGoal(goals);
+                            // Cache goals for faster subsequent loads
+                            try {
+                                localStorage.setItem('cachedDailyGoal', JSON.stringify(goals));
+                            } catch (e) {
+                                console.warn('Failed to cache goals:', e);
+                            }
                         }
                         setCurrentScreen(Screen.Home);
                     } else {
@@ -225,48 +234,14 @@ const App = () => {
                 }
 
                 const dataLoadStart = performance.now();
-                console.log('⏱️ [PERF] Starting data load for user.id:', user.id);
+                console.log('⏱️ [PERF] Starting meals load for user.id:', user.id);
                 try {
-                    // Load goals and meals in parallel
-                    const [goalsResult, mealsResult] = await Promise.all([
-                        questionnaireService.getUserGoals(user.id),
-                        mealsService.loadMeals(user.id)
-                    ]);
+                    // Load only meals (goals already loaded during initialization)
+                    const mealsResult = await mealsService.loadMeals(user.id);
 
                     const dataLoadEnd = performance.now();
                     const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
-                    console.log(`⏱️ [PERF] Data loaded in ${dataLoadTime}s`);
-                    console.log('🔍 goalsResult:', goalsResult);
-
-                    // Set goals
-                    if (goalsResult.goals) {
-                        console.log('✅ Goals loaded from database:', goalsResult.goals);
-                        const goals = {
-                            calories: goalsResult.goals.goal_calories,
-                            macros: {
-                                protein: goalsResult.goals.goal_protein_g,
-                                fat: goalsResult.goals.goal_fat_g,
-                                carbs: goalsResult.goals.goal_carbs_g,
-                            },
-                        };
-                        setDailyGoal(goals);
-                        // Cache goals in localStorage for faster subsequent loads
-                        try {
-                            localStorage.setItem('cachedDailyGoal', JSON.stringify(goals));
-                        } catch (e) {
-                            console.warn('Failed to cache goals:', e);
-                        }
-                    } else {
-                        console.warn('⚠️ No goals found in database, setting defaults');
-                        setDailyGoal({
-                            calories: 2000,
-                            macros: {
-                                protein: 150,
-                                fat: 65,
-                                carbs: 250,
-                            },
-                        });
-                    }
+                    console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
 
                     // Set meals and cache them
                     if (mealsResult.success && mealsResult.meals) {
