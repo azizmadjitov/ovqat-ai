@@ -237,7 +237,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
     return (
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-            <main className="flex-1 flex flex-col px-4 pt-5 pb-24 overflow-y-auto">
+            <main className="flex-1 flex flex-col px-4 pt-9 pb-24 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
                     <img 
                         id="food-image" 
