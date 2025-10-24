@@ -104,6 +104,52 @@ When `canGoBack` is false and user presses Close:
 finish()
 ```
 
+## 5. Handle Theme Changes
+
+When user changes theme in your app, send it to WebView:
+
+```swift
+// iOS
+let themeData = ["type": "THEME_CHANGE", "theme": isDarkMode ? "dark" : "light"]
+let jsonData = try! JSONSerialization.data(withJSONObject: themeData)
+let jsonString = String(data: jsonData, encoding: .utf8)!
+webView.evaluateJavaScript("window.postMessage(\(jsonString), '*')")
+```
+
+```kotlin
+// Android
+val theme = if (isDarkMode) "dark" else "light"
+webView.evaluateJavaScript("window.postMessage({type:'THEME_CHANGE',theme:'$theme'},'*')", null)
+```
+
+### Respond to Theme Requests
+
+WebView will ask for current theme when it becomes visible:
+
+```swift
+// iOS - Listen for REQUEST_THEME
+func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+    if message.name == "REQUEST_THEME" {
+        let theme = isDarkMode ? "dark" : "light"
+        sendThemeToWebView(theme)
+    }
+}
+```
+
+```kotlin
+// Android - Listen for REQUEST_THEME
+webView.addJavascriptInterface(object : Any() {
+    @JavascriptInterface
+    fun postMessage(json: String) {
+        val data = JSONObject(json)
+        if (data.getString("type") == "REQUEST_THEME") {
+            val theme = if (isDarkMode) "dark" else "light"
+            sendThemeToWebView(theme)
+        }
+    }
+}, "ReactNativeWebView")
+```
+
 ## That's It!
 
 No complex routing, no message passing for back navigation. The WebView handles everything internally using browser history.

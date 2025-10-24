@@ -39,12 +39,27 @@ const App = () => {
             applyTheme(data.theme);
         });
         
+        // Request theme when app becomes visible again (user returns from parent app)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log('🔄 App became visible, requesting current theme from native');
+                try {
+                    nativeEventManager.sendToNative({ type: 'REQUEST_THEME' });
+                } catch (e) {
+                    console.warn('Could not request theme on visibility change:', e);
+                }
+            }
+        };
+        
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
         loadTokens().then(() => {
             setTokensLoaded(true);
         });
         
         return () => {
             unsubscribeTheme();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
 
@@ -296,6 +311,7 @@ const App = () => {
         console.log('Image data URL length:', imageDataUrl.length);
         console.log('Image data URL starts with:', imageDataUrl.substring(0, 50));
         setCapturedImage({dataUrl: imageDataUrl, file: imageFile});
+        navigationManager.push(Screen.Result);
         setCurrentScreen(Screen.Result);
     };
 

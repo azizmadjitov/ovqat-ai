@@ -376,17 +376,17 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 </section>
                 
                 {!isViewMode && nutritionData.isFood && (
-                    <div className="fixed bottom-6 right-6 z-50">
+                    <div className="mt-auto pt-5 flex justify-center">
                         <button
                             onClick={handleConfirm}
-                            aria-label={t('done')}
-                            className="rounded-full p-5 shadow-1 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50"
+                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50"
                             style={{ 
                                 background: 'linear-gradient(103deg, #DFF2FF -23.02%, #FFC3FC 16.83%, #FF7F6E 61.18%, #FF6921 85.92%)',
                                 transition: 'transform 150ms ease-out' 
                             }}
                         >
-                            <SparklesIcon className="w-7 h-7 text-[var(--static-white)]" />
+                            <SparklesIcon className="w-6 h-6 text-[var(--static-white)]" />
+                            <span className="text-label-lg text-[var(--static-white)]">{t('done')}</span>
                         </button>
                     </div>
                 )}
