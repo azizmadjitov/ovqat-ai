@@ -69,7 +69,26 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     const isViewMode = !!existingMeal;
     
     const [servingAmount, setServingAmount] = useState(1.0);
-    const [nutritionData, setNutritionData] = useState<NutritionResult | null>(null);
+    
+    // Initialize nutrition data immediately if viewing existing meal
+    const [nutritionData, setNutritionData] = useState<NutritionResult | null>(() => {
+        if (isViewMode && existingMeal) {
+            return {
+                title: existingMeal.name,
+                description: existingMeal.description || '',
+                takenAtISO: existingMeal.id,
+                calories: existingMeal.calories,
+                protein_g: existingMeal.macros.protein,
+                carbs_g: existingMeal.macros.carbs,
+                fat_g: existingMeal.macros.fat,
+                fiber_g: existingMeal.macros.fiber || 0,
+                healthScore_10: existingMeal.healthScore || 7,
+                isFood: true,
+            };
+        }
+        return null;
+    });
+    
     const [loading, setLoading] = useState(!isViewMode); // Don't load if viewing existing meal
     const [error, setError] = useState<string | null>(null);
     const [timestamp] = useState(() => {
@@ -80,25 +99,6 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
         return `${weekday} ${time}`;
     });
-    
-    // Initialize nutrition data from existing meal if in view mode
-    useEffect(() => {
-        if (isViewMode && existingMeal) {
-            setNutritionData({
-                title: existingMeal.name,
-                description: existingMeal.description || '', // Load description from stored meal
-                takenAtISO: existingMeal.id,
-                calories: existingMeal.calories,
-                protein_g: existingMeal.macros.protein,
-                carbs_g: existingMeal.macros.carbs,
-                fat_g: existingMeal.macros.fat,
-                fiber_g: existingMeal.macros.fiber || 0,
-                healthScore_10: existingMeal.healthScore || 7, // Load health score from stored meal, default to 7 if not available
-                isFood: true, // Existing meals are always food (they were saved)
-            });
-            setLoading(false);
-        }
-    }, [isViewMode, existingMeal]);
     
     // Load nutrition data when component mounts (only for new meals)
     useEffect(() => {
@@ -156,13 +156,18 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         setServingAmount(prev => Math.max(1, prev + delta));
     };
 
-    // Show loading state (or if nutritionData not yet loaded)
-    if (loading || !nutritionData) {
+    // Show loading state
+    if (loading) {
         return (
             <div className="min-h-screen bg-bg-base text-label-primary flex flex-col items-center justify-center px-6">
                 <LoadingSpinner />
             </div>
         );
+    }
+    
+    // Ensure we have nutrition data before rendering
+    if (!nutritionData) {
+        return null; // Should never happen, but safety check
     }
 
     // Show error state (only for new meals that failed to analyze)
