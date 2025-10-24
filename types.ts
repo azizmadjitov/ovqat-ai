@@ -2,7 +2,6 @@ export enum Screen {
   Login = 'LOGIN',
   Questionnaire = 'QUESTIONNAIRE',
   Home = 'HOME',
-  Camera = 'CAMERA',
   Result = 'RESULT',
   Settings = 'SETTINGS',
 }

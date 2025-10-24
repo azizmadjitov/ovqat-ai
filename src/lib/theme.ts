@@ -1,18 +1,9 @@
 // Theme management for Dark/Light mode support
-// Supports system preferences and parent app theme settings
+// Automatically follows system preferences
 
 export type Theme = 'light' | 'dark';
-type ThemeSource = 'system' | 'native' | 'user';
 
 const THEME_QUERY_PARAM = 'theme';
-
-// Current theme source (who controls theme updates)
-let currentThemeSource: ThemeSource = 'system';
-
-export const setThemeSource = (source: ThemeSource) => {
-  currentThemeSource = source;
-  document.documentElement.setAttribute('data-theme-source', source);
-};
 
 // Dark theme colors
 const DARK_THEME = {
@@ -114,25 +105,6 @@ export const watchSystemTheme = (callback: (theme: Theme) => void): (() => void)
 };
 
 /**
- * Listen for parent app theme changes via postMessage
- * Parent app should send: { type: 'THEME_CHANGE', theme: 'dark' | 'light' }
- */
-export const listenForParentTheme = (callback: (theme: Theme) => void): (() => void) => {
-  const handleMessage = (event: MessageEvent) => {
-    if (event.data?.type === 'THEME_CHANGE') {
-      const theme = event.data.theme;
-      if (theme === 'dark' || theme === 'light') {
-        callback(theme);
-      }
-    }
-  };
-
-  window.addEventListener('message', handleMessage);
-  
-  return () => window.removeEventListener('message', handleMessage);
-};
-
-/**
  * Initialize theme system
  * Should be called once on app startup
  */
@@ -141,10 +113,7 @@ export const initializeTheme = (): void => {
   applyTheme(theme);
   
   // Watch system theme changes and apply automatically
-  watchSystemTheme((newTheme) => {
-    setThemeSource('system');
-    applyTheme(newTheme);
-  });
+  watchSystemTheme(applyTheme);
 
-  console.log(`🎨 Theme system initialized with theme: ${theme} (following system)`);
+  console.log(`🎨 Theme system initialized: ${theme} (following system)`);
 };

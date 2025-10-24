@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Screen, Meal, DailyGoal, UserProfile } from './types';
 import { HomeScreen } from './components/HomeScreen';
-import { CameraScreen } from './components/CameraScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { LoginScreen } from './components/LoginScreen';
 import { QuestionnaireScreen } from './components/QuestionnaireScreen';
 import { SplashScreen } from './components/SplashScreen';
 import { loadTokens } from './lib/tokens';
-import { initializeTheme, applyTheme } from './src/lib/theme';
+import { initializeTheme } from './src/lib/theme';
 import { navigationManager } from './src/lib/navigationManager';
-import { initializeNativeEvents, nativeEventManager } from './src/lib/nativeEvents';
+import { initializeNativeEvents } from './src/lib/nativeEvents';
 import { questionnaireService } from './src/services/questionnaireService';
 import { authService } from './src/services/authService';
 import { mealsService } from './src/services/mealsService';
@@ -292,10 +291,6 @@ const App = () => {
         setCurrentScreen(Screen.Result);
     };
 
-    const handleCancelCamera = () => {
-        console.log('Camera cancelled, navigating to Home screen');
-        setCurrentScreen(Screen.Home);
-    };
     
     const handleRetake = () => {
         console.log('Retaking photo, opening system camera');
@@ -392,19 +387,6 @@ const App = () => {
         }
     };
 
-    const handleBackPress = () => {
-        const canGoBack = navigationManager.pop();
-        
-        if (canGoBack) {
-            // Navigate to previous screen based on stack
-            const previousScreen = navigationManager.getCurrentScreen();
-            setCurrentScreen(previousScreen);
-        } else {
-            // No previous screen - WebView will be closed by native app
-            console.log('No previous screen - WebView closing');
-        }
-    };
-
     // Handle questionnaire completion
     const handleQuestionnaireComplete = async () => {
         console.log('Questionnaire completed, loading user goals...');
@@ -453,8 +435,6 @@ const App = () => {
                     return <SplashScreen />;
                 }
                 return <HomeScreen meals={meals} dailyGoal={dailyGoal} mealsLoading={mealsLoading} appReady={!mealsLoading && !!user} onOpenCamera={handleOpenCamera} onMealClick={handleMealClick} />;
-            case Screen.Camera:
-                return <CameraScreen onPhotoTaken={handlePhotoTaken} onCancel={handleCancelCamera} />;
             case Screen.Result:
                 // If viewing an existing meal, show it in view-only mode
                 if (viewingMeal) {
