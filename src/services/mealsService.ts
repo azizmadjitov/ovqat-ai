@@ -45,12 +45,21 @@ export const mealsService = {
   async loadMeals(userId: string): Promise<{ success: boolean; meals?: Meal[]; error?: string }> {
     try {
       // Calculate date range: today and 3 days back (for calendar strip -3 to 0)
+      // Use local date to avoid timezone issues
       const today = new Date();
       const fourDaysAgo = new Date(today);
       fourDaysAgo.setDate(today.getDate() - 3);
 
-      const startDate = fourDaysAgo.toISOString().split('T')[0];
-      const endDate = today.toISOString().split('T')[0];
+      // Format dates in local timezone
+      const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = formatLocalDate(fourDaysAgo);
+      const endDate = formatLocalDate(today);
 
       console.log(`📅 Loading meals from ${startDate} to ${endDate}`);
 

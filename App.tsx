@@ -198,7 +198,7 @@ const App = () => {
                         const cachedMeals = JSON.parse(cachedMealsStr);
                         console.log('⚡ Using cached meals for instant display:', cachedMeals.length, 'meals');
                         setMeals(cachedMeals);
-                        setMealsLoading(false); // Show cached meals immediately
+                        // Don't set mealsLoading to false yet - wait for fresh data from database
                     }
                 } catch (e) {
                     console.warn('Failed to load cached data:', e);

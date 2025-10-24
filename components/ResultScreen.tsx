@@ -218,10 +218,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         if (!onConfirm || !imageDataUrl) return;
         
         const now = new Date();
+        // Use local date to avoid timezone issues
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const localDate = `${year}-${month}-${day}`;
+        
         const newMeal: Meal = {
             id: now.toISOString(),
             time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-            date: now.toISOString().split('T')[0], // YYYY-MM-DD format
+            date: localDate, // YYYY-MM-DD format in local timezone
             imageUrl: imageDataUrl,
             name: nutritionData.title,
             description: nutritionData.description, // Save description
