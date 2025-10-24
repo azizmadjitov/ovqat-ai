@@ -237,7 +237,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
     return (
         <div className="min-h-screen bg-bg-base text-label-primary flex flex-col">
-            <main className="flex-1 flex flex-col px-4 pt-5 pb-8 overflow-y-auto">
+            <main className="flex-1 flex flex-col px-4 pt-5 pb-24 overflow-y-auto">
                 <section className="flex items-center gap-x-4 mb-5">
                     <img 
                         id="food-image" 
@@ -363,34 +363,36 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
                 </section>
                 
-                {!isViewMode && nutritionData.isFood && (
-                    <div className="mt-auto pt-5 flex justify-center">
-                        <button
-                            onClick={handleConfirm}
-                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50"
-                            style={{ 
-                                background: 'linear-gradient(103deg, #DFF2FF -23.02%, #FFC3FC 16.83%, #FF7F6E 61.18%, #FF6921 85.92%)',
-                                transition: 'transform 150ms ease-out' 
-                            }}
-                        >
-                            <SparklesIcon className="w-6 h-6 text-[var(--static-white)]" />
-                            <span className="text-label-lg text-[var(--static-white)]">{t('done')}</span>
-                        </button>
-                    </div>
-                )}
-                
-                {!isViewMode && !nutritionData.isFood && (
-                    <div className="mt-auto pt-5 flex justify-center">
-                        <button
-                            onClick={onRetake}
-                            className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] transform active:scale-95 focus:outline-none"
-                            style={{ transition: 'transform 150ms ease-out' }}
-                        >
-                            <span className="text-label-lg text-label-primary">{t('retake')}</span>
-                        </button>
-                    </div>
-                )}
             </main>
+            
+            {/* Fixed FAB Button - только для режима добавления блюда */}
+            {!isViewMode && nutritionData.isFood && (
+                <div className="fab-container">
+                    <button
+                        onClick={handleConfirm}
+                        className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 shadow-1 transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FF6921]/50"
+                        style={{ 
+                            background: 'linear-gradient(103deg, #DFF2FF -23.02%, #FFC3FC 16.83%, #FF7F6E 61.18%, #FF6921 85.92%)',
+                            transition: 'transform 150ms ease-out' 
+                        }}
+                    >
+                        <SparklesIcon className="w-6 h-6 text-[var(--static-white)]" />
+                        <span className="text-label-lg text-[var(--static-white)]">{t('done')}</span>
+                    </button>
+                </div>
+            )}
+            
+            {!isViewMode && !nutritionData.isFood && (
+                <div className="fab-container">
+                    <button
+                        onClick={onRetake}
+                        className="h-14 px-8 rounded-full flex items-center justify-center gap-x-2 bg-[var(--bg-elevation)] border border-[var(--stroke-non-opaque)] shadow-1 transform active:scale-95 focus:outline-none"
+                        style={{ transition: 'transform 150ms ease-out' }}
+                    >
+                        <span className="text-label-lg text-label-primary">{t('retake')}</span>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
