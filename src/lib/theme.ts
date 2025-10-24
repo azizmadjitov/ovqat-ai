@@ -109,11 +109,8 @@ export const watchSystemTheme = (callback: (theme: Theme) => void): (() => void)
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   
   const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-    if (currentThemeSource === 'native') {
-      // Native app controls theme; ignore system changes
-      return;
-    }
     const theme = (('matches' in e ? e.matches : (e as MediaQueryList).matches)) ? 'dark' : 'light';
+    console.log(`🎨 System theme changed to: ${theme}`);
     callback(theme);
   };
 
@@ -154,17 +151,12 @@ export const listenForParentTheme = (callback: (theme: Theme) => void): (() => v
 export const initializeTheme = (): void => {
   const theme = getCurrentTheme();
   applyTheme(theme);
-  // Always watch system theme; internal guard will ignore if native controls
+  
+  // Watch system theme changes and apply automatically
   watchSystemTheme((newTheme) => {
     setThemeSource('system');
     applyTheme(newTheme);
   });
 
-  // Listen for parent app theme changes
-  listenForParentTheme((newTheme) => {
-    setThemeSource('native');
-    applyTheme(newTheme);
-  });
-
-  console.log(`🎨 Theme system initialized with theme: ${theme}`);
+  console.log(`🎨 Theme system initialized with theme: ${theme} (following system)`);
 };

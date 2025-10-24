@@ -21,46 +21,15 @@ const App = () => {
     const [appInitialized, setAppInitialized] = useState(false);
 
     useEffect(() => {
-        // Initialize native event listeners first so we can receive theme immediately
+        // Initialize native event listeners
         initializeNativeEvents();
-        // Ask parent app to send current theme right away (native should respond with THEME_CHANGE)
-        try {
-            nativeEventManager.sendToNative({ type: 'REQUEST_THEME' });
-        } catch (e) {
-            console.warn('Could not request theme from native immediately:', e);
-        }
         
-        // Initialize theme system (will also subscribe to parent theme changes)
+        // Initialize theme system (automatically follows system theme)
         initializeTheme();
-        
-        // Listen for theme changes from native app
-        const unsubscribeTheme = nativeEventManager.on('THEME_CHANGE', (data) => {
-            console.log('🎨 Theme changed from native app:', data.theme);
-            applyTheme(data.theme);
-        });
-        
-        // Request theme when app becomes visible again (user returns from parent app)
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                console.log('🔄 App became visible, requesting current theme from native');
-                try {
-                    nativeEventManager.sendToNative({ type: 'REQUEST_THEME' });
-                } catch (e) {
-                    console.warn('Could not request theme on visibility change:', e);
-                }
-            }
-        };
-        
-        document.addEventListener('visibilitychange', handleVisibilityChange);
         
         loadTokens().then(() => {
             setTokensLoaded(true);
         });
-        
-        return () => {
-            unsubscribeTheme();
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
     }, []);
 
     // Authentication state
