@@ -4,7 +4,6 @@
 export type Theme = 'light' | 'dark';
 type ThemeSource = 'system' | 'native' | 'user';
 
-const THEME_STORAGE_KEY = 'ovqat-theme';
 const THEME_QUERY_PARAM = 'theme';
 
 // Current theme source (who controls theme updates)
@@ -46,10 +45,8 @@ const LIGHT_THEME = {
 /**
  * Get the current theme from multiple sources (in order of priority):
  * 1. URL query parameter (?theme=dark or ?theme=light)
- * 2. Parent app message (via postMessage)
- * 3. System preference (prefers-color-scheme)
- * 4. localStorage
- * 5. Default to 'light'
+ * 2. System preference (prefers-color-scheme) - always up to date
+ * 3. Default to 'light'
  */
 export const getCurrentTheme = (): Theme => {
   // 1. Check URL query parameter
@@ -59,18 +56,12 @@ export const getCurrentTheme = (): Theme => {
     return themeParam;
   }
 
-  // 2. Check localStorage
-  const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-  if (storedTheme === 'dark' || storedTheme === 'light') {
-    return storedTheme;
-  }
-
-  // 3. Check system preference
+  // 2. Check system preference (always prioritize current system theme)
   if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark';
   }
 
-  // 4. Default to light
+  // 3. Default to light
   return 'light';
 };
 
@@ -85,9 +76,6 @@ export const applyTheme = (theme: Theme): void => {
     document.documentElement.style.setProperty(key, value);
   });
 
-  // Save to localStorage
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
-
   // Add/remove dark class for Tailwind if needed
   if (theme === 'dark') {
     document.documentElement.classList.add('dark');
@@ -95,7 +83,7 @@ export const applyTheme = (theme: Theme): void => {
     document.documentElement.classList.remove('dark');
   }
 
-  console.log(`✅ Theme applied: ${theme}`);
+  console.log(`✅ Theme applied: ${theme} (from system)`);
 };
 
 /**
