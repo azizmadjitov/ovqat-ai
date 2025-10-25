@@ -230,9 +230,13 @@ const App = () => {
                             setMealsLoading(false);
                             console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
                             
-                            // Cache meals in localStorage for faster subsequent loads
+                            // Cache meals metadata only (without images to save space)
                             try {
-                                localStorage.setItem('cachedMeals', JSON.stringify(mealsResult.meals));
+                                const mealsWithoutImages = mealsResult.meals.map(m => ({
+                                    ...m,
+                                    imageUrl: m.imageUrl.substring(0, 50) + '...' // Keep only first 50 chars
+                                }));
+                                localStorage.setItem('cachedMeals', JSON.stringify(mealsWithoutImages));
                             } catch (e) {
                                 console.warn('Failed to cache meals:', e);
                             }
