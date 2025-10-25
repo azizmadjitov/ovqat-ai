@@ -278,16 +278,18 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                             style={{ border: '1px solid var(--stroke-non-opaque)' }}
                         />
                         {/* Weight badge positioned below image */}
-                        <div 
-                            className="absolute left-1/2 flex justify-center"
-                            style={{
-                                bottom: '-10px',
-                                transform: 'translateX(-50%)',
-                                zIndex: 10,
-                            }}
-                        >
-                            <WeightBadge weight="≈380 г." />
-                        </div>
+                        {nutritionData.portion?.mass_g?.value && (
+                            <div 
+                                className="absolute left-1/2 flex justify-center"
+                                style={{
+                                    bottom: '-10px',
+                                    transform: 'translateX(-50%)',
+                                    zIndex: 10,
+                                }}
+                            >
+                                <WeightBadge weight={`≈${Math.round(nutritionData.portion.mass_g.value)} ${lang === 'ru' ? 'г.' : lang === 'uz' ? 'g.' : 'g.'}`} />
+                            </div>
+                        )}
                     </div>
                     {nutritionData.description && nutritionData.isFood && (
                         <div className="bg-[var(--bg-fill)] p-3 rounded-xl">

@@ -12,6 +12,24 @@ export type NutritionResult = {
   fiber_g: number;
   healthScore_10: number;
   isFood: boolean; // Whether the image contains food
+  portion?: {
+    mass_g: {
+      value: number;
+      low: number;
+      high: number;
+      confidence: number;
+    };
+    method: string;
+    scaleRef?: {
+      type: string;
+      plate_diameter_cm: number | null;
+      confidence: number;
+    };
+    density_used?: {
+      class: string;
+      g_per_ml: number;
+    };
+  } | null;
 };
 
 /**

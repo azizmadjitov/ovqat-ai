@@ -40,57 +40,88 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw new Error('OpenAI API key not configured');
     }
 
-    // Prepare the vision prompt for nutritionist analysis
-    const visionPrompt = `You are a professional nutritionist and dietitian analyzing a food photograph.
+    // Master Vision Prompt for Food Detection, Portion Estimation and Nutrition Analysis
+    const visionPrompt = `You are a professional food detector, nutritionist, and dietitian analyzing a food photograph.
 
-**CRITICAL INSTRUCTION: Respond in ${languageName} language.**
+**CRITICAL INSTRUCTION: Respond ONLY in ${languageName} language.**
+**CRITICAL OUTPUT: STRICT JSON, no prose outside JSON.**
 
-**CRITICAL FIRST STEP: Is this actually food?**
+STEP 1 — Food detection:
+- If NO FOOD visible (landscapes, people, animals, menus, packaging, logos, ads, drawings, empty plates, utensils only) → return:
+{
+  "isFood": false,
+  "overallConfidence": 0,
+  "items": [],
+  "portion": null,
+  "nutrition": null,
+  "healthScore": 0,
+  "description": "No food visible",
+  "language": "${languageName}"
+}
 
-Before any analysis, answer: "Is there any food visible in this image?"
+STEP 2 — If FOOD visible → continue.
 
-- If you see NO FOOD (landscapes, people, objects, animals, etc.) → Return: {"title": "No food detected", "confidence": 0, "description": "No food visible in image", "nutrition": {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0}, "healthScore": 0}
-- If you see FOOD → Continue with full analysis below
+**Context:**
+- Focus on Uzbek, CIS, and Central Asian cuisines (Plov, Lagman, Manti, Shashlik, Samsa, Shurpa, Mastava, etc.)
+- Also recognize international dishes
+- Always prefer local dish names when possible
 
-**Important context:**
-- Primary focus: Uzbek, CIS, and Central Asian cuisines
-- Common dishes: Plov, Lagman, Manti, Shashlik, Samsa, Shurpa, Mastava, etc.
-- Also recognize dishes from other world cuisines
-
-**Your nutritional analysis:**
-As a professional dietitian, calculate:
-- Total calories
-- Protein (grams)
-- Carbohydrates (grams)
-- Fats (grams)
-- Fiber (grams)
-- Overall health score (0-10 scale)
+**MANDATORY JSON STRUCTURE:**
+{
+  "isFood": true,
+  "overallConfidence": 0.0–1.0,
+  "items": [
+    {
+      "title": "Dish/component name in ${languageName}",
+      "bbox": [x,y,w,h],
+      "confidence": 0.0–1.0
+    }
+  ],
+  "portion": {
+    "mass_g": {
+      "value": number,      // e.g. 380
+      "low": number,
+      "high": number,
+      "confidence": 0.0–1.0
+    },
+    "method": "plate_area_estimate|container_ref|heuristic|db_typical",
+    "scaleRef": {"type":"plate|bowl|cup|fork|hand|unknown", "plate_diameter_cm": number|null, "confidence": 0.0–1.0},
+    "density_used": {"class":"leafy_salad|cooked_rice|stew|grilled_meat|bread", "g_per_ml": number}
+  },
+  "nutrition": {            // FOR portion.mass_g.value
+    "calories": number,
+    "protein_g": number,
+    "carbs_g": number,
+    "fat_g": number,
+    "fiber_g": number
+  },
+  "healthScore": int(0–10),
+  "description": "≤100 chars, ${languageName}, key ingredients + method",
+  "assumptions": ["short notes: oil, sauces, plate size, density"],
+  "followUpQuestions": ["if confidence <0.75, add 1–3 clarifying questions"],
+  "language": "${languageName}"
+}
 
 **Health score criteria:**
-- 8-10: Very healthy (high protein, vegetables, balanced, minimal processing)
-- 5-7: Moderately healthy (balanced but may have some concerns)
-- 0-4: Less healthy (high in calories, fats, or heavily processed)
+- 8–10: Very healthy (vegetables, lean protein, balanced, minimal processing)
+- 5–7: Moderately healthy
+- 0–4: Less healthy (high fat, calorie-dense, heavily processed)
 
-**Description requirements:**
-- Keep description brief: maximum 90-100 characters
-- Include only key ingredients and cooking method
-- Be concise and informative
-- Write in ${languageName} language
+**RULES:**
+- Portion.mass_g is REQUIRED → used for UI badge under the food photo
+- If uncertainty: provide ranges and confidence
+- No impossible precision; round reasonably
+- Always keep description ≤100 chars
+- JSON only, no extra text
 
-Return your analysis as JSON (title and description must be in ${languageName}):
-{
-  "title": "Dish name or description",
-  "confidence": 0.95,
-  "description": "Brief description max 100 chars",
-  "nutrition": {
-    "calories": 520,
-    "protein_g": 28,
-    "carbs_g": 45,
-    "fat_g": 22,
-    "fiber_g": 6
-  },
-  "healthScore": 7
-}`;
+**ACCURACY RULES:**
+- If overallConfidence < 0.70 → set isFood=false (no guessing).
+- If portion.mass_g.confidence < 0.65 → do NOT output nutrition; instead add followUpQuestions and return minimal JSON with portion estimate only.
+- Try to detect a scale reference for better accuracy
+- For multiple items, focus on the **dominant** item
+- Sanity checks:
+  - Reject mass < 20 g or > 1200 g for a single plated portion unless explicit container_ref.
+  - Reject calories > 2000 kcal for a single plated portion.`;
 
     // Call OpenAI Vision API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -151,11 +182,14 @@ Return your analysis as JSON (title and description must be in ${languageName}):
     }
 
     // Check if food was detected
-    const isFood = parsed.title !== 'No food detected' && parsed.confidence > 0;
+    const isFood = parsed.isFood !== false && (parsed.overallConfidence || parsed.confidence || 0) > 0;
+    
+    // Extract main item title (from items array or fallback to old format)
+    const mainTitle = parsed.items?.[0]?.title || parsed.title || 'Unknown Meal';
     
     // Convert to our format
     const nutritionResult = {
-      title: parsed.title || 'Unknown Meal',
+      title: mainTitle,
       description: parsed.description || '',
       takenAtISO: new Date().toISOString(),
       calories: parsed.nutrition?.calories || 0,
@@ -165,6 +199,7 @@ Return your analysis as JSON (title and description must be in ${languageName}):
       fiber_g: parsed.nutrition?.fiber_g || 0,
       healthScore_10: parsed.healthScore || 0,
       isFood: isFood,
+      portion: parsed.portion || null, // Add portion data
     };
 
     return res.status(200).json(nutritionResult);
