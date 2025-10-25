@@ -46,6 +46,24 @@ const SparklesIcon: React.FC<{ className?: string }> = ({ className }) => (
     </svg>
 );
 
+const WeightBadge: React.FC<{ weight: string }> = ({ weight }) => (
+    <div 
+        className="text-label-sm flex items-center justify-center"
+        style={{
+            color: 'var(--static-white)',
+            backgroundColor: 'var(--colors-orange)',
+            borderRadius: '9999px', // Fully rounded pill
+            paddingLeft: '6px',
+            paddingRight: '6px',
+            paddingTop: '2px',
+            paddingBottom: '2px',
+            whiteSpace: 'nowrap',
+        }}
+    >
+        {weight}
+    </div>
+);
+
 // --- Main Component ---
 
 interface ResultScreenProps {
@@ -251,13 +269,26 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}
             >
                 <section className="flex items-center gap-x-4 mb-5">
-                    <img 
-                        id="food-image" 
-                        src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} 
-                        alt={nutritionData.title} 
-                        className="w-[8.125rem] h-[8.125rem] rounded-full object-cover flex-shrink-0" 
-                        style={{ border: '1px solid var(--stroke-non-opaque)' }}
-                    />
+                    <div className="relative flex-shrink-0">
+                        <img 
+                            id="food-image" 
+                            src={isViewMode ? existingMeal?.imageUrl : imageDataUrl} 
+                            alt={nutritionData.title} 
+                            className="w-[8.125rem] h-[8.125rem] rounded-full object-cover" 
+                            style={{ border: '1px solid var(--stroke-non-opaque)' }}
+                        />
+                        {/* Weight badge positioned below image */}
+                        <div 
+                            className="absolute left-1/2 flex justify-center"
+                            style={{
+                                bottom: '-10px',
+                                transform: 'translateX(-50%)',
+                                zIndex: 10,
+                            }}
+                        >
+                            <WeightBadge weight="≈380 г." />
+                        </div>
+                    </div>
                     {nutritionData.description && nutritionData.isFood && (
                         <div className="bg-[var(--bg-fill)] p-3 rounded-xl">
                             <p className="description-text text-label-sm text-label-primary line-clamp-3">
