@@ -86,6 +86,7 @@ const App = () => {
                 
                 if (error) {
                     console.error('❌ Token auth failed:', error);
+                    // Continue to check existing session instead of getting stuck
                 } else if (userData) {
                     console.log('✅ Token auth successful');
                     setIsAuthenticated(true);
