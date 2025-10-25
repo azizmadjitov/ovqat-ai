@@ -235,24 +235,49 @@ webView.evaluateJavaScript("window.history.back()")
 
 ## 🚀 Deployment
 
-### Frontend (Vercel)
+**⚠️ ВАЖНО: Не пушить напрямую в `main`!**
+
+Все коммиты в `main` автоматически деплоятся в продакшн. Используйте правильный workflow:
+
 ```bash
-npm run build
-vercel --prod
+# Разработка
+git checkout develop
+git checkout -b feature/my-feature
+# ... работа ...
+git push origin feature/my-feature
+# → Создать PR в develop
+
+# Тестирование
+# develop → автодеплой на staging.ovqat-ai.vercel.app
+
+# Продакшн
+git checkout main
+git merge staging
+git push origin main
+# → автодеплой на ovqat-ai.vercel.app
 ```
 
-**Environment variables:**
-- `VITE_BACKEND_URL` - JWT auth API
-- `VITE_SUPABASE_URL` - Database URL
-- `VITE_SUPABASE_SERVICE_ROLE_KEY` - DB access key
+**📖 Подробнее:** См. [DEPLOYMENT.md](DEPLOYMENT.md) и [.github/BRANCH_STRATEGY.md](.github/BRANCH_STRATEGY.md)
+
+### Environments
+
+| Environment | Branch | URL | Purpose |
+|-------------|--------|-----|---------|
+| Production | `main` | ovqat-ai.vercel.app | Для пользователей |
+| Staging | `staging` | staging.ovqat-ai.vercel.app | Финальное тестирование |
+| Development | `develop` | dev.ovqat-ai.vercel.app | Активная разработка |
+
+### Environment Variables
+
+**Production:**
+- `VITE_SUPABASE_URL` - Production Supabase URL
+- `VITE_SUPABASE_ANON_KEY` - Production anon key
 - `VITE_AI_API_URL` - AI analysis endpoint
 
-### Backend (Railway/Render)
-```bash
-cd server
-# Deploy to Railway or Render
-# Set PORT, JWT_SECRET, DATABASE_URL
-```
+**Staging:**
+- `VITE_SUPABASE_URL` - Staging Supabase URL
+- `VITE_SUPABASE_ANON_KEY` - Staging anon key
+- `VITE_AI_API_URL` - AI analysis endpoint
 
 ## 🐛 Common Issues
 
