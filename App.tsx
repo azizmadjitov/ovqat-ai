@@ -98,8 +98,10 @@ const App = () => {
                     };
 
                     if (userData.questionnaire_completed) {
+                        navigationManager.replace(Screen.Home);
                         setCurrentScreen(Screen.Home);
                     } else {
+                        navigationManager.replace(Screen.Questionnaire);
                         setCurrentScreen(Screen.Questionnaire);
                     }
                     setAppInitialized(true);
@@ -149,9 +151,11 @@ const App = () => {
                                 console.warn('Failed to cache goals:', e);
                             }
                         }
+                        navigationManager.replace(Screen.Home);
                         setCurrentScreen(Screen.Home);
                     } else {
                         // User needs to complete onboarding
+                        navigationManager.replace(Screen.Questionnaire);
                         setCurrentScreen(Screen.Questionnaire);
                     }
                 } else {
@@ -430,6 +434,7 @@ const App = () => {
             console.error('❌ No user found in state');
         }
         
+        navigationManager.replace(Screen.Home);
         setCurrentScreen(Screen.Home);
     };
 
