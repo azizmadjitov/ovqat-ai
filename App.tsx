@@ -180,29 +180,21 @@ const App = () => {
             if (isAuthenticated && user) {
                 // Clear old cache format (for migration)
                 const cacheVersion = localStorage.getItem('cacheVersion');
-                if (cacheVersion !== '2') {
+                if (cacheVersion !== '3') {
                     localStorage.removeItem('cachedDailyGoal');
                     localStorage.removeItem('cachedMeals');
-                    localStorage.setItem('cacheVersion', '2');
-                    console.log('🔄 Cache cleared for version update');
+                    localStorage.setItem('cacheVersion', '3');
+                    console.log('🔄 Cache cleared for version update (v3: no meals cache)');
                 }
                 
-                // Try to load cached data immediately for faster initial render
+                // Try to load cached goals only (skip meals cache due to size issues)
                 try {
                     const cachedGoalsStr = localStorage.getItem('cachedDailyGoal');
-                    const cachedMealsStr = localStorage.getItem('cachedMeals');
                     
                     if (cachedGoalsStr) {
                         const cachedGoals = JSON.parse(cachedGoalsStr);
                         console.log('⚡ Using cached goals for instant display');
                         setDailyGoal(cachedGoals);
-                    }
-                    
-                    if (cachedMealsStr) {
-                        const cachedMeals = JSON.parse(cachedMealsStr);
-                        console.log('⚡ Using cached meals for instant display:', cachedMeals.length, 'meals');
-                        setMeals(cachedMeals);
-                        // Don't set mealsLoading to false yet - wait for fresh data from database
                     }
                 } catch (e) {
                     console.warn('Failed to load cached data:', e);
@@ -224,22 +216,11 @@ const App = () => {
                         const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
                         console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
 
-                        // Set meals and cache them
+                        // Set meals (no caching due to large image data)
                         if (mealsResult.success && mealsResult.meals) {
                             setMeals(mealsResult.meals);
                             setMealsLoading(false);
                             console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
-                            
-                            // Cache meals metadata only (without images to save space)
-                            try {
-                                const mealsWithoutImages = mealsResult.meals.map(m => ({
-                                    ...m,
-                                    imageUrl: m.imageUrl.substring(0, 50) + '...' // Keep only first 50 chars
-                                }));
-                                localStorage.setItem('cachedMeals', JSON.stringify(mealsWithoutImages));
-                            } catch (e) {
-                                console.warn('Failed to cache meals:', e);
-                            }
                         } else {
                             console.error('Failed to load meals:', mealsResult.error);
                             setMealsLoading(false);
