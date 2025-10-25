@@ -86,7 +86,6 @@ const App = () => {
                 
                 if (error) {
                     console.error('❌ Token auth failed:', error);
-                    // Continue to check existing session instead of getting stuck
                 } else if (userData) {
                     console.log('✅ Token auth successful');
                     setIsAuthenticated(true);
@@ -99,6 +98,25 @@ const App = () => {
                     };
 
                     if (userData.questionnaire_completed) {
+                        // Load goals for authenticated user
+                        const goalsResult = await questionnaireService.getUserGoals(userData.id);
+                        if (goalsResult.goals) {
+                            const goals = {
+                                calories: goalsResult.goals.goal_calories,
+                                macros: {
+                                    protein: goalsResult.goals.goal_protein_g,
+                                    fat: goalsResult.goals.goal_fat_g,
+                                    carbs: goalsResult.goals.goal_carbs_g,
+                                },
+                            };
+                            setDailyGoal(goals);
+                            // Cache goals for faster subsequent loads
+                            try {
+                                localStorage.setItem('cachedDailyGoal', JSON.stringify(goals));
+                            } catch (e) {
+                                console.warn('Failed to cache goals:', e);
+                            }
+                        }
                         navigationManager.replace(Screen.Home);
                         setCurrentScreen(Screen.Home);
                     } else {
