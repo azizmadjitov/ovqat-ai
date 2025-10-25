@@ -1,19 +1,19 @@
 const translations = {
   en: {
-    // App
+    'app_name': 'Ovqat AI',
+    'app_subtitle': 'Your AI nutrition assistant',
+    'calories_left': 'Calories left',
+    'calories': 'calories',
     'gram': 'g',
-    
-    // Home Screen
+    'kcal_left': 'kcal left',
     'protein': 'Protein',
+    'protein_left': 'Protein left',
     'carbs': 'Carbs',
+    'carbs_left': 'Carbs left',
     'fat': 'Fat',
+    'fat_left': 'Fat left',
     'todays_meals': "Today's Meals",
-    'no_meals_yet': 'No meals logged yet.',
-    'add_first_meal_prompt': 'Tap the camera to add your first meal!',
-    'loading_history': 'Loading history...',
-    'loading': 'Loading...',
-    
-    // Days of week (short) - used in CalendarStrip
+    // Days of week (short)
     'day_mon': 'Mon',
     'day_tue': 'Tue',
     'day_wed': 'Wed',
@@ -21,8 +21,7 @@ const translations = {
     'day_fri': 'Fri',
     'day_sat': 'Sat',
     'day_sun': 'Sun',
-    
-    // Days of week (full) - used in ResultScreen
+    // Days of week (full)
     'day_full_mon': 'Monday',
     'day_full_tue': 'Tuesday',
     'day_full_wed': 'Wednesday',
@@ -30,35 +29,30 @@ const translations = {
     'day_full_fri': 'Friday',
     'day_full_sat': 'Saturday',
     'day_full_sun': 'Sunday',
-    
-    // Result Screen
-    'try_again': 'Try Again',
-    'serving_amount': 'Serving amount',
-    'calories_label': 'Calories',
-    'benefit': 'Health score',
-    'protein_label': 'Protein',
-    'carbs_label': 'Carbs',
-    'fat_label': 'Fat',
-    'fiber': 'Fiber',
-    'done': 'Done',
+    'no_meals_yet': 'No meals logged yet.',
+    'add_first_meal_prompt': 'Tap the camera to add your first meal!',
+    'loading_history': 'Loading history...',
+    'meal_details': 'Meal Details',
     'retake': 'Retake',
     'remove': 'Remove',
-    
-    // Loading spinner messages
-    'analyzing_food': 'Analyzing food...',
-    'analyzing_ingredients': 'Analyzing ingredients...',
-    'calculating_calories': 'Calculating calories...',
-    'determining_macros': 'Determining macros...',
-    'assessing_health': 'Assessing health...',
-    'preparing_results': 'Preparing results...',
-    
+    'add_meal': 'Add Meal',
     // Auth
+    'welcome_back': 'Welcome back',
+    'login_subtitle': 'Enter your phone number to continue',
     'phone_number': 'What\'s your number?',
     'phone_placeholder': '🇺🇿 +998 91 234 56 78',
     'continue': 'Continue',
-    'sending': 'Sending...',
+    'verify_code': 'Verify code',
+    'verify_subtitle': 'We sent a code to',
+    'enter_code': 'Enter verification code',
+    'code_placeholder': '000000',
+    'verify': 'Verify',
+    'resend_code': 'Resend code',
+    'didnt_receive': "Didn't receive a code?",
     'invalid_phone': 'Please enter a valid phone number',
-    
+    'invalid_code': 'Please enter a valid 6-digit code',
+    'sending': 'Sending...',
+    'verifying': 'Verifying...',
     // Questionnaire
     'q_gender_title': 'What\'s your gender?',
     'q_gender_male': 'Male',
@@ -92,22 +86,45 @@ const translations = {
     'q_diet_vegetarian': 'Vegetarian',
     'q_diet_vegan': 'Vegan',
     'complete': 'Complete',
+    // Result Screen
+    'analyzing_meal': 'Analyzing your meal...',
+    'try_again': 'Try Again',
+    'unable_analyze': 'Unable to analyze meal data.',
+    'serving_amount': 'Serving amount',
+    'health_score': 'Health score',
+    'fiber': 'Fiber',
+    'meal': 'Meal',
+    'calories_label': 'Calories',
+    'protein_label': 'Protein',
+    'carbs_label': 'Carbs',
+    'fat_label': 'Fat',
+    'done': 'Done',
+    'benefit': 'Health score',
+    'loading': 'Loading...',
+    'initializing': 'Initializing...',
+    // Loading spinner messages
+    'analyzing_food': 'Analyzing food...',
+    'analyzing_ingredients': 'Analyzing ingredients...',
+    'calculating_calories': 'Calculating calories...',
+    'determining_macros': 'Determining macros...',
+    'assessing_health': 'Assessing health...',
+    'preparing_results': 'Preparing results...',
   },
   ru: {
-    // App
+    'app_name': 'Ovqat AI',
+    'app_subtitle': 'Ваш ИИ-помощник по питанию',
+    'calories_left': 'Калорий осталось',
+    'calories': 'калорий',
     'gram': 'г',
-    
-    // Home Screen
+    'kcal_left': 'ккал осталось',
     'protein': 'Белки',
+    'protein_left': 'Белки',
     'carbs': 'Углеводы',
+    'carbs_left': 'Углеводы',
     'fat': 'Жиры',
+    'fat_left': 'Жиры',
     'todays_meals': 'Последние действия',
-    'no_meals_yet': 'Еще нет приемов пищи.',
-    'add_first_meal_prompt': 'Нажмите на камеру, чтобы добавить первую еду!',
-    'loading_history': 'Загружаю историю...',
-    'loading': 'Загрузка...',
-    
-    // Days of week (short) - used in CalendarStrip
+    // Days of week (short)
     'day_mon': 'пн',
     'day_tue': 'вт',
     'day_wed': 'ср',
@@ -115,8 +132,7 @@ const translations = {
     'day_fri': 'пт',
     'day_sat': 'сб',
     'day_sun': 'вс',
-    
-    // Days of week (full) - used in ResultScreen
+    // Days of week (full)
     'day_full_mon': 'Понедельник',
     'day_full_tue': 'Вторник',
     'day_full_wed': 'Среда',
@@ -124,35 +140,30 @@ const translations = {
     'day_full_fri': 'Пятница',
     'day_full_sat': 'Суббота',
     'day_full_sun': 'Воскресенье',
-    
-    // Result Screen
-    'try_again': 'Попробовать снова',
-    'serving_amount': 'Количество порций',
-    'calories_label': 'Калории',
-    'benefit': 'Польза',
-    'protein_label': 'Белки',
-    'carbs_label': 'Углеводы',
-    'fat_label': 'Жиры',
-    'fiber': 'Клетчатка',
-    'done': 'Готово',
+    'no_meals_yet': 'Еще нет приемов пищи.',
+    'add_first_meal_prompt': 'Нажмите на камеру, чтобы добавить первую еду!',
+    'loading_history': 'Загружаю историю...',
+    'meal_details': 'Детали приема пищи',
     'retake': 'Переснять',
     'remove': 'Удалить',
-    
-    // Loading spinner messages
-    'analyzing_food': 'Определяю еду...',
-    'analyzing_ingredients': 'Анализирую ингредиенты...',
-    'calculating_calories': 'Высчитываю калории...',
-    'determining_macros': 'Определяю макросы...',
-    'assessing_health': 'Оцениваю здоровье...',
-    'preparing_results': 'Готовлю результаты...',
-    
+    'add_meal': 'Добавить',
     // Auth
+    'welcome_back': 'С возвращением',
+    'login_subtitle': 'Введите номер телефона для продолжения',
     'phone_number': 'Номер телефона',
     'phone_placeholder': '+7 123 456 7890',
     'continue': 'Продолжить',
-    'sending': 'Отправка...',
+    'verify_code': 'Проверка кода',
+    'verify_subtitle': 'Мы отправили код на номер',
+    'enter_code': 'Введите код подтверждения',
+    'code_placeholder': '000000',
+    'verify': 'Подтвердить',
+    'resend_code': 'Отправить код повторно',
+    'didnt_receive': 'Не получили код?',
     'invalid_phone': 'Введите корректный номер телефона',
-    
+    'invalid_code': 'Введите корректный 6-значный код',
+    'sending': 'Отправка...',
+    'verifying': 'Проверка...',
     // Questionnaire
     'q_gender_title': 'Какой у вас пол?',
     'q_gender_male': 'Мужской',
@@ -186,22 +197,45 @@ const translations = {
     'q_diet_vegetarian': 'Вегетарианская',
     'q_diet_vegan': 'Веганская',
     'complete': 'Завершить',
+    // Result Screen
+    'analyzing_meal': 'Анализирую ваш прием пищи...',
+    'try_again': 'Попробовать снова',
+    'unable_analyze': 'Не удалось проанализировать данные приема пищи.',
+    'serving_amount': 'Количество порций',
+    'health_score': 'Оценка здоровья',
+    'fiber': 'Клетчатка',
+    'meal': 'Прием пищи',
+    'calories_label': 'Калории',
+    'protein_label': 'Белки',
+    'carbs_label': 'Углеводы',
+    'fat_label': 'Жиры',
+    'done': 'Готово',
+    'benefit': 'Польза',
+    'loading': 'Загрузка...',
+    'initializing': 'Инициализация...',
+    // Loading spinner messages
+    'analyzing_food': 'Определяю еду...',
+    'analyzing_ingredients': 'Анализирую ингредиенты...',
+    'calculating_calories': 'Высчитываю калории...',
+    'determining_macros': 'Определяю макросы...',
+    'assessing_health': 'Оцениваю здоровье...',
+    'preparing_results': 'Готовлю результаты...',
   },
   uz: {
-    // App
+    'app_name': 'Ovqat AI',
+    'app_subtitle': 'Sizning sun\'iy intellektli oziqlanish yordamchingiz',
+    'calories_left': 'Kaloriya qoldi',
+    'calories': 'kaloriya',
     'gram': 'g',
-    
-    // Home Screen
+    'kcal_left': 'kkal qoldi',
     'protein': 'Oqsillar',
+    'protein_left': 'Oqsillar',
     'carbs': 'Uglevodlar',
+    'carbs_left': 'Uglevodlar',
     'fat': 'Yog\'lar',
+    'fat_left': 'Yog\'lar',
     'todays_meals': 'Bugungi ovqatlar',
-    'no_meals_yet': 'Hali ovqatlar qayd etilmagan.',
-    'add_first_meal_prompt': 'Birinchi taomni qo\'shish uchun kamerani bosing!',
-    'loading_history': 'Tarixni yuklamoqda...',
-    'loading': 'Yuklanmoqda...',
-    
-    // Days of week (short) - used in CalendarStrip
+    // Days of week (short)
     'day_mon': 'du',
     'day_tue': 'se',
     'day_wed': 'ch',
@@ -209,8 +243,7 @@ const translations = {
     'day_fri': 'ju',
     'day_sat': 'sh',
     'day_sun': 'ya',
-    
-    // Days of week (full) - used in ResultScreen
+    // Days of week (full)
     'day_full_mon': 'Dushanba',
     'day_full_tue': 'Seshanba',
     'day_full_wed': 'Chorshanba',
@@ -218,35 +251,30 @@ const translations = {
     'day_full_fri': 'Juma',
     'day_full_sat': 'Shanba',
     'day_full_sun': 'Yakshanba',
-    
-    // Result Screen
-    'try_again': 'Qayta urinish',
-    'serving_amount': 'Porsiya miqdori',
-    'calories_label': 'Kaloriya',
-    'benefit': 'Foyda',
-    'protein_label': 'Oqsil',
-    'carbs_label': 'Uglevodlar',
-    'fat_label': 'Yog\'lar',
-    'fiber': 'Tolali moddalar',
-    'done': 'Tayyor',
+    'no_meals_yet': 'Hali ovqatlar qayd etilmagan.',
+    'add_first_meal_prompt': 'Birinchi taomni qo\'shish uchun kamerani bosing!',
+    'loading_history': 'Tarixni yuklamoqda...',
+    'meal_details': 'Taom tafsilotlari',
     'retake': 'Qayta olish',
     'remove': 'O\'chirish',
-    
-    // Loading spinner messages
-    'analyzing_food': 'Taom tahlil qilinmoqda...',
-    'analyzing_ingredients': 'Ingredientlar tahlil qilinmoqda...',
-    'calculating_calories': 'Kaloriyalar hisoblanmoqda...',
-    'determining_macros': 'Makroslar aniqlanmoqda...',
-    'assessing_health': 'Sog\'liq balanlanmoqda...',
-    'preparing_results': 'Natijalar tayyorlanmoqda...',
-    
+    'add_meal': 'Taom qo\'shish',
     // Auth
+    'welcome_back': 'Xush kelibsiz',
+    'login_subtitle': 'Davom etish uchun telefon raqamingizni kiriting',
     'phone_number': 'Telefon raqami',
     'phone_placeholder': '+998 90 123 45 67',
     'continue': 'Davom etish',
-    'sending': 'Yuborilmoqda...',
+    'verify_code': 'Kodni tasdiqlash',
+    'verify_subtitle': 'Biz kodini yubordik',
+    'enter_code': 'Tasdiqlash kodini kiriting',
+    'code_placeholder': '000000',
+    'verify': 'Tasdiqlash',
+    'resend_code': 'Kodni qayta yuborish',
+    'didnt_receive': 'Kod kelmadimi?',
     'invalid_phone': 'Iltimos, to\'g\'ri telefon raqamini kiriting',
-    
+    'invalid_code': 'Iltimos, to\'g\'ri 6 raqamli kodni kiriting',
+    'sending': 'Yuborilmoqda...',
+    'verifying': 'Tekshirilmoqda...',
     // Questionnaire
     'q_gender_title': 'Jinsingiz nima?',
     'q_gender_male': 'Erkak',
@@ -280,6 +308,28 @@ const translations = {
     'q_diet_vegetarian': 'Vegetarian',
     'q_diet_vegan': 'Vegan',
     'complete': 'Tugatish',
+    // Result Screen
+    'analyzing_meal': 'Taomingiz tahlil qilinmoqda...',
+    'try_again': 'Qayta urinish',
+    'unable_analyze': 'Taom ma\'lumotlarini tahlil qilib bo\'lmadi.',
+    'serving_amount': 'Porsiya miqdori',
+    'health_score': 'Sog\'liq bali',
+    'fiber': 'Tolali moddalar',
+    'meal': 'Taom',
+    'calories_label': 'Kaloriya',
+    'protein_label': 'Oqsil',
+    'carbs_label': 'Uglevodlar',
+    'fat_label': 'Yog\'lar',
+    'done': 'Tayyor',
+    'benefit': 'Foyda',
+    'initializing': 'Ishga tushirilmoqda...',
+    // Loading spinner messages
+    'analyzing_food': 'Taom tahlil qilinmoqda...',
+    'analyzing_ingredients': 'Ingredientlar tahlil qilinmoqda...',
+    'calculating_calories': 'Kaloriyalar hisoblanmoqda...',
+    'determining_macros': 'Makroslar aniqlanmoqda...',
+    'assessing_health': 'Sog\'liq balanlanmoqda...',
+    'preparing_results': 'Natijalar tayyorlanmoqda...',
   },
 };
 
