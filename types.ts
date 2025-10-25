@@ -24,6 +24,15 @@ export interface Meal {
   description?: string; // Optional for backward compatibility
   healthScore?: number; // Health score out of 10
   language?: 'en' | 'ru' | 'uz'; // Language when meal was added
+  portion?: {
+    mass_g: {
+      value: number;
+      low: number;
+      high: number;
+      confidence: number;
+    };
+    method?: string;
+  } | null; // Portion estimation from AI
 }
 
 export interface DailyGoal {

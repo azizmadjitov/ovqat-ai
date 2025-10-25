@@ -24,6 +24,7 @@ export const mealsService = {
           fiber_g: meal.macros.fiber,
           health_score: meal.healthScore,
           language: meal.language || 'en',
+          portion_data: meal.portion ? JSON.stringify(meal.portion) : null,
         });
 
       if (error) {
@@ -78,23 +79,35 @@ export const mealsService = {
       }
 
       // Transform database records to Meal objects
-      const meals: Meal[] = (data || []).map((record: any) => ({
-        id: record.meal_id,
-        date: record.date,
-        time: record.time,
-        name: record.name,
-        description: record.description,
-        imageUrl: record.image_url,
-        calories: record.calories,
-        macros: {
-          protein: record.protein_g,
-          carbs: record.carbs_g,
-          fat: record.fat_g,
-          fiber: record.fiber_g,
-        },
-        healthScore: record.health_score,
-        language: record.language || 'en',
-      }));
+      const meals: Meal[] = (data || []).map((record: any) => {
+        let portion = null;
+        if (record.portion_data) {
+          try {
+            portion = JSON.parse(record.portion_data);
+          } catch (e) {
+            console.warn('Failed to parse portion_data:', e);
+          }
+        }
+        
+        return {
+          id: record.meal_id,
+          date: record.date,
+          time: record.time,
+          name: record.name,
+          description: record.description,
+          imageUrl: record.image_url,
+          calories: record.calories,
+          macros: {
+            protein: record.protein_g,
+            carbs: record.carbs_g,
+            fat: record.fat_g,
+            fiber: record.fiber_g,
+          },
+          healthScore: record.health_score,
+          language: record.language || 'en',
+          portion: portion,
+        };
+      });
 
       return { success: true, meals };
     } catch (error) {
