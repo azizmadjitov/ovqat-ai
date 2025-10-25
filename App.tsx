@@ -86,9 +86,6 @@ const App = () => {
                 
                 if (error) {
                     console.error('❌ Token auth failed:', error);
-                    // Show login screen on token error
-                    setAppInitialized(true);
-                    return;
                 } else if (userData) {
                     console.log('✅ Token auth successful');
                     setIsAuthenticated(true);
@@ -183,58 +180,63 @@ const App = () => {
             if (isAuthenticated && user) {
                 // Clear old cache format (for migration)
                 const cacheVersion = localStorage.getItem('cacheVersion');
-                if (cacheVersion !== '3') {
+                if (cacheVersion !== '2') {
                     localStorage.removeItem('cachedDailyGoal');
                     localStorage.removeItem('cachedMeals');
-                    localStorage.setItem('cacheVersion', '3');
-                    console.log('🔄 Cache cleared for version update (v3: no meals cache)');
+                    localStorage.setItem('cacheVersion', '2');
+                    console.log('🔄 Cache cleared for version update');
                 }
                 
-                // Try to load cached goals only (skip meals cache due to size issues)
+                // Try to load cached data immediately for faster initial render
                 try {
                     const cachedGoalsStr = localStorage.getItem('cachedDailyGoal');
+                    const cachedMealsStr = localStorage.getItem('cachedMeals');
                     
                     if (cachedGoalsStr) {
                         const cachedGoals = JSON.parse(cachedGoalsStr);
                         console.log('⚡ Using cached goals for instant display');
                         setDailyGoal(cachedGoals);
                     }
+                    
+                    if (cachedMealsStr) {
+                        const cachedMeals = JSON.parse(cachedMealsStr);
+                        console.log('⚡ Using cached meals for instant display:', cachedMeals.length, 'meals');
+                        setMeals(cachedMeals);
+                        // Don't set mealsLoading to false yet - wait for fresh data from database
+                    }
                 } catch (e) {
                     console.warn('Failed to load cached data:', e);
                 }
 
-                // Load meals in background (non-blocking) with timeout
+                // Load meals in background (non-blocking)
                 const dataLoadStart = performance.now();
                 console.log('⏱️ [PERF] Starting meals load for user.id:', user.id);
                 
-                // Add timeout to prevent infinite loading
-                const mealsLoadPromise = mealsService.loadMeals(user.id);
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Meals load timeout')), 10000)
-                );
-                
-                Promise.race([mealsLoadPromise, timeoutPromise])
-                    .then((mealsResult: any) => {
-                        const dataLoadEnd = performance.now();
-                        const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
-                        console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
+                mealsService.loadMeals(user.id).then(mealsResult => {
+                    const dataLoadEnd = performance.now();
+                    const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
+                    console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
 
-                        // Set meals (no caching due to large image data)
-                        if (mealsResult.success && mealsResult.meals) {
-                            setMeals(mealsResult.meals);
-                            setMealsLoading(false);
-                            console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
-                        } else {
-                            console.error('Failed to load meals:', mealsResult.error);
-                            setMealsLoading(false);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading meals:', error);
+                    // Set meals and cache them
+                    if (mealsResult.success && mealsResult.meals) {
+                        setMeals(mealsResult.meals);
                         setMealsLoading(false);
-                        // Continue with empty meals - don't block the app
-                        setMeals([]);
-                    });
+                        console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
+                        
+                        // Cache meals in localStorage for faster subsequent loads
+                        try {
+                            localStorage.setItem('cachedMeals', JSON.stringify(mealsResult.meals));
+                        } catch (e) {
+                            console.warn('Failed to cache meals:', e);
+                        }
+                    } else {
+                        console.error('Failed to load meals:', mealsResult.error);
+                        setMealsLoading(false);
+                    }
+                }).catch(error => {
+                    console.error('Error loading meals:', error);
+                    setMealsLoading(false);
+                });
             }
         };
         loadUserData();
