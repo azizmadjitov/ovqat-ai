@@ -1,12 +1,13 @@
 import { supabase } from '../lib/supabase';
 import { UserProfile } from '../../types';
 
-// Backend URL - use environment variable or default to localhost
-// For Vercel: https://ovqat-ai.vercel.app/api
-// For Railway: https://ovqat-ai-production.up.railway.app
+// Backend URL - use environment variable or detect from current location
+// For Vercel: Use relative path /api (same domain)
 // For localhost: http://localhost:3001
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-const API_BASE = BACKEND_URL.includes('vercel.app') ? `${BACKEND_URL}/api` : BACKEND_URL;
+const isProduction = window.location.hostname !== 'localhost';
+const BACKEND_URL = isProduction 
+  ? window.location.origin  // Use same domain in production (Vercel)
+  : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001');
 
 export const authService = {
   // Authenticate with JWT token from URL parameter
