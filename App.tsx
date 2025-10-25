@@ -86,6 +86,9 @@ const App = () => {
                 
                 if (error) {
                     console.error('❌ Token auth failed:', error);
+                    // Show login screen on token error
+                    setAppInitialized(true);
+                    return;
                 } else if (userData) {
                     console.log('✅ Token auth successful');
                     setIsAuthenticated(true);
