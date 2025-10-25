@@ -208,35 +208,45 @@ const App = () => {
                     console.warn('Failed to load cached data:', e);
                 }
 
-                // Load meals in background (non-blocking)
+                // Load meals in background (non-blocking) with timeout
                 const dataLoadStart = performance.now();
                 console.log('⏱️ [PERF] Starting meals load for user.id:', user.id);
                 
-                mealsService.loadMeals(user.id).then(mealsResult => {
-                    const dataLoadEnd = performance.now();
-                    const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
-                    console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
+                // Add timeout to prevent infinite loading
+                const mealsLoadPromise = mealsService.loadMeals(user.id);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Meals load timeout')), 10000)
+                );
+                
+                Promise.race([mealsLoadPromise, timeoutPromise])
+                    .then((mealsResult: any) => {
+                        const dataLoadEnd = performance.now();
+                        const dataLoadTime = ((dataLoadEnd - dataLoadStart) / 1000).toFixed(2);
+                        console.log(`⏱️ [PERF] Meals loaded in ${dataLoadTime}s`);
 
-                    // Set meals and cache them
-                    if (mealsResult.success && mealsResult.meals) {
-                        setMeals(mealsResult.meals);
-                        setMealsLoading(false);
-                        console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
-                        
-                        // Cache meals in localStorage for faster subsequent loads
-                        try {
-                            localStorage.setItem('cachedMeals', JSON.stringify(mealsResult.meals));
-                        } catch (e) {
-                            console.warn('Failed to cache meals:', e);
+                        // Set meals and cache them
+                        if (mealsResult.success && mealsResult.meals) {
+                            setMeals(mealsResult.meals);
+                            setMealsLoading(false);
+                            console.log('✅ Loaded', mealsResult.meals.length, 'meals from database');
+                            
+                            // Cache meals in localStorage for faster subsequent loads
+                            try {
+                                localStorage.setItem('cachedMeals', JSON.stringify(mealsResult.meals));
+                            } catch (e) {
+                                console.warn('Failed to cache meals:', e);
+                            }
+                        } else {
+                            console.error('Failed to load meals:', mealsResult.error);
+                            setMealsLoading(false);
                         }
-                    } else {
-                        console.error('Failed to load meals:', mealsResult.error);
+                    })
+                    .catch(error => {
+                        console.error('Error loading meals:', error);
                         setMealsLoading(false);
-                    }
-                }).catch(error => {
-                    console.error('Error loading meals:', error);
-                    setMealsLoading(false);
-                });
+                        // Continue with empty meals - don't block the app
+                        setMeals([]);
+                    });
             }
         };
         loadUserData();
